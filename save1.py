@@ -36,7 +36,7 @@ class NeuralCBPside():
 
     def __init__(self, game, d, alpha, lbd, hidden):
 
-        self.name = 'neuralcbpside'
+        self.name = 'NeuralCBPsidev1'
 
         self.game = game
         self.d = d
@@ -68,10 +68,6 @@ class NeuralCBPside():
             self.contexts.append( {'features':[], 'labels':[], 'weights': func, 'V_it_inv': np.identity(self.d) } )
 
         self.lbd = lbd
-        # self.total_param = sum(p.numel() for p in self.func.parameters() if p.requires_grad)
-        # self.U = self.lbd * torch.ones((self.total_param,)).cuda()
-        # self.zeta = 1
-        self.Zt = np.identity() 
 
     def set_nlabels(self, nlabels):
         self.d = nlabels
@@ -131,16 +127,6 @@ class NeuralCBPside():
                 
                 q.append( pred.cpu().detach().numpy().T )
 
-
-            # for i in range(self.N):
-            #     pred =  self.contexts[i]['weights']( torch.from_numpy(X.T).float().cuda() ) 
-            #     q.append( pred.cpu().detach().numpy().T )
-            #     factor = self.d * (  np.sqrt( (self.d+1) * np.log(t)  ) + len(self.SignalMatrices[i]) )
-            #     width = X.T @ self.contexts[i]['V_it_inv'] @ X 
-            #     formule = factor * width
-            #     w.append( formule )
-
-            # print(w)
             for pair in self.mathcal_N:
                 tdelta = np.zeros( (1,) )
                 c = 0
@@ -283,4 +269,3 @@ class NeuralCBPside():
             self.memory_neighbors[code ] =result
  
         return result
-

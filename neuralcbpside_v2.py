@@ -32,11 +32,11 @@ def convert_list(A):
     B.append(sub_array)
     return B
 
-class NeuralCBPside2():
+class NeuralCBPside():
 
     def __init__(self, game, d, alpha, lbd, hidden):
 
-        self.name = 'neuralcbpside'
+        self.name = 'NeuralCBPsidev3'
 
         self.game = game
         self.d = d
@@ -56,6 +56,7 @@ class NeuralCBPside2():
         self.memory_pareto = {}
         self.memory_neighbors = {}
         self.hidden = hidden
+        self.m = hidden
 
         self.lbd = lbd
         self.alpha = alpha
@@ -66,10 +67,11 @@ class NeuralCBPside2():
             output_dim = len( set(self.game.FeedbackMatrix[i]) )
             func = Network( output_dim, self.d, hidden_size=self.hidden).cuda()
             total_params = sum(p.numel() for p in func.parameters() if p.requires_grad)
-            self.functionnal.append( {'features':[], 'labels':[], 'V_it_inv': np.identity(self.d),
-                                      'weights': func, 'm':total_params,'Z':self.lbd * torch.ones(total_params).cuda() } )
-
-
+            self.functionnal.append( {'features':[], 'labels':[], 
+                                      'V_it_inv': np.identity(self.d),
+                                      'weights': func, 
+                                      'p': total_params,
+                                      'Z_it_inv':self.lbd * torch.eye(total_params).cuda() } )
     def set_nlabels(self, nlabels):
         self.d = nlabels
 
@@ -93,9 +95,11 @@ class NeuralCBPside2():
             output_dim = len( set(self.game.FeedbackMatrix[i]) )
             func = Network( output_dim, self.d, hidden_size=self.hidden).cuda()
             total_params = sum(p.numel() for p in func.parameters() if p.requires_grad)
-            self.functionnal.append( {'features':[], 'labels':[], 'V_it_inv': np.identity(self.d),
-                                      'weights': func, 'm':self.hidden,'Z_it_inv':self.lbd * torch.eye(total_params).cuda() } )
-
+            self.functionnal.append( {'features':[], 'labels':[], 
+                                      'V_it_inv': np.identity(self.d),
+                                      'weights': func, 
+                                      'p': total_params,
+                                      'Z_it_inv':self.lbd * torch.eye(total_params).cuda() } )
     def get_action(self, t, X):
 
         if t < self.N: # jouer chaque action une fois au debut du jeu
@@ -123,25 +127,19 @@ class NeuralCBPside2():
                 else: # gradient with respect to each element in the predicted vector
 
                     output_dim = len( set(self.game.FeedbackMatrix[i]) )
-
-                    for i in range(output_dim):
-                        self.functionnal[i]['weights'].zero_grad()
-                        pred[i].backward( retain_graph = True )
-                        g = torch.cat( [ p.grad.flatten().detach() for p in self.functionnal[i]['weights'].parameters() ] )
-                        gradients.append( g )
-
-                    # Stack the gradients into a tensor
-                    gradients = torch.stack(gradients, dim=0)
-                    g = torch.mean(gradients, 0)
+                    sum = torch.sum(pred)
+                    self.functionnal[i]['weights'].zero_grad()
+                    sum.backward( retain_graph = True )
+                    g = torch.cat( [ p.grad.flatten().detach() for p in self.functionnal[i]['weights'].parameters() ] )
                     self.g_list.append(g)
 
-                width2 = (g.T @ self.functionnal[i]['Z_it_inv'] @ g) / self.functionnal[i]['m']
-                width = torch.sqrt(torch.sum(width2))
+                width2 = (g.T @ self.functionnal[i]['Z_it_inv'] @ g) / self.m
+                width = torch.sqrt( width2 )
                 
-                m = self.functionnal[i]['m']
-                factor = m * (  np.sqrt( (m+1) * np.log(t) ) + len(self.SignalMatrices[i]) ) #self.confidence_multiplier
+                sigma_i = len(self.SignalMatrices[i])
+                factor = sigma_i * (  np.sqrt(  self.functionnal[i]['p'] * np.log(t) + 2 * np.log(1/t**2)   ) + np.sqrt(self.lbd) * sigma_i )
                 formule = factor * width
-
+                print('factor', factor, 'width', width)
                 w.append( formule.cpu().detach().numpy() )
                 q.append( pred.cpu().detach().numpy().T )
 
@@ -186,6 +184,7 @@ class NeuralCBPside2():
     
             union1= np.union1d(  P_t, Nplus_t )
             union1 = np.array(union1, dtype=int)
+            print('union1', union1)
 
             S =  np.union1d(  union1  , R_t )
             S = np.array( S, dtype = int)

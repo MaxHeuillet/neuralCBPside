@@ -52,7 +52,7 @@ class CBPside():
             for k in self.V[ pair[0] ][ pair[1] ]:
                 # print('pair ', pair, 'v ', v[ pair[0] ][ pair[1] ], 'V ', V[ pair[0] ][ pair[1] ] )
                 vec = self.v[ pair[0] ][ pair[1] ][k]
-                W[k] = np.max( [ W[k], np.linalg.norm(vec ) ] )
+                W[k] = np.max( [ W[k], np.linalg.norm(vec , np.inf) ] )
         return W
 
     def reset(self,):
@@ -84,15 +84,21 @@ class CBPside():
                 
                 q.append( self.contexts[i]['weights'] @ X  )
 
-                factor = self.d * (  np.sqrt( (self.d+1) * np.log(t)   ) + len(self.SignalMatrices[i]) )
+                # factor = self.d * (  np.sqrt(  self.d * np.log(t) + 2 * np.log(1/t**2)   ) + len(self.SignalMatrices[i]) )
+                # factor = self.d * (  np.sqrt(  (self.d+1) * np.log(t)  ) + len(self.SignalMatrices[i]) )
+                # factor = 1
+                # factor =  sigma_i * (  np.sqrt(  (self.d+1) * np.log(t)  ) +  sigma_i )
+                sigma_i = len(self.SignalMatrices[i])
+                factor = sigma_i * (  np.sqrt(  self.d * np.log(t) + 2 * np.log(1/t**2)   ) + np.sqrt(self.lbd) * sigma_i )
                 width = np.sqrt( X.T @ self.contexts[i]['V_it_inv'] @ X )
                 formule = factor * width
+                print('factor', factor, 'width', width)
                 # b = X.T @ np.linalg.inv( self.lbd * np.identity(D) + X_it @ X_it.T  ) @ X 
                 #print('action {}, first component {}, second component, {}'.format(i, a, b  ) )
                 #print('Xit', X_it.shape  )
                 w.append( formule )
             # print()    
-            # print( 'q   ', q )
+            print( 'estimate', q )
             # print('conf   ', w )
 
             for pair in self.mathcal_N:
@@ -107,7 +113,7 @@ class CBPside():
                     # print( 'pair ', pair, 'action ', k, 'proba ', self.nu[k]  / self.n[k]  )
                     # print('k', k, 'pair ', pair, 'v ', self.v[ pair[0] ][ pair[1] ][k].T.shape , 'q[k] ', q[k].shape  )
                     tdelta += self.v[ pair[0] ][ pair[1] ][k].T @ q[k]
-                    c += np.linalg.norm( self.v[ pair[0] ][ pair[1] ][k] ) * w[k] #* np.sqrt( (self.d+1) * np.log(t) ) * self.d
+                    c += np.linalg.norm( self.v[ pair[0] ][ pair[1] ][k], np.inf ) * w[k] #* np.sqrt( (self.d+1) * np.log(t) ) * self.d
                 print('pair', pair, 'tdelta', tdelta, 'confidence', c)
                 # print('pair', pair,  'tdelta', tdelta, 'c', c, 'sign', np.sign(tdelta)  )
                 # print('sign', np.sign(tdelta) )
@@ -153,28 +159,17 @@ class CBPside():
             values = { i:self.W[i]*w[i] for i in S}
             # print('value', values)
             action = max(values, key=values.get)
-            # print('P_t',P_t,'N_t', N_t,'Nplus_t',Nplus_t,'V_t',V_t, 'R_t',R_t, 'S',S,'values', values, 'action', action)
-            # print('n', self.n,'nu', self.nu)
+            # print('S',S, 'values', values, 'action', action)
+            # 'P_t',P_t,'N_t', N_t,'Nplus_t',Nplus_t,'V_t',V_t, 'R_t',R_t,  print('n', self.n,'nu', self.nu)
             # print()
 
         return action
 
     def update(self, action, feedback, outcome, t, X):
 
-        self.n[action] += 1
         e_y = np.zeros( (self.M, 1) )
-        e_y[outcome] = 1
+        e_y[outcome] = 1 
         Y_t =  self.game.SignalMatrices[action] @ e_y 
-
-        # print('Yt', Y_t)
-        # sigma_i = len( np.unique(self.game.FeedbackMatrix[action] ) )
-        # print('sigma_i',sigma_i)
-        # Y_t = np.zeros( sigma_i )
-        # Y_t[ self.feedback_idx(feedback) ] = 1
-        #print('Y_t', Y_t)
-        #Y_t =  e_y.copy()  #self.game.SignalMatrices[action] @
-        
-        # print('e_y', e_y)
 
         self.contexts[action]['labels'].append( Y_t )
         self.contexts[action]['features'].append( X )
@@ -194,7 +189,7 @@ class CBPside():
 
         # print(X_it.shape)
         
-        # print(Y_it.shape)
+        print('Yit shape',Y_it.shape)
         
         V_it_inv = self.contexts[action]['V_it_inv']
         self.contexts[action]['V_it_inv'] = V_it_inv - ( V_it_inv @ X @ X.T @ V_it_inv ) / ( 1 + X.T @ V_it_inv @ X ) 
@@ -203,9 +198,7 @@ class CBPside():
         # print( 'weigts', weights )
         # print()
         # print('action', action, 'Y_t', Y_t, 'shape', Y_t.shape, 'nu[action]', self.nu[action], 'shape', self.nu[action].shape)
-        # self.nu[action] += Y_t
 
-        
 
     def halfspace_code(self, halfspace):
         string = ''
@@ -246,25 +239,3 @@ class CBPside():
             self.memory_neighbors[code ] =result
  
         return result
-
-    def feedback_idx(self, feedback):
-        idx = None
-        if self.N ==2:
-            if feedback == 0:
-                idx = 0
-            elif feedback == 1:
-                idx = 1
-        elif self.N == 3:
-            if feedback == 1:
-                idx = 0
-            elif feedback == 0.5:
-                idx = 1
-            elif feedback == 0.25:
-                idx = 2
-        else:
-            if feedback == 1:
-                idx = 0
-            elif feedback == 2:
-                idx = 1
-        return idx
-

@@ -30,11 +30,11 @@ def convert_list(A):
     B.append(sub_array)
     return B
 
-class NeuralCBPside2():
+class NeuralCBPside():
 
     def __init__(self, game, d, alpha, lbd, hidden):
 
-        self.name = 'neuralcbpside'
+        self.name = 'NeuralCBPsidev2'
 
         self.game = game
         self.d = d
@@ -53,7 +53,7 @@ class NeuralCBPside2():
 
         self.memory_pareto = {}
         self.memory_neighbors = {}
-        self.hidden = hidden
+        self.m = hidden
 
         self.lbd = lbd
         self.alpha = alpha
@@ -62,10 +62,16 @@ class NeuralCBPside2():
         self.functionnal = []
         for i in range(self.N):
             output_dim = len( set(self.game.FeedbackMatrix[i]) )
-            func = Network( output_dim, self.d, hidden_size=self.hidden).cuda()
+            func = Network( output_dim, self.d, hidden_size=self.m).cuda()
             total_params = sum(p.numel() for p in func.parameters() if p.requires_grad)
-            self.functionnal.append( {'features':[], 'labels':[], 'V_it_inv': np.identity(self.d),
-                                      'weights': func, 'm':total_params,'Z':self.lbd * torch.ones(total_params).cuda() } )
+            self.functionnal.append( {'features':[], 'labels':[], 
+                                      'V_it_inv': np.identity(self.d),
+                                      'weights': func, 
+                                      'p': total_params,
+                                      'd_init':np.random.normal(0, 0.01, total_params).reshape(-1, 1),
+                                      'detZt': self.lbd**total_params,
+                                      'Z_it':self.lbd * torch.eye(total_params).cuda(),
+                                      'Z_it_inv':self.lbd * torch.eye(total_params).cuda() } )
 
 
     def set_nlabels(self, nlabels):
@@ -76,7 +82,7 @@ class NeuralCBPside2():
         for pair in self.mathcal_N:
             for k in self.V[ pair[0] ][ pair[1] ]:
                 vec = self.v[ pair[0] ][ pair[1] ][k]
-                W[k] = np.max( [ W[k], np.linalg.norm(vec ) ] )
+                W[k] = np.max( [ W[k], np.linalg.norm(vec, np.inf ) ] )
         return W
 
     def reset(self,):
@@ -89,10 +95,78 @@ class NeuralCBPside2():
         self.functionnal = []
         for i in range(self.N):
             output_dim = len( set(self.game.FeedbackMatrix[i]) )
-            func = Network( output_dim, self.d, hidden_size=self.hidden).cuda()
+            func = Network( output_dim, self.d, hidden_size=self.m).cuda()
             total_params = sum(p.numel() for p in func.parameters() if p.requires_grad)
-            self.functionnal.append( {'features':[], 'labels':[], 'V_it_inv': np.identity(self.d),
-                                      'weights': func, 'm':self.hidden,'Z_it_inv':self.lbd * torch.eye(total_params).cuda() } )
+            self.functionnal.append( {'features':[], 'labels':[], 
+                                      'V_it_inv': np.identity(self.d),
+                                      'weights': func, 
+                                      'p': total_params,
+                                      'd_init':np.random.normal(0, 0.01, total_params).reshape(-1, 1),
+                                      'detZt': self.lbd**total_params,
+                                      'Z_it':self.lbd * torch.eye(total_params).cuda(),
+                                      'Z_it_inv':self.lbd * torch.eye(total_params).cuda() } )
+            
+    def update_detZt(self, i, g):
+
+        p = self.functionnal[i]['p']
+        Z_it = self.functionnal[i]['Z_it'].detach().cpu().numpy()
+        d = self.functionnal[i]['d_init']
+        eta = 0.1
+        threshold = 1e-6  # Adjust this threshold as per your requirements
+        decay_rate = 0.99  # Adjust the decay rate as per your requirements
+        max_iterations = 150
+
+        criteria = 0
+
+        gradient_norm = np.linalg.norm(Z_it @ d - g)  # Calculate the initial gradient norm
+        while gradient_norm > threshold and criteria < max_iterations:
+            decayed_eta = eta * decay_rate   # Calculate the decaying learning rate
+            grad = Z_it @ d - g
+            d = d - decayed_eta * Z_it @ (grad)
+            gradient_norm = np.linalg.norm(grad)  # Update the gradient norm
+            criteria += 1
+        print(criteria, gradient_norm, threshold, gradient_norm > threshold)
+
+        if gradient_norm > threshold:
+            d = self.functionnal[i]['d_init']
+        else: 
+            self.functionnal[i]['d_init'] = d
+
+        detZt = (1 + g.T @ d / self.m ) * self.functionnal[i]['detZt']
+        self.functionnal[i]['detZt'] = detZt[0][0]
+        
+        return detZt 
+    
+    def gamma_t(self, i, t, ):
+
+        m = self.m 
+        L = 2
+        lbd = self.lbd
+        delta = 1/t**2
+        J = t
+        p = self.functionnal[i]['p']
+        det_Zt = self.functionnal[i]['detZt'] 
+        print('det_Zt',det_Zt)
+        eta = 0.1
+        nu = 1
+        S = 1
+
+        C1 = 0
+        C2 = 0
+        C3 = 0
+        
+        sqrt_log_m = np.sqrt( np.log( m ) )
+
+        A = np.sqrt( 1 + C1 * m**(-1/6) * sqrt_log_m * L**4 * t**(7/6) * lbd**(-7/6) )
+        inside_sqrt = np.log( det_Zt / lbd**p ) + C2 * m**(-1/6) * sqrt_log_m * L**4 * t**(5/3) * lbd**(-1/6) - 2 * np.log( delta )
+        print('inside_sqrt', inside_sqrt)
+        B = nu * np.sqrt( inside_sqrt ) + np.sqrt(lbd) * S
+        C = (1 - eta * m * lbd)**J * np.sqrt( t/lbd ) + m**(-1/6) * sqrt_log_m *  L**(7/2) * t**(5/3) * lbd**(-5/3) * ( 1 + np.sqrt(t/lbd) )
+        C = C3 * C
+        print(A,B,C)
+        gamma_t = A * B +C
+
+        return gamma_t
 
     def get_action(self, t, X):
 
@@ -116,7 +190,7 @@ class NeuralCBPside2():
                     
                     pred.backward()
                     g = torch.cat([p.grad.flatten().detach() for p in self.functionnal[i]['weights'].parameters()])
-                    print('action 1', g.shape)
+                    g = torch.unsqueeze( g , 1)
                     self.g_list.append(g)
 
                 else: # random pseudo-target
@@ -127,22 +201,25 @@ class NeuralCBPside2():
                     loss = nn.MSELoss()(pred, pseudo_target)
                     loss.backward()
 
-                    g = torch.cat([p.grad.flatten().detach() for p in self.functionnal[i]['weights'].parameters()])
-                    g_buffer.append(g)
+                    g_proxy = torch.cat([p.grad.flatten().detach() for p in self.functionnal[i]['weights'].parameters()])
+                    g_buffer.append(g_proxy)
                     g = torch.stack(g_buffer).mean(dim=0)
-                    print('action 2', g.shape)
+                    g = torch.unsqueeze( g , 1) 
                     self.g_list.append(g)
                 
-                # print(g.shape)
-                # print(self.functionnal[i]['Z_it_inv'].shape)
-                width2 = (g.T @ self.functionnal[i]['Z_it_inv'] @ g) / self.functionnal[i]['m']
-                width = torch.sqrt(torch.sum(width2))
+                width2 = (g.T @ self.functionnal[i]['Z_it_inv'] @ g) / self.m
+                width = torch.sqrt( width2 )
+                width = width.cpu().detach().numpy()
+
                 
-                m = self.functionnal[i]['m']
-                factor = m * (  np.sqrt( (m+1) * np.log(t) ) + len(self.SignalMatrices[i]) ) #self.confidence_multiplier
+                factor = self.gamma_t(i, t,  )
+
+                # sigma_i = len(self.SignalMatrices[i])
+                # factor = sigma_i * (  np.sqrt(  self.functionnal[i]['p'] * np.log(t) + 2 * np.log(1/t**2)   ) + np.sqrt(self.lbd) * sigma_i )
                 formule = factor * width
 
-                w.append( formule.cpu().detach().numpy() )
+                print('factor',factor, 'width', width )
+                w.append( formule )
                 q.append( pred.cpu().detach().numpy().T )
 
             print('confidence', w)
@@ -154,9 +231,10 @@ class NeuralCBPside2():
 
                 for k in  self.V[ pair[0] ][ pair[1] ]:
                     tdelta += self.v[ pair[0] ][ pair[1] ][k].T @ q[k]
-                    c += np.linalg.norm( self.v[ pair[0] ][ pair[1] ][k] ) * w[k] 
+                    c += np.linalg.norm( self.v[ pair[0] ][ pair[1] ][k], np.inf ) * w[k] 
 
                 tdelta = tdelta[0]
+                c = c[0][0]
                 print('pair', pair, 'tdelta', tdelta, 'confidence', c)
                 if( abs(tdelta) >= c):
                     halfspace.append( ( pair, np.sign(tdelta) ) ) 
@@ -186,6 +264,7 @@ class NeuralCBPside2():
     
             union1= np.union1d(  P_t, Nplus_t )
             union1 = np.array(union1, dtype=int)
+            print('union1', union1)
 
             S =  np.union1d(  union1  , R_t )
             S = np.array( S, dtype = int)
@@ -198,15 +277,18 @@ class NeuralCBPside2():
 
     def update(self, action, feedback, outcome, t, X):
 
-        V_it_inv = self.functionnal[action]['V_it_inv']
-        self.functionnal[action]['V_it_inv'] = V_it_inv - ( V_it_inv @ X @ X.T @ V_it_inv ) / ( 1 + X.T @ V_it_inv @ X ) 
-
         if t >= self.N:
-            z = torch.unsqueeze( self.g_list[action] , 1) 
-            # print(z.shape, z)
+
+            z = self.g_list[action]  
+
+            self.update_detZt(action, z.detach().cpu().numpy(), )
+            
+            Z_it = self.functionnal[action]['Z_it']
+            Z_it += z @ z.T / self.m
+            self.functionnal[action]['Z_it'] = Z_it
+
             Z_it_inv = self.functionnal[action]['Z_it_inv']
             self.functionnal[action]['Z_it_inv'] = Z_it_inv - ( Z_it_inv @ z @ z.T @ Z_it_inv ) / ( 1 + z.T @ Z_it_inv @ z ) 
-
 
         e_y = np.zeros( (self.M, 1) )
         e_y[outcome] = 1
@@ -228,9 +310,8 @@ class NeuralCBPside2():
                 c = self.functionnal[action]['features'][idx]
                 f = self.functionnal[action]['labels'][idx].cuda()
                 pred = self.functionnal[action]['weights']( c.cuda() )
-                # print(c, f, pred)
+                
                 optimizer.zero_grad()
-                # print(c.shape)
                 loss = nn.MSELoss()(pred, f)
                 loss.backward()
                 optimizer.step()

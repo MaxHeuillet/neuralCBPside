@@ -38,7 +38,7 @@ def apple_tasting(  ):
     A = geometry_v3.alphabet_size(FeedbackMatrix_PMDMED,  len(FeedbackMatrix_PMDMED),len(FeedbackMatrix_PMDMED[0]) )
     signal_matrices_Adim =  [ np.array( [ [1,1],[0,0],[0,0] ] ), np.array( [ [0,0],[1,0],[0,1] ] ) ]
 
-    mathcal_N = [ [0, 1], [1, 0] ]
+    mathcal_N = [ [0, 1] ] #, [1, 0] 
 
     v = {0: {1: [np.array([0]), np.array([-1.,  1.])]}, 1: {0: [np.array([0]), np.array([ 1., -1.])]}}
 

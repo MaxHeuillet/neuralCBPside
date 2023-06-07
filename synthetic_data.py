@@ -5,17 +5,95 @@ from numpy.linalg import norm
 # import torch
 import numpy as np
 # from mnist_c import corruptions
+from scipy.stats import truncnorm
 
-class PolynomialContexts:
-    def __init__(self, d, margin):
-        self.d = d #number of features
-        self.margin = margin #np.random.uniform(0,0.5) # decision boundary
-        self.type = 'polynomial'
-        self.d_context = 28
 
+def truncated_gaussian(mean, variance, a, b, size):
+    # Calculate the standard deviation from the variance
+    std_dev = np.sqrt(variance)
+
+    # Calculate the lower and upper bounds for truncation
+    lower_bound = (a - mean) / std_dev
+    upper_bound = (b - mean) / std_dev
+
+    # Generate samples from the truncated normal distribution
+    samples = truncnorm.rvs(lower_bound, upper_bound, loc=mean, scale=std_dev, size=size)
+
+    return np.array(samples)
+
+class LinearContexts:
+    def __init__(self,  w, task):
+        self.d = len(w) # number of features
+        self.w = w
+        self.type = 'linear'
+        self.task = task
+    
     def get_context(self, ):
-        context = np.random.uniform(-1, 1,  self.d )
-        return np.array(context).reshape(2,1)
+
+        if self.task == 'imbalanced':
+            context = truncated_gaussian(0, 0.1, 0, 1, self.d) if np.random.uniform(0,1)<0.5 else truncated_gaussian(1, 0.1, 0, 1, self.d)
+        else:
+            context = truncated_gaussian(0.5, 1, 0, 1, self.d)
+        cont = context.reshape(self.d,1)
+        val = self.w @ cont
+        val = [ val[0], 1-val[0] ]
+        return cont - np.ones((5,1)) * 0.5 , val 
+
+
+class QuadraticContexts:
+    def __init__(self,  w, task):
+        self.d = len(w) # number of features
+        self.w = w
+        self.type = 'quadratic'
+        self.task = task
+    
+    def get_context(self, ):
+
+        if self.task == 'balanced':
+            context = truncated_gaussian(0, 0.05, 0, 1/2, self.d ) if np.random.uniform(0,1)<0.5 else truncated_gaussian(1, 0.05, 0, 1/2, self.d )
+        else:
+            context = truncated_gaussian(0.5, 1, 0, 1/2, self.d )
+            
+        cont = np.array(context).reshape(self.d,1)
+        val = 2 * self.w @ cont**2 + self.w @ cont
+        val = [ val[0], 1-val[0] ]
+        return cont, val 
+    
+
+class SinusoidContexts:
+    def __init__(self,  w, task):
+        self.d = len(w) # number of features
+        self.w = w
+        self.type = 'sinusoid'
+        self.task = task
+    
+    def get_context(self, ):
+
+        if self.task == 'imbalanced':
+            if np.random.uniform(0,1)<0.725:
+                context = truncated_gaussian(np.pi/self.d**2, 0.05, 0, np.pi, self.d) if np.random.uniform(0,1)<0.5 else  truncated_gaussian(0, 0.05, 0, np.pi, self.d)
+            else :
+                context = truncated_gaussian(np.pi/2, self.d * np.pi, 0, np.pi, self.d)
+                
+        else:
+            context = truncated_gaussian(np.pi/6, 0.1, 0, np.pi, self.d) if np.random.uniform(0,1)<0.5 else  truncated_gaussian(5 * np.pi / 6, 0.1, 0, np.pi, self.d)
+        
+        
+        cont = np.array(context).reshape(self.d,1)
+        val = np.sin(w@cont)
+        val = [ val[0], 1-val[0] ]
+        return cont, val 
+
+# class PolynomialContexts:
+#     def __init__(self, d, margin):
+#         self.d = d #number of features
+#         self.margin = margin #np.random.uniform(0,0.5) # decision boundary
+#         self.type = 'polynomial'
+#         self.d_context = 28
+
+#     def get_context(self, ):
+#         context = np.random.uniform(-1, 1,  self.d )
+#         return np.array(context).reshape(2,1)
     
     # while True:
     # x,y = context
@@ -84,48 +162,48 @@ class PolynomialContexts:
     #     elif label == 1:
     #             return self.context_B
 
-class ToyContexts:
+# class ToyContexts:
 
-    def __init__(self, ):
-        self.type = 'toy'
-        self.d_context = 2
+#     def __init__(self, ):
+#         self.type = 'toy'
+#         self.d_context = 2
 
-    def get_context(self, label):
-        while True:
-            context =   np.random.randint(2) # np.random.uniform(0, 1 )
-            if   context >= 0.5 and label == 0:
-                return np.array([1,context]).reshape(2,1) #/ norm(context, 1)
-            elif  context < 0.5 and label == 1:
-                return np.array([1,context-1]).reshape(2,1) #/ norm(context, 1)
+#     def get_context(self, label):
+#         while True:
+#             context =   np.random.randint(2) # np.random.uniform(0, 1 )
+#             if   context >= 0.5 and label == 0:
+#                 return np.array([1,context]).reshape(2,1) #/ norm(context, 1)
+#             elif  context < 0.5 and label == 1:
+#                 return np.array([1,context-1]).reshape(2,1) #/ norm(context, 1)
 
-    def generate_unique_context(self,):
-        self.context_A = []
-        self.context_B = []
-        while  len(self.context_A) == 0 or len(self.context_B) == 0:
-            context =  np.random.randint(2) # np.random.uniform(0, 1) #
-            if context >= 0.5 and len(self.context_A) == 0 :
-                self.context_A = np.array([1,context]).reshape(2,1) #/ norm(context, 1)
-            elif context < 0.5 and len(self.context_B) == 0:
-                self.context_B = np.array([1,context-1]).reshape(2,1) #/ norm(context, 1)
+#     def generate_unique_context(self,):
+#         self.context_A = []
+#         self.context_B = []
+#         while  len(self.context_A) == 0 or len(self.context_B) == 0:
+#             context =  np.random.randint(2) # np.random.uniform(0, 1) #
+#             if context >= 0.5 and len(self.context_A) == 0 :
+#                 self.context_A = np.array([1,context]).reshape(2,1) #/ norm(context, 1)
+#             elif context < 0.5 and len(self.context_B) == 0:
+#                 self.context_B = np.array([1,context-1]).reshape(2,1) #/ norm(context, 1)
 
-    def get_same_context(self, label):
-        if label == 0:
-                return self.context_A
-        elif label == 1:
-                return self.context_B
+#     def get_same_context(self, label):
+#         if label == 0:
+#                 return self.context_A
+#         elif label == 1:
+#                 return self.context_B
         
 
-class OrthogonalContexts:
+# class OrthogonalContexts:
 
-    def __init__(self, d):
-        self.type = 'orthogonal'
-        self.d = d
+#     def __init__(self, d):
+#         self.type = 'orthogonal'
+#         self.d = d
 
-    def get_context(self, label):
-        idx = np.random.randint(self.d)
-        context = np.zeros( (self.d,1) )
-        context[idx] = 1
-        return context
+#     def get_context(self, label):
+#         idx = np.random.randint(self.d)
+#         context = np.zeros( (self.d,1) )
+#         context[idx] = 1
+#         return context
 
 
 
