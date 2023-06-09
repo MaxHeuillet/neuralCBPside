@@ -34,10 +34,11 @@ class LinearContexts:
             context = truncated_gaussian(0, 0.1, 0, 1, self.d) if np.random.uniform(0,1)<0.5 else truncated_gaussian(1, 0.1, 0, 1, self.d)
         else:
             context = truncated_gaussian(0.5, 1, 0, 1, self.d)
-        cont = context.reshape(self.d,1)
-        val = self.w @ cont
-        val = [ val[0], 1-val[0] ]
-        return cont - np.ones((5,1)) * 0.5 , val 
+        # cont = context.reshape(self.d,1)
+        p = self.w @ context
+        val = [ p, 1-p ]
+        # context = context - np.ones(5) * 0.5
+        return context , val 
 
 
 class QuadraticContexts:
