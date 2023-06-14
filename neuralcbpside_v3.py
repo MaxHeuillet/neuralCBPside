@@ -12,7 +12,7 @@ import itertools
 # def get_combinations(A):
 #     identity_matrix = torch.eye(A)
 #     combinations = list(itertools.combinations(identity_matrix, A))[0]
-#     return torch.stack(combinations).cuda()
+#     return torch.stack(combinations).to(self.device)
 
 class Network(nn.Module):
     def __init__(self, output_dim, dim, hidden_size=10):
@@ -45,9 +45,10 @@ class Network(nn.Module):
 
 class NeuralCBPside():
 
-    def __init__(self, game, factor_choice, alpha, lbd, hidden):
+    def __init__(self, game, factor_choice, alpha, lbd, hidden, device):
 
         self.name = 'NeuralCBPsidev3'
+        self.device = device
 
         self.game = game
         
@@ -87,7 +88,7 @@ class NeuralCBPside():
         self.labels = None
         self.functionnal = []
         # output_dim = self.A
-        self.func = Network( 1, self.d * self.A, hidden_size=self.m).cuda()
+        self.func = Network( 1, self.d * self.A, hidden_size=self.m).to(self.device)
         self.p = sum(p.numel() for p in self.func.parameters() if p.requires_grad)
         self.d_init = np.random.normal(0, 0.01, self.p).reshape(-1, 1)
         self.detZt = self.lbd**self.p
@@ -179,7 +180,7 @@ class NeuralCBPside():
                 act_to_idx = np.where(self.game.FeedbackMatrix == feedback)[0][0]
             
                 self.func.zero_grad()
-                pred =  self.func( torch.from_numpy(X[feedback]).float().cuda() )
+                pred =  self.func( torch.from_numpy(X[feedback]).float().to(self.device) )
                 pred.backward() 
                 g = torch.cat([p.grad.flatten().detach() for p in self.func.parameters()])
                 g = torch.unsqueeze(g , 1)
@@ -194,10 +195,11 @@ class NeuralCBPside():
                 width = np.sqrt( width2 )
                 width = width #.cpu().detach().numpy()
 
+                sigma_i = len(self.SignalMatrices[i])
                 if self.factor_choice == '1':
                     factor = 1
                 elif self.factor_choice == 'simplified':
-                    sigma_i = len(self.SignalMatrices[i])
+                    
                     factor = sigma_i * (  np.sqrt(  self.p * np.log(t) + 2 * np.log(1/t**2)   ) + np.sqrt(self.lbd) * sigma_i )
                 else:
                     factor = self.gamma_t(i, t,  )
@@ -297,9 +299,9 @@ class NeuralCBPside():
         while True:
             batch_loss = 0
             for idx in index:
-                c = torch.tensor(self.features[idx]).cuda()
+                c = torch.tensor(self.features[idx]).to(self.device)
                 c = c.to(dtype=expected_dtype)
-                f = torch.tensor(self.labels[idx]).cuda()
+                f = torch.tensor(self.labels[idx]).to(self.device)
                 f = f.float()
                 pred = self.func( c )
                 # print('pred', pred.shape, c.shape, f.shape)

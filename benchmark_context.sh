@@ -1,16 +1,12 @@
 #!/bin/bash
 
 #SBATCH --account=def-adurand
-#SBATCH --gpus-per-node=1
+#SBATCH --gpus-per-node=4
 #SBATCH --mem=400M
 #SBATCH --time=00:25:00
 
 #SBATCH --mail-user=maxime.heuillet.1@ulaval.ca
 #SBATCH --mail-type=ALL
-
-
-echo 'horizon' ${HORIZON} 'nfolds' ${NFOLDS} 'CONTEXT_TYPE' ${CONTEXT_TYPE} 'GAME' ${GAME} 'TASK' ${TASK} 'APR' ${APR} 
-
 
 module --force purge
 module load StdEnv/2020
@@ -24,7 +20,6 @@ deactivate
 source $SLURM_TMPDIR/ENV_nogurobi/bin/activate
 
 echo 'HZ: start python3 ./experiment.py ..at '; date
-
 
 python3 ./benchmark_context.py --horizon ${HORIZON} --n_folds ${NFOLDS} --game ${GAME} --approach ${APR} --task ${TASK} --context_type ${CONTEXT_TYPE} > stdout_$SLURM_JOB_ID 2>stderr_$SLURM_JOB_ID
 

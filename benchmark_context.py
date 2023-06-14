@@ -83,8 +83,6 @@ class Evaluation:
 
     def eval_policy_once(self, alg, game, job):
 
-        
-
         context_generator, jobid = job
 
         alg.reset( context_generator.d )
@@ -115,34 +113,11 @@ class Evaluation:
 
         print('dump {}'.format(jobid))
         result = np.cumsum( cumRegret)
-        with gzip.open( './results/{}/benchmark_{}_{}_{}_{}_{}_{}.pkl.gz'.format(self.game_name, self.task, self.context_type, self.horizon, self.n_folds, self.label, jobid) ,'wb') as f:
-            pkl.dump(result,f)
+        # with gzip.open( './results/{}/benchmark_{}_{}_{}_{}_{}_{}.pkl.gz'.format(self.game_name, self.task, self.context_type, self.horizon, self.n_folds, self.label, jobid) ,'wb') as f:
+        #     pkl.dump(result,f)
 
-        return True
+        return result
 
-def run_experiment(game_name, task, n_folds, horizon, game, algos, labels, context_type):
-
-    for alg, label in zip( algos, labels):
-
-        print(label)
-        evaluator = Evaluation(game_name, '{}'.format(task), n_folds, horizon, game, label, context_type)
-
-        result = evaluate_parallel(evaluator, alg, game)
-        
-        with gzip.open( './results/{}/benchmark_{}_{}_{}_{}_{}.pkl.gz'.format(game_name, task, context_type, horizon, n_folds, label) ,'wb') as g:
-
-            for jobid in range(n_folds):
-
-                with gzip.open(  './results/{}/benchmark_{}_{}_{}_{}_{}_{}.pkl.gz'.format(game_name, task, context_type, horizon, n_folds, label, jobid) ,'rb') as f:
-                    r = pkl.load(f)
-
-                pkl.dump( r, g)
-                
-                bashCommand = 'rm ./results/{}/benchmark_{}_{}_{}_{}_{}_{}.pkl.gz'.format(game_name, task, context_type, horizon, n_folds, label, jobid)
-                process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE)
-                output, error = process.communicate()
-    
-    return True
 
 
 ###################################
@@ -170,14 +145,35 @@ n_folds = int(args.n_folds)
 games = {'AT':games.apple_tasting()} #'LE': games.label_efficient(  ),
 game = games[args.game]
 
+factor_type = args.approach.split('_')
 
-algos_dico = {
-          'neuralcbp_theory':neuralcbpside_v3.NeuralCBPside(game, dim, 'theory', 1.01, 0.05),
-          'neuralcbp_simplified':neuralcbpside_v3.NeuralCBPside(game, dim, 'simplified', 1.01, 0.05),
-          'neuralcbp_1':neuralcbpside_v3.NeuralCBPside(game, dim, '1', 1.01, 0.05)  }
+import torch
+
+num_devices = torch.cuda.device_count()
+print('num devices', num_devices)
+algos = [ neuralcbpside_v3.NeuralCBPside(game, factor_type, 1.01, 0.05, "cuda:{}".format(i) ) for i in range(num_devices)  ]
+
+
+evaluator = Evaluation(args.game, args.task, n_folds, horizon, game, args.approach, args.context_type)
+
+result = evaluate_parallel(evaluator, game)
+        
+with gzip.open( './results/{}/benchmark_{}_{}_{}_{}_{}.pkl.gz'.format(args.game, args.task, args.context_type, horizon, n_folds, args.approach) ,'wb') as g:
+
+    for jobid in range(n_folds):
+
+        pkl.dump( result[jobid], g)
+
+
+#     with gzip.open(  './results/{}/benchmark_{}_{}_{}_{}_{}_{}.pkl.gz'.format(args.game, args.task, args.context_type, horizon, n_folds, args.approach, jobid) ,'rb') as f:
+#         r = pkl.load(f)
+
+# bashCommand = 'rm ./results/{}/benchmark_{}_{}_{}_{}_{}_{}.pkl.gz'.format(args.game, args.task, args.context_type, horizon, n_folds, args.approach, jobid)
+# process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE)
+# output, error = process.communicate()
+
+# algos_dico = {
+#           'neuralcbp_theory':neuralcbpside_v3.NeuralCBPside(game, 'theory', 1.01, 0.05),
+#           'neuralcbp_simplified':neuralcbpside_v3.NeuralCBPside(game, 'simplified', 1.01, 0.05),
+#           'neuralcbp_1':neuralcbpside_v3.NeuralCBPside(game, '1', 1.01, 0.05)  }
 #'CBPside':cbpside.CBPside(game, dim, factor_choice, 1.01, 0.05),
-
-algos = [ algos_dico[ args.approach ] ]
-labels = [  args.approach ] 
-
-run_experiment(args.game, args.task, n_folds, horizon, game, algos, labels, args.context_type)
