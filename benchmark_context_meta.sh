@@ -16,12 +16,12 @@ for context_type in 'linear' #'quintic'
 
                 do
 
-                for alg in 'neuralcbp_simplified' 'neuralcbp_1' #'neuralcbp_theory'
+                for approach in 'neuralcbp_simplified' 'neuralcbp_1' #'neuralcbp_theory'
                     
                     do
-		            echo 'horizon' $horizon 'nfolds' $nfolds 'CONTEXT_TYPE' $context_type 'GAME' $game 'TASK' $task 'ALG' $alg 'VAR' $var
+		            echo 'horizon' $horizon 'nfolds' $nfolds 'CONTEXT_TYPE' $context_type 'GAME' $game 'TASK' $task 'APR' $approach 'VAR' $var
     
-                    sbatch --export=ALL,HORIZON=$horizon,NFOLDS=$nfolds,CONTEXT_TYPE=$context_type,GAME=$game,TASK=$task,ALG=$alg,VAR=$var ./benchmark_context.sh 
+                    sbatch --export=ALL,HORIZON=$horizon,NFOLDS=$nfolds,CONTEXT_TYPE=$context_type,GAME=$game,TASK=$task,APR=$approach,VAR=$var ./benchmark_context.sh 
                     ((var++))
                     done
                 

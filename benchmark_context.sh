@@ -9,7 +9,7 @@
 #SBATCH --mail-type=ALL
 
 
-echo 'horizon' ${HORIZON} 'nfolds' ${NFOLDS} 'CONTEXT_TYPE' ${CONTEXT_TYPE} 'GAME' ${GAME} 'TASK' ${TASK} 'ALG' ${ALG} 
+echo 'horizon' ${HORIZON} 'nfolds' ${NFOLDS} 'CONTEXT_TYPE' ${CONTEXT_TYPE} 'GAME' ${GAME} 'TASK' ${TASK} 'APR' ${APR} 
 
 module --force purge
 
@@ -23,4 +23,4 @@ module load gurobi
 
 source /home/mheuill/projects/def-adurand/mheuill/ENV_nogurobi/bin/activate
 
-python3 ./benchmark_context.py --horizon ${HORIZON} --n_folds ${NFOLDS} --game ${GAME} --alg ${ALG} --task ${TASK} --context_type ${CONTEXT_TYPE} > stdout_$SLURM_JOB_ID 2>stderr_$SLURM_JOB_ID
+python3 ./benchmark_context.py --horizon ${HORIZON} --n_folds ${NFOLDS} --game ${GAME} --approach ${APR} --task ${TASK} --context_type ${CONTEXT_TYPE} > stdout_$SLURM_JOB_ID 2>stderr_$SLURM_JOB_ID
