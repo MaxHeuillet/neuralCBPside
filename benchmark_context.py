@@ -165,7 +165,7 @@ args = parser.parse_args()
 horizon = int(args.horizon)
 n_folds = int(args.n_folds)
 
-games = {'AT':games.apple_tasting(False)} #'LE': games.label_efficient(  ),
+games = {'AT':games.apple_tasting()} #'LE': games.label_efficient(  ),
 game = games[args.game]
 
 dim = 10 
