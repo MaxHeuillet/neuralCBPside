@@ -83,9 +83,11 @@ class Evaluation:
 
     def eval_policy_once(self, alg, game, job):
 
-        alg.reset()
+        
 
         context_generator, jobid = job
+
+        alg.reset( context_generator.d )
 
         np.random.seed(jobid)
              
@@ -168,12 +170,11 @@ n_folds = int(args.n_folds)
 games = {'AT':games.apple_tasting()} #'LE': games.label_efficient(  ),
 game = games[args.game]
 
-dim = 10 
 
 algos_dico = {
-          'neuralcbp_theory':neuralcbpside_v3.NeuralCBPside(game, dim, 'theory', 1.01, 0.05, 10),
-          'neuralcbp_simplified':neuralcbpside_v3.NeuralCBPside(game, dim, 'simplified', 1.01, 0.05, 10),
-          'neuralcbp_1':neuralcbpside_v3.NeuralCBPside(game, dim, '1', 1.01, 0.05, 10)  }
+          'neuralcbp_theory':neuralcbpside_v3.NeuralCBPside(game, dim, 'theory', 1.01, 0.05),
+          'neuralcbp_simplified':neuralcbpside_v3.NeuralCBPside(game, dim, 'simplified', 1.01, 0.05),
+          'neuralcbp_1':neuralcbpside_v3.NeuralCBPside(game, dim, '1', 1.01, 0.05)  }
 #'CBPside':cbpside.CBPside(game, dim, factor_choice, 1.01, 0.05),
 
 algos = [ algos_dico[ args.approach ] ]

@@ -45,12 +45,12 @@ class Network(nn.Module):
 
 class NeuralCBPside():
 
-    def __init__(self, game, d, factor_choice, alpha, lbd, hidden):
+    def __init__(self, game, factor_choice, alpha, lbd, hidden):
 
         self.name = 'NeuralCBPsidev3'
 
         self.game = game
-        self.d = d
+        
         self.N = game.n_actions
         self.M = game.n_outcomes
 
@@ -69,9 +69,6 @@ class NeuralCBPside():
         self.alpha = alpha
         self.factor_choice = factor_choice
 
-    def set_nlabels(self, nlabels):
-        self.d = nlabels
-
     def getConfidenceWidth(self, ):
         W = np.zeros(self.N)
         for pair in self.mathcal_N:
@@ -80,7 +77,8 @@ class NeuralCBPside():
                 W[k] = np.max( [ W[k], np.linalg.norm(vec, np.inf ) ] )
         return W
 
-    def reset(self,):
+    def reset(self, d):
+        self.d = d
         self.memory_pareto = {}
         self.memory_neighbors = {}
 
@@ -95,7 +93,7 @@ class NeuralCBPside():
         self.detZt = self.lbd**self.p
         self.Z_it = self.lbd * np.identity(self.p)
         self.Z_it_inv = self.lbd * np.identity(self.p)
-        self.V_it_inv = np.identity(self.d)
+        # self.V_it_inv = np.identity(self.d)
             
     def update_detZt(self, i, g):
 
