@@ -1,7 +1,6 @@
 import gzip
 import pickle as pkl
 import argparse
-import os
 
 
 parser = argparse.ArgumentParser()
