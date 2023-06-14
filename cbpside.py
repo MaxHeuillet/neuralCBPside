@@ -177,10 +177,6 @@ class CBPside():
         
         Y_it = np.array( self.contexts[action]['labels'] )
         X_it =  np.array( self.contexts[action]['features'] )
-        # print(X_it)
-        # print(X_it.shape)
-        
-        # print(Y_it.shape)
 
         # n, d, _ = X_it.shape
         # n, sigma, _ = Y_it.shape

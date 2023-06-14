@@ -9,24 +9,10 @@ import torch.optim as optim
 
 import itertools
 
-def get_combinations(A):
-    identity_matrix = torch.eye(A)
-    combinations = list(itertools.combinations(identity_matrix, A))[0]
-    return torch.stack(combinations).cuda()
-
-
-
-# class Network(nn.Module):
-#     def __init__(self, output_dim, dim, hidden_size=10):
-#         super(Network, self).__init__()
-#         self.fc1 = nn.Linear(dim, hidden_size)
-#         self.activate = nn.ReLU()
-#         self.fc2 = nn.Linear(hidden_size, output_dim)
-#         self.softmax = nn.Softmax( )
-#     def forward(self, x):
-#         x = self.fc2(self.activate(self.fc1(x)))
-#         x = self.softmax(x)
-#         return x
+# def get_combinations(A):
+#     identity_matrix = torch.eye(A)
+#     combinations = list(itertools.combinations(identity_matrix, A))[0]
+#     return torch.stack(combinations).cuda()
 
 class Network(nn.Module):
     def __init__(self, output_dim, dim, hidden_size=10):
@@ -34,18 +20,28 @@ class Network(nn.Module):
         self.fc1 = nn.Linear(dim, hidden_size)
         self.activate = nn.ReLU()
         self.fc2 = nn.Linear(hidden_size, output_dim)
-        self.sigmoid = nn.Sigmoid( )
     def forward(self, x):
         x = self.fc2(self.activate(self.fc1(x)))
-        x = self.sigmoid(x)
         return x
 
-def convert_list(A):
-    B = []
-    B.append(np.array([A[0]]).reshape(1, 1))
-    sub_array = np.array(A[1:]).reshape(2, 1)
-    B.append(sub_array)
-    return B
+# class Network(nn.Module):
+#     def __init__(self, output_dim, dim, hidden_size=10):
+#         super(Network, self).__init__()
+#         self.fc1 = nn.Linear(dim, hidden_size)
+#         self.activate = nn.ReLU()
+#         self.fc2 = nn.Linear(hidden_size, output_dim)
+#         self.sigmoid = nn.Sigmoid( )
+#     def forward(self, x):
+#         x = self.fc2(self.activate(self.fc1(x)))
+#         x = self.sigmoid(x)
+#         return x
+
+# def convert_list(A):
+#     B = []
+#     B.append(np.array([A[0]]).reshape(1, 1))
+#     sub_array = np.array(A[1:]).reshape(2, 1)
+#     B.append(sub_array)
+#     return B
 
 class NeuralCBPside():
 
@@ -181,7 +177,7 @@ class NeuralCBPside():
             sigmas = [ len(self.SignalMatrices[i]) for i in range(self.N) ]
 
             # Get the unique elements of the matrix
-            unique_elements = np.unique(self.game.FeedbackMatrix)
+            unique_elements = [0, 2, 1] #np.unique(self.game.FeedbackMatrix)
             for feedback in unique_elements:
                 act_to_idx = np.where(self.game.FeedbackMatrix == feedback)[0][0]
             
@@ -189,12 +185,13 @@ class NeuralCBPside():
                 pred =  self.func( torch.from_numpy(X[feedback]).float().cuda() )
                 pred.backward() 
                 g = torch.cat([p.grad.flatten().detach() for p in self.func.parameters()])
-                g = torch.unsqueeze( g , 1)
+                g = torch.unsqueeze(g , 1)
                 g_buffer[act_to_idx].append(g.cpu().detach().numpy() )
                 pred_buffer[act_to_idx].append(pred.cpu().detach().numpy())
             
             self.g_list = [ np.mean(g_buffer[idx],0) if s>1 else g_buffer[idx][0] for idx, s in enumerate(sigmas) ] 
             
+            print('pred_buffer', pred_buffer)
             for i in range(self.N):
                 width2 = (self.g_list[i].T @ self.Z_it_inv @ self.g_list[i]) / self.m
                 width = np.sqrt( width2 )
@@ -204,7 +201,7 @@ class NeuralCBPside():
 
                 sigma_i = len(self.SignalMatrices[i])
                 factor = sigma_i * (  np.sqrt(  self.p * np.log(t) + 2 * np.log(1/t**2)   ) + np.sqrt(self.lbd) * sigma_i )
-                formule = 0 * width
+                formule = factor * width
 
                 print('factor',factor,  'width', width,  )
                 w.append( formule )
@@ -261,7 +258,7 @@ class NeuralCBPside():
             values = { i:self.W[i]*w[i] for i in S}
             action = max(values, key=values.get)
 
-        return np.random.randint(2) #action
+        return action
 
     def update(self, action, feedback, outcome, t, X):
 
@@ -278,9 +275,10 @@ class NeuralCBPside():
             Z_it_inv = self.Z_it_inv
             self.Z_it_inv = Z_it_inv - ( Z_it_inv @ z @ z.T @ Z_it_inv ) / ( 1 + z.T @ Z_it_inv @ z ) 
 
-        e_y = np.zeros( self.A )
-        e_y[feedback] = 1
-        Y_t = e_y.reshape(self.A,1)
+
+        e_y = np.zeros( (self.M,1) )
+        e_y[outcome] = 1
+        Y_t = self.game.SignalMatricesAdim[action] @ e_y 
 
         self.features = X if self.features is None else np.concatenate((self.features, X), axis=0)
         self.labels = Y_t if self.labels is None else np.concatenate((self.labels, Y_t), axis=0)
@@ -288,7 +286,7 @@ class NeuralCBPside():
         # print(self.features)
         # print(self.labels)
 
-        optimizer = optim.SGD(self.func.parameters(), lr=1e-2) #, weight_decay=self.lbd
+        optimizer = optim.SGD(self.func.parameters(), lr=0.1) #, weight_decay=self.lbd
         length = self.labels.shape[0]
         index = np.arange(length)
         np.random.shuffle(index)
@@ -305,15 +303,15 @@ class NeuralCBPside():
                 pred = self.func( c )
                 # print('pred', pred.shape, c.shape, f.shape)
                 optimizer.zero_grad()
-                # loss = nn.MSELoss()(pred, f)
-                loss = nn.BCELoss()(pred, f)
+                loss = nn.MSELoss()(pred, f)
+                # loss = nn.BCELoss()(pred, f)
                 loss.backward()
                 optimizer.step()
                 batch_loss += loss.item()
                 tot_loss += loss.item()
                 cnt += 1
-                if cnt >= 1000:
-                    return tot_loss / 1000
+                if cnt >= 100:
+                    return tot_loss / 100
             if batch_loss / length <= 1e-3:
                 return batch_loss / length
 
