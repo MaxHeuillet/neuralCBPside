@@ -1,8 +1,8 @@
 #!/bin/bash
 
 horizon=2500
-nfolds= 20
-n_folds_per_node = $nfolds / 4 # each node has 4 GPUs
+nfolds= 8
+nfolds_per_node=$((nfolds / 4)) # each node has 4 GPUs
 
 
 
