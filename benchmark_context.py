@@ -158,11 +158,20 @@ evaluator = Evaluation(args.game, args.task, n_folds, horizon, game, args.approa
 
 result = evaluate_parallel(evaluator, game)
         
-with gzip.open( './results/{}/benchmark_{}_{}_{}_{}_{}.pkl.gz'.format(args.game, args.task, args.context_type, horizon, n_folds, args.approach) ,'wb') as g:
+with gzip.open( './results/{}/benchmark_{}_{}_{}_{}_{}.pkl.gz'.format(args.game, args.task, args.context_type, horizon, n_folds, args.approach) ,'ab') as g:
 
     for jobid in range(n_folds):
 
         pkl.dump( result[jobid], g)
+
+
+
+
+
+
+
+
+
 
 
 #     with gzip.open(  './results/{}/benchmark_{}_{}_{}_{}_{}_{}.pkl.gz'.format(args.game, args.task, args.context_type, horizon, n_folds, args.approach, jobid) ,'rb') as f:

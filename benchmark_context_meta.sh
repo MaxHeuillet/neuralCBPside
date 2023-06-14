@@ -1,7 +1,8 @@
 #!/bin/bash
 
 horizon=2500
-nfolds= 20 / 4 # each node has 4 GPUs
+nfolds= 20
+n_folds_per_node = $nfolds / 4 # each node has 4 GPUs
 
 
 
@@ -22,9 +23,9 @@ for context_type in 'linear' #'quintic'
                     
                 do
 
-                python3 ./create_storage.py --horizon ${HORIZON} --n_folds ${NFOLDS} --game ${GAME} --approach ${APR} --task ${TASK} --context_type ${CONTEXT_TYPE} 
+                python3 ./create_storage.py --horizon $horizon --n_folds $nfolds --game $game --approach $approch --task $task --context_type $context_type 
   
-                # for ((i=0; i<nfolds; i++))
+                # for ((i=0; i<n_folds_per_node; i++))
 
                 #     do
 
