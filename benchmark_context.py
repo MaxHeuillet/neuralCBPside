@@ -25,7 +25,7 @@ import subprocess
 
 import neuralcbpside_v1
 import neuralcbpside_v2
-import neuralcbpside_v2
+import neuralcbpside_v3
 
 
 import argparse
@@ -97,7 +97,7 @@ class Evaluation:
                 print(t)
 
             context, distribution = context_generator.get_context()
-            outcome = np.random.choice( 2 , p = distribution )
+            outcome = 0 if distribution[0]<0.5 else 1 #np.random.choice( 2 , p = distribution )
 
             action = alg.get_action(t, context)
 
@@ -158,13 +158,12 @@ parser.add_argument("--n_folds", required=True, help="number of folds")
 parser.add_argument("--game", required=True, help="game")
 parser.add_argument("--task", required=True, help="task")
 parser.add_argument("--context_type", required=True, help="context type")
-parser.add_argument("--algo", required=True, help="algorithme")
+parser.add_argument("--approach", required=True, help="algorithme")
 
 args = parser.parse_args()
 
 horizon = int(args.horizon)
 n_folds = int(args.n_folds)
-
 
 games = {'LE': games.label_efficient(  ),'AT':games.apple_tasting(False)}
 game = games[args.game]
@@ -172,12 +171,12 @@ game = games[args.game]
 dim = 10 
 
 algos_dico = {
-          'CBPside':cbpside.CBPside(game, dim, 1.01, 0.05),
-          'NeuralCBPsidev1':neuralcbpside_v1.NeuralCBPside(game, dim, 1.01, 0.05, 5),
-          'NeuralCBPsidev2':neuralcbpside_v2.NeuralCBPside(game, dim, 1.01, 0.05, 5),
-          'NeuralCBPsidev3':neuralcbpside_v2.NeuralCBPside(game, dim, 1.01, 0.05, 5)  }
+          'neuralcbp_theory':neuralcbpside_v3.NeuralCBPside(game, dim, 'theory', 1.01, 0.05, 10),
+          'neuralcbp_simplified':neuralcbpside_v3.NeuralCBPside(game, dim, 'simplified', 1.01, 0.05, 10),
+          'neuralcbp_1':neuralcbpside_v3.NeuralCBPside(game, dim, '1', 1.01, 0.05, 10)  }
+#'CBPside':cbpside.CBPside(game, dim, factor_choice, 1.01, 0.05),
 
-algos = [ algos_dico[ args.algo ] ]
-labels = [  args.algo ] 
+algos = [ algos_dico[ args.approach ] ]
+labels = [  args.approach ] 
 
 run_experiment(args.game, args.task, n_folds, horizon, game, algos, labels, args.context_type)

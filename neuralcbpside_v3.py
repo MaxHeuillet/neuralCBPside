@@ -45,7 +45,7 @@ class Network(nn.Module):
 
 class NeuralCBPside():
 
-    def __init__(self, game, d, alpha, lbd, hidden):
+    def __init__(self, game, d, factor_choice, alpha, lbd, hidden):
 
         self.name = 'NeuralCBPsidev3'
 
@@ -67,6 +67,7 @@ class NeuralCBPside():
         self.m = hidden
         self.lbd = lbd
         self.alpha = alpha
+        self.factor_choice = factor_choice
 
     def set_nlabels(self, nlabels):
         self.d = nlabels
@@ -115,7 +116,7 @@ class NeuralCBPside():
             d = d - decayed_eta * Z_it @ (grad)
             gradient_norm = np.linalg.norm(grad)  # Update the gradient norm
             criteria += 1
-        print(criteria, gradient_norm, threshold, gradient_norm > threshold)
+        # print(criteria, gradient_norm, threshold, gradient_norm > threshold)
 
         if gradient_norm > threshold:
             d = self.d_init
@@ -136,7 +137,7 @@ class NeuralCBPside():
         J = t
         p = self.p
         det_Zt = self.detZt 
-        print('det_Zt',det_Zt)
+        # print('det_Zt',det_Zt)
         eta = 0.1
         nu = 1
         S = 1
@@ -149,18 +150,16 @@ class NeuralCBPside():
 
         A = np.sqrt( 1 + C1 * m**(-1/6) * sqrt_log_m * L**4 * t**(7/6) * lbd**(-7/6) )
         inside_sqrt = np.log( det_Zt / lbd**p ) + C2 * m**(-1/6) * sqrt_log_m * L**4 * t**(5/3) * lbd**(-1/6) - 2 * np.log( delta )
-        print('inside_sqrt', inside_sqrt)
+        # print('inside_sqrt', inside_sqrt)
         B = nu * np.sqrt( inside_sqrt ) + np.sqrt(lbd) * S
         C = (1 - eta * m * lbd)**J * np.sqrt( t/lbd ) + m**(-1/6) * sqrt_log_m *  L**(7/2) * t**(5/3) * lbd**(-5/3) * ( 1 + np.sqrt(t/lbd) )
         C = C3 * C
-        print(A,B,C)
+        # print(A,B,C)
         gamma_t = A * B +C
 
         return gamma_t
 
     def get_action(self, t, X):
-
-        
 
         if t < self.N: # jouer chaque action une fois au debut du jeu
             action = t
@@ -191,24 +190,28 @@ class NeuralCBPside():
             
             self.g_list = [ np.mean(g_buffer[idx],0) if s>1 else g_buffer[idx][0] for idx, s in enumerate(sigmas) ] 
             
-            print('pred_buffer', pred_buffer)
+            # print('pred_buffer', pred_buffer)
             for i in range(self.N):
                 width2 = (self.g_list[i].T @ self.Z_it_inv @ self.g_list[i]) / self.m
                 width = np.sqrt( width2 )
                 width = width #.cpu().detach().numpy()
 
-                # factor = self.gamma_t(i, t,  )
+                if self.factor_choice == '1':
+                    factor = 1
+                elif self.factor_choice == 'simplified':
+                    sigma_i = len(self.SignalMatrices[i])
+                    factor = sigma_i * (  np.sqrt(  self.p * np.log(t) + 2 * np.log(1/t**2)   ) + np.sqrt(self.lbd) * sigma_i )
+                else:
+                    factor = self.gamma_t(i, t,  )
 
-                sigma_i = len(self.SignalMatrices[i])
-                factor = sigma_i * (  np.sqrt(  self.p * np.log(t) + 2 * np.log(1/t**2)   ) + np.sqrt(self.lbd) * sigma_i )
                 formule = factor * width
 
-                print('factor',factor,  'width', width,  )
+                # print('factor',factor,  'width', width,  )
                 w.append( formule )
                 q.append( np.array(pred_buffer[i]).reshape(sigma_i,1) )
 
-            print('confidence', w)
-            print('estimates', q)
+            # print('confidence', w)
+            # print('estimates', q)
                 
             for pair in self.mathcal_N:
                 tdelta = np.zeros( (1,) )
@@ -220,7 +223,7 @@ class NeuralCBPside():
 
                 tdelta = tdelta[0]
                 c = c[0][0]
-                print('pair', pair, 'tdelta', tdelta, 'confidence', c)
+                # print('pair', pair, 'tdelta', tdelta, 'confidence', c)
                 if( abs(tdelta) >= c):
                     halfspace.append( ( pair, np.sign(tdelta) ) ) 
 
@@ -249,7 +252,7 @@ class NeuralCBPside():
     
             union1= np.union1d(  P_t, Nplus_t )
             union1 = np.array(union1, dtype=int)
-            print('union1', union1)
+            # print('union1', union1)
 
             S =  np.union1d(  union1  , R_t )
             S = np.array( S, dtype = int)

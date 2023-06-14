@@ -1,10 +1,10 @@
 #!/bin/bash
 
-horizon=10000
-nfolds=96
+horizon=2500
+nfolds=48
 var=1
 
-for context_type in 'linear' 'quadratic' 'sinusoid'
+for context_type in 'linear' #'quintic'
 
     do
 
@@ -16,7 +16,7 @@ for context_type in 'linear' 'quadratic' 'sinusoid'
 
                 do
 
-                for alg in 'CBPside005' 'NeuralCBPsidev1' 'NeuralCBPsidev2' 'NeuralCBPsidev3'
+                for alg in 'neuralcbp_simplified' 'neuralcbp_1' #'neuralcbp_theory'
                     
                     do
 		            echo 'horizon' $horizon 'nfolds' $nfolds 'CONTEXT_TYPE' $context_type 'GAME' $game 'TASK' $task 'ALG' $alg 'VAR' $var
