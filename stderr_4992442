@@ -1,4 +1,0 @@
-Traceback (most recent call last):
-  File "/project/6043437/mheuill/neuralCBPside/./benchmark_context.py", line 163, in <module>
-    evaluate_parallel(evaluator, game, id)
-TypeError: evaluate_parallel() missing 1 required positional argument: 'id'

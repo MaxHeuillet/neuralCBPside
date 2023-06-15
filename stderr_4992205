@@ -1,4 +1,0 @@
-Traceback (most recent call last):
-  File "/project/6043437/mheuill/neuralCBPside/./benchmark_context.py", line 159, in <module>
-    evaluator = Evaluation(args.game, args.task, n_folds, horizon, game, args.approach, args.context_type, id)
-TypeError: Evaluation.__init__() takes 8 positional arguments but 9 were given

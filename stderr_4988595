@@ -1,4 +1,0 @@
-usage: benchmark_context.py [-h] --horizon HORIZON --n_folds N_FOLDS --game
-                            GAME --task TASK --context_type CONTEXT_TYPE
-                            --approach APPROACH --id ID
-benchmark_context.py: error: argument --id: expected one argument

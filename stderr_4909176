@@ -1,4 +1,0 @@
-Traceback (most recent call last):
-  File "/project/6043437/mheuill/neuralCBPside/./benchmark_context.py", line 168, in <module>
-    games = {'LE': games.label_efficient(  ),'AT':games.apple_tasting(False)}
-AttributeError: module 'games' has no attribute 'label_efficient'
