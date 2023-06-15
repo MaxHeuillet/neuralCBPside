@@ -21,5 +21,5 @@ source $SLURM_TMPDIR/ENV_nogurobi/bin/activate
 
 echo 'HZ: start python3 ./experiment.py ..at '; date
 
-python3 ./benchmark_context.py --horizon ${HORIZON} --n_folds ${NFOLDS} --game ${GAME} --approach ${APR} --task ${TASK} --context_type ${CONTEXT_TYPE} > stdout_$SLURM_JOB_ID 2>stderr_$SLURM_JOB_ID
+python3 ./benchmark_context.py --horizon ${HORIZON} --n_folds ${NFOLDS} --game ${GAME} --approach ${APR} --task ${TASK} --context_type ${CONTEXT_TYPE} --id ${ID} > stdout_$SLURM_JOB_ID 2>stderr_$SLURM_JOB_ID
 

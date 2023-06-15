@@ -34,7 +34,7 @@ import os
 ######################
 ######################
 
-def evaluate_parallel( evaluator, alg, game):
+def evaluate_parallel(evaluator, alg, game, id):
 
     ncpus = int(os.environ.get('SLURM_CPUS_PER_TASK',default=1))
     print('ncpus',ncpus)
@@ -43,10 +43,11 @@ def evaluate_parallel( evaluator, alg, game):
 
     np.random.seed(1)
     context_generators = []
+    seeds = []
     size = 5
     w = np.array([1/size]*size)
 
-    for seed in range(evaluator.n_folds):
+    for seed in range(id, id+4,1):
         
         if evaluator.context_type == 'linear':
             contexts = synthetic_data.LinearContexts( w , evaluator.task) 
@@ -59,8 +60,10 @@ def evaluate_parallel( evaluator, alg, game):
         else: 
             contexts = synthetic_data.SinusoidContexts( w , evaluator.task )
             context_generators.append( contexts )
+
+        seeds.append(seed)
         
-    return  pool.map( partial( evaluator.eval_policy_once, alg, game ), zip(context_generators, range(n_folds) ) ) 
+    return  pool.map( partial( evaluator.eval_policy_once, alg, game ), zip(context_generators, seeds ) ) 
 
 class Evaluation:
 
@@ -85,14 +88,14 @@ class Evaluation:
 
         context_generator, jobid = job
 
+        np.random.seed(jobid)
+
         alg.reset( context_generator.d )
 
-        np.random.seed(jobid)
-             
         cumRegret =  np.zeros(self.horizon, dtype =float)
-        compteur = None
+
         for t in range(self.horizon):
-            compteur = t
+
             if t % 1000 == 0 :
                 print(t)
 
@@ -111,12 +114,11 @@ class Evaluation:
             val = loss_diff @ np.array( distribution )
             cumRegret[t] =  val
 
-        print('dump {}'.format(jobid))
         result = np.cumsum( cumRegret)
-        # with gzip.open( './results/{}/benchmark_{}_{}_{}_{}_{}_{}.pkl.gz'.format(self.game_name, self.task, self.context_type, self.horizon, self.n_folds, self.label, jobid) ,'wb') as f:
-        #     pkl.dump(result,f)
+        with gzip.open( './results/{}/benchmark_{}_{}_{}_{}_{}.pkl.gz'.format(self.game_name, self.task, self.context_type, self.horizon, self.n_folds, self.label) ,'ab') as f:
+            pkl.dump(result,f)
 
-        return result
+        return True
 
 
 
@@ -136,11 +138,13 @@ parser.add_argument("--game", required=True, help="game")
 parser.add_argument("--task", required=True, help="task")
 parser.add_argument("--context_type", required=True, help="context type")
 parser.add_argument("--approach", required=True, help="algorithme")
+parser.add_argument("--id", required=True, help="algorithme")
 
 args = parser.parse_args()
 
 horizon = int(args.horizon)
 n_folds = int(args.n_folds)
+id = int(args.id)
 
 games = {'AT':games.apple_tasting()} #'LE': games.label_efficient(  ),
 game = games[args.game]
@@ -154,15 +158,15 @@ print('num devices', num_devices)
 algos = [ neuralcbpside_v3.NeuralCBPside(game, factor_type, 1.01, 0.05, "cuda:{}".format(i) ) for i in range(num_devices)  ]
 
 
-evaluator = Evaluation(args.game, args.task, n_folds, horizon, game, args.approach, args.context_type)
+evaluator = Evaluation(args.game, args.task, n_folds, horizon, game, args.approach, args.context_type, id)
 
-result = evaluate_parallel(evaluator, game)
+evaluate_parallel(evaluator, game)
         
-with gzip.open( './results/{}/benchmark_{}_{}_{}_{}_{}.pkl.gz'.format(args.game, args.task, args.context_type, horizon, n_folds, args.approach) ,'ab') as g:
+# with gzip.open( './results/{}/benchmark_{}_{}_{}_{}_{}.pkl.gz'.format(args.game, args.task, args.context_type, horizon, n_folds, args.approach) ,'ab') as g:
 
-    for jobid in range(n_folds):
+#     for jobid in range(n_folds):
 
-        pkl.dump( result[jobid], g)
+#         pkl.dump( result[jobid], g)
 
 
 
