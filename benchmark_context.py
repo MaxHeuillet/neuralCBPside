@@ -117,6 +117,7 @@ class Evaluation:
         result = np.cumsum( cumRegret)
         with gzip.open( './results/{}/benchmark_{}_{}_{}_{}_{}.pkl.gz'.format(self.game_name, self.task, self.context_type, self.horizon, self.n_folds, self.label) ,'ab') as f:
             pkl.dump(result,f)
+        print('finished {}', jobid)
 
         return True
 
