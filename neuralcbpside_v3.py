@@ -7,7 +7,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-import itertools
+# import itertools
 
 # def get_combinations(A):
 #     identity_matrix = torch.eye(A)
