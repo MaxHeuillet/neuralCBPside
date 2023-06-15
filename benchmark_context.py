@@ -13,7 +13,7 @@ import gzip
 import games
 
 import cbpside
-import randcbpside2
+# import randcbpside2
 
 import synthetic_data
 
