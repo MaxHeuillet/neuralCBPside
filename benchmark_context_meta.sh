@@ -24,7 +24,7 @@ for context_type in 'linear' #'quintic'
 
                 python3 ./create_storage.py --horizon $horizon --n_folds $nfolds --game $game --approach $approach --task $task --context_type $context_type 
   
-                for id in ((id=0; id<20; id+=4))
+                for ((id=0; id<20; id+=4))
 
                     do
 
