@@ -156,9 +156,11 @@ num_devices = torch.cuda.device_count()
 print('num devices', num_devices)
 algos = [ neuralcbpside_v3.NeuralCBPside(game, factor_type, 1.01, 0.05,10, "cuda:{}".format(i) ) for i in range(num_devices)  ]
 
-evaluator = Evaluation(args.game, args.task, n_folds, horizon, game, args.approach, args.context_type, id)
 
-evaluate_parallel(evaluator, game)
+
+evaluator = Evaluation(args.game, args.task, n_folds, horizon, game, args.approach, args.context_type)
+
+evaluate_parallel(evaluator, game, id)
         
 # with gzip.open( './results/{}/benchmark_{}_{}_{}_{}_{}.pkl.gz'.format(args.game, args.task, args.context_type, horizon, n_folds, args.approach) ,'ab') as g:
 
