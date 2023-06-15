@@ -1,0 +1,9 @@
+__pycache__
+.ipynb_checkpoints
+.venv/
+*.out
+*.env
+
+slurm-*
+stdout*
+stderr*
