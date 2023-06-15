@@ -154,8 +154,7 @@ import torch
 
 num_devices = torch.cuda.device_count()
 print('num devices', num_devices)
-algos = [ neuralcbpside_v3.NeuralCBPside(game, factor_type, 1.01, 0.05, "cuda:{}".format(i) ) for i in range(num_devices)  ]
-
+algos = [ neuralcbpside_v3.NeuralCBPside(game, factor_type, 1.01, 0.05,10, "cuda:{}".format(i) ) for i in range(num_devices)  ]
 
 evaluator = Evaluation(args.game, args.task, n_folds, horizon, game, args.approach, args.context_type, id)
 
