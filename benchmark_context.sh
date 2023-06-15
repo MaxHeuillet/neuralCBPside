@@ -1,6 +1,11 @@
 #!/bin/bash
 
 #SBATCH --account=def-adurand
+
+#SBATCH --ntasks-per-node=4
+#SBATCH --cpus-per-task=1
+#SBATCH --mem-per-cpu=300M
+
 #SBATCH --gpus-per-node=4
 #SBATCH --mem=400M
 #SBATCH --time=00:25:00
