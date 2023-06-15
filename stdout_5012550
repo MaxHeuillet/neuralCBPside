@@ -1,0 +1,29 @@
+4
+num devices 4
+Set parameter TokenServer to value "license1.computecanada.ca"
+ncpus 4
+start 1
+start 2 cuda:0
+start 3
+0
+1000
+2000
+finished {} 4
+saved {} 4
+start 1
+start 2 cuda:1
+start 3
+0
+1000
+2000
+finished {} 5
+saved {} 5
+start 1
+start 2 cuda:2
+start 3
+0
+1000
+2000
+finished {} 6
+saved {} 6
+send jobs
