@@ -7,7 +7,7 @@
 
 #SBATCH --gpus-per-node=4
 #SBATCH --mem=400M
-#SBATCH --time=00:25:00
+#SBATCH --time=00:05:00
 
 #SBATCH --mail-user=maxime.heuillet.1@ulaval.ca
 #SBATCH --mail-type=ALL

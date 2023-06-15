@@ -62,6 +62,8 @@ def evaluate_parallel(evaluator, algos, game, id):
             context_generators.append( contexts )
 
         seeds.append(seed)
+
+    print('send jobs')
         
     return  pool.map( partial( evaluator.eval_policy_once, game ), zip(algos, context_generators, seeds ) ) 
 
@@ -93,6 +95,7 @@ class Evaluation:
         alg.reset( context_generator.d )
 
         cumRegret =  np.zeros(self.horizon, dtype =float)
+        print('start')
 
         for t in range(self.horizon):
 
