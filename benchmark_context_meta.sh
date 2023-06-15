@@ -1,7 +1,7 @@
 #!/bin/bash
 
-horizon=100
-nfolds=8
+horizon=2500
+nfolds=16
 
 
 
