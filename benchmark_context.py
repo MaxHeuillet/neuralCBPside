@@ -43,11 +43,12 @@ def evaluate_parallel(evaluator, algos, game, id):
 
     np.random.seed(1)
     context_generators = []
+    alg_ids =[]
     seeds = []
     size = 5
     w = np.array([1/size]*size)
 
-    for seed in range(id, id+4,1):
+    for alg_id, seed in enumerate(range(id, id+4,1)):
         
         if evaluator.context_type == 'linear':
             contexts = synthetic_data.LinearContexts( w , evaluator.task) 
@@ -62,14 +63,16 @@ def evaluate_parallel(evaluator, algos, game, id):
             context_generators.append( contexts )
 
         seeds.append(seed)
+        alg_ids.append(alg_id)
 
     print('send jobs')
         
-    return  pool.map( partial( evaluator.eval_policy_once, game ), zip(algos, context_generators, seeds ) ) 
+    return pool.map( partial( evaluator.eval_policy_once, game ), zip(context_generators, seeds,alg_ids ) ) 
 
 class Evaluation:
 
-    def __init__(self, game_name, task, n_folds, horizon, game, label, context_type):
+    def __init__(self, algos, game_name, task, n_folds, horizon, game, label, context_type):
+        self.algos = algos
         self.game_name = game_name
         self.task = task
         self.n_folds = n_folds
@@ -90,7 +93,8 @@ class Evaluation:
 
         print('start 1')
 
-        alg, context_generator, jobid = job
+        context_generator, jobid, alg_id = job
+        alg = self.algos[alg_id]
 
         print('start 2', alg.device)
         np.random.seed(jobid)
@@ -167,7 +171,7 @@ algos = [ neuralcbpside_v3.NeuralCBPside(game, factor_type, 1.01, 0.05,10, "cuda
 
 
 
-evaluator = Evaluation(args.game, args.task, n_folds, horizon, game, args.approach, args.context_type)
+evaluator = Evaluation(algos, args.game, args.task, n_folds, horizon, game, args.approach, args.context_type)
 
 
 evaluate_parallel(evaluator, algos, game, id)
