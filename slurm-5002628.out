@@ -1,0 +1,4 @@
+HZ: start python3 ./experiment.py ..at 
+Thu 15 Jun 2023 11:40:54 AM PDT
+slurmstepd: error: *** JOB 5002628 ON cdr2628 CANCELLED AT 2023-06-15T11:43:06 DUE TO TIME LIMIT ***
+slurmstepd: error: Detected 6 oom-kill event(s) in StepId=5002628.batch. Some of your processes may have been killed by the cgroup out-of-memory handler.

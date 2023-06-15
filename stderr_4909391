@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/project/6043437/mheuill/neuralCBPside/./benchmark_context.py", line 168, in <module>
+    games = {'AT':games.apple_tasting(False)} #'LE': games.label_efficient(  ),
+TypeError: apple_tasting() takes 0 positional arguments but 1 was given

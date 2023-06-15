@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/project/6043437/mheuill/neuralCBPside/./benchmark_context.py", line 157, in <module>
+    algos = [ neuralcbpside_v3.NeuralCBPside(game, factor_type, 1.01, 0.05, "cuda:{}".format(i) ) for i in range(num_devices)  ]
+  File "/project/6043437/mheuill/neuralCBPside/./benchmark_context.py", line 157, in <listcomp>
+    algos = [ neuralcbpside_v3.NeuralCBPside(game, factor_type, 1.01, 0.05, "cuda:{}".format(i) ) for i in range(num_devices)  ]
+TypeError: NeuralCBPside.__init__() missing 1 required positional argument: 'device'
