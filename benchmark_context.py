@@ -88,14 +88,17 @@ class Evaluation:
 
     def eval_policy_once(self, game, job):
 
+        print('start 1')
+
         alg, context_generator, jobid = job
 
+        print('start 2', alg.device)
         np.random.seed(jobid)
 
         alg.reset( context_generator.d )
 
         cumRegret =  np.zeros(self.horizon, dtype =float)
-        print('start')
+        print('start 3')
 
         for t in range(self.horizon):
 
