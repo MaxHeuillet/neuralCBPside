@@ -115,9 +115,10 @@ class Evaluation:
             cumRegret[t] =  val
 
         result = np.cumsum( cumRegret)
+        print('finished {}', jobid)
         with gzip.open( './results/{}/benchmark_{}_{}_{}_{}_{}.pkl.gz'.format(self.game_name, self.task, self.context_type, self.horizon, self.n_folds, self.label) ,'ab') as f:
             pkl.dump(result,f)
-        print('finished {}', jobid)
+        print('saved {}', jobid)
 
         return True
 
