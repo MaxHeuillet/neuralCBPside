@@ -50,7 +50,7 @@ class QuadraticContexts:
     
     def get_context(self, ):
 
-        if self.task == 'balanced':
+        if self.task == 'imbalanced':
             context = truncated_gaussian(0, 0.05, 0, 1/2, self.d ) if np.random.uniform(0,1)<0.5 else truncated_gaussian(1, 0.05, 0, 1/2, self.d )
         else:
             context = truncated_gaussian(0.5, 1, 0, 1/2, self.d )

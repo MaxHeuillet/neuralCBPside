@@ -34,6 +34,18 @@ import os
 ######################
 ######################
 
+
+def reshape_context(context, A):
+    d = context.shape[0]
+    reshaped_context = np.zeros((A, d * A))
+    
+    for i in range(A):
+        start_idx = i * d
+        end_idx = start_idx + d
+        reshaped_context[i, start_idx:end_idx] = context
+    
+    return reshaped_context
+
 def evaluate_parallel(evaluator, algos, game, id):
 
     ncpus = int(os.environ.get('SLURM_CPUS_PER_TASK',default=1))
@@ -110,7 +122,10 @@ class Evaluation:
                 print(t)
 
             context, distribution = context_generator.get_context()
+
             outcome = 0 if distribution[0]<0.5 else 1 #np.random.choice( 2 , p = distribution )
+            
+            context = reshape_context(context, alg.A) if alg.name == 'neuralcbpside' else np.reshape(context, (-1,1))
 
             action = alg.get_action(t, context)
 
@@ -167,7 +182,7 @@ import torch
 
 num_devices = torch.cuda.device_count()
 print('num devices', num_devices)
-algos = [ neuralcbpside_v3.NeuralCBPside(game, factor_type, 1.01, 0.05,10, "cuda:{}".format(i) ) for i in range(num_devices)  ]
+algos = [ neuralcbpside_v3.NeuralCBPside(game, factor_type, 1.01, 0.05, 2, "cuda:{}".format(i) ) for i in range(num_devices)  ]
 
 
 
