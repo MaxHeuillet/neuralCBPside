@@ -3,10 +3,11 @@ import geometry_v3
 
 class CBPside():
 
-    def __init__(self, game, d, alpha, lbd):
+    def __init__(self, game, alpha, lbd):
+
+        self.name = 'cbpside'
 
         self.game = game
-        self.d = d
 
         self.N = game.n_actions
         self.M = game.n_outcomes
@@ -15,10 +16,6 @@ class CBPside():
 
         self.SignalMatrices = game.SignalMatrices
         # print('signalmatrices', self.SignalMatrices)
-
-        self.n = np.zeros( self.N )
-        self.nu = [ np.zeros(   ( len( set(self.game.FeedbackMatrix[i]) ),1)  ) for i in range(self.N)]  #[ np.zeros(   ( len( set(game.FeedbackMatrix[i]) ),1)  ) for i in range(self.N)] 
-        # print('nu', self.nu)
 
         self.pareto_actions = geometry_v3.getParetoOptimalActions(game.LossMatrix, self.N, self.M, [])
         self.mathcal_N = game.mathcal_N
@@ -37,13 +34,6 @@ class CBPside():
 
         self.eta =  self.W **2/3 
 
-        self.memory_pareto = {}
-        self.memory_neighbors = {}
-
-        self.contexts = []
-        for i in range(self.N):
-            self.contexts.append( {'features':[], 'labels':[], 'weights': None, 'V_it_inv': np.identity(self.d) } )
-
 
     def getConfidenceWidth(self, ):
         W = np.zeros(self.N)
@@ -55,7 +45,8 @@ class CBPside():
                 W[k] = np.max( [ W[k], np.linalg.norm(vec , np.inf) ] )
         return W
 
-    def reset(self,):
+    def reset(self, d):
+        self.d = d
         self.n = np.zeros( self.N )
         self.nu = [ np.zeros(   ( len( set(self.game.FeedbackMatrix[i]) ),1)  ) for i in range(self.N)]  #[ np.zeros(    len( np.unique(self.game.FeedbackMatrix[i] ) )  ) for i in range(self.N)] 
         self.memory_pareto = {}

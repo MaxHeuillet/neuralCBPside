@@ -47,7 +47,7 @@ class NeuralCBPside():
 
     def __init__(self, game, factor_choice, alpha, lbd, hidden, device):
 
-        self.name = 'NeuralCBPsidev3'
+        self.name = 'neuralcbpside'
         self.device = device
 
         self.game = game

@@ -121,7 +121,6 @@ class Evaluation:
         return True
 
 
-
 ###################################
 # Synthetic Contextual experiments
 ###################################

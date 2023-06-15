@@ -2,7 +2,6 @@
 
 horizon=2500
 nfolds=8
-nfolds_per_node=$((nfolds / 4)) # each node has 4 GPUs
 
 
 
@@ -25,13 +24,13 @@ for context_type in 'linear' #'quintic'
 
                 python3 ./create_storage.py --horizon $horizon --n_folds $nfolds --game $game --approach $approach --task $task --context_type $context_type 
   
-                for id in {0..20..4}
+                for id in {0..nfolds..4}
 
                     do
 
-		            echo 'horizon' $horizon 'nfolds' $nfolds 'CONTEXT_TYPE' $context_type 'GAME' $game 'TASK' $task 'APR' $approach
+		            echo 'horizon' $horizon 'nfolds' $nfolds 'CONTEXT_TYPE' $context_type 'GAME' $game 'TASK' $task 'APR' $approach 'ID' $id
     
-                    sbatch --export=ALL,HORIZON=$horizon,NFOLDS=$nfolds,CONTEXT_TYPE=$context_type,GAME=$game,TASK=$task,APR=$approach,ID=$i ./benchmark_context.sh     
+                    sbatch --export=ALL,HORIZON=$horizon,NFOLDS=$nfolds,CONTEXT_TYPE=$context_type,GAME=$game,TASK=$task,APR=$approach,ID=$id ./benchmark_context.sh     
                     
                     done
 
