@@ -34,7 +34,7 @@ import os
 ######################
 ######################
 
-def evaluate_parallel(evaluator, alg, game, id):
+def evaluate_parallel(evaluator, algos, game, id):
 
     ncpus = int(os.environ.get('SLURM_CPUS_PER_TASK',default=1))
     print('ncpus',ncpus)
@@ -63,7 +63,7 @@ def evaluate_parallel(evaluator, alg, game, id):
 
         seeds.append(seed)
         
-    return  pool.map( partial( evaluator.eval_policy_once, alg, game ), zip(context_generators, seeds ) ) 
+    return  pool.map( partial( evaluator.eval_policy_once, game ), zip(algos, context_generators, seeds ) ) 
 
 class Evaluation:
 
@@ -84,9 +84,9 @@ class Evaluation:
     def get_feedback(self, game, action, outcome):
         return game.FeedbackMatrix[ action ][ outcome ]
 
-    def eval_policy_once(self, alg, game, job):
+    def eval_policy_once(self, game, job):
 
-        context_generator, jobid = job
+        alg, context_generator, jobid = job
 
         np.random.seed(jobid)
 
@@ -144,6 +144,7 @@ args = parser.parse_args()
 horizon = int(args.horizon)
 n_folds = int(args.n_folds)
 id = int(args.id)
+print(id)
 
 games = {'AT':games.apple_tasting()} #'LE': games.label_efficient(  ),
 game = games[args.game]
@@ -160,7 +161,8 @@ algos = [ neuralcbpside_v3.NeuralCBPside(game, factor_type, 1.01, 0.05,10, "cuda
 
 evaluator = Evaluation(args.game, args.task, n_folds, horizon, game, args.approach, args.context_type)
 
-evaluate_parallel(evaluator, game, id)
+
+evaluate_parallel(evaluator, algos, game, id)
         
 # with gzip.open( './results/{}/benchmark_{}_{}_{}_{}_{}.pkl.gz'.format(args.game, args.task, args.context_type, horizon, n_folds, args.approach) ,'ab') as g:
 
