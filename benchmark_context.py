@@ -192,7 +192,7 @@ if 'neural' in args.approach:
     nfolds = min([ncpus,ngpus]) 
 else:
     nfolds = ncpus
-
+nfolds = int(nfolds)
 print('nfolds', nfolds)
 
 evaluator = Evaluation(args.game, args.task, n_folds, horizon, game, args.approach, args.context_type)
