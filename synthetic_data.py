@@ -37,7 +37,7 @@ class LinearContexts:
         # cont = context.reshape(self.d,1)
         p = self.w @ context
         val = [ p, 1-p ]
-        context = context - np.ones(5) * 0.5
+        context = context - np.ones(self.d) * 0.5
         return context , val 
 
 

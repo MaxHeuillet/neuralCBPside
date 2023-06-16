@@ -30,6 +30,7 @@ import neuralcbpside_v3
 
 import argparse
 import os
+import torch
 
 ######################
 ######################
@@ -46,21 +47,20 @@ def reshape_context(context, A):
     
     return reshaped_context
 
-def evaluate_parallel(evaluator, algos, game, id):
+def evaluate_parallel(evaluator, game, nfolds, id):
 
-    ncpus = int(os.environ.get('SLURM_CPUS_PER_TASK',default=1))
-    print('ncpus',ncpus)
     
-    pool = Pool(processes=ncpus)
+    pool = Pool(processes=nfolds)
 
     np.random.seed(1)
     context_generators = []
     alg_ids =[]
     seeds = []
+    algos = []
     size = 5
     w = np.array([1/size]*size)
 
-    for alg_id, seed in enumerate(range(id, id+4,1)):
+    for alg_id, seed in enumerate(range(id, id+nfolds,1)):
         
         if evaluator.context_type == 'linear':
             contexts = synthetic_data.LinearContexts( w , evaluator.task) 
@@ -74,17 +74,22 @@ def evaluate_parallel(evaluator, algos, game, id):
             contexts = synthetic_data.SinusoidContexts( w , evaluator.task )
             context_generators.append( contexts )
 
+        if 'neural' in args.approach:
+            algos.append( neuralcbpside_v3.NeuralCBPside(game, factor_type, 1.01, 0.05, 5, "cuda:{}".format(alg_id) ) )
+        else:
+            algos.append( cbpside.CBPside(game, 1.01, 0.05 )  )
+
         seeds.append(seed)
         alg_ids.append(alg_id)
 
     print('send jobs')
         
-    return pool.map( partial( evaluator.eval_policy_once, game ), zip(context_generators, seeds,alg_ids ) ) 
+    return pool.map( partial( evaluator.eval_policy_once, game ), zip(context_generators, seeds, algos ) ) 
 
 class Evaluation:
 
-    def __init__(self, algos, game_name, task, n_folds, horizon, game, label, context_type):
-        self.algos = algos
+    def __init__(self, game_name, task, n_folds, horizon, game, label, context_type):
+
         self.game_name = game_name
         self.task = task
         self.n_folds = n_folds
@@ -105,8 +110,7 @@ class Evaluation:
 
         print('start 1')
 
-        context_generator, jobid, alg_id = job
-        alg = self.algos[alg_id]
+        context_generator, jobid, alg = job
 
         # print('start 2', alg.device)
         np.random.seed(jobid)
@@ -123,27 +127,29 @@ class Evaluation:
 
             context, distribution = context_generator.get_context()
 
-            outcome = 0 if distribution[0]<0.5 else 1 #np.random.choice( 2 , p = distribution )
+            outcome = 0 if distribution[0]>0.5 else 1  #np.random.choice( 2 , p = distribution )
             
-            context = reshape_context(context, alg.A) if alg.name == 'neuralcbpside' else np.reshape(context, (-1,1))
+            context = reshape_context(context, alg.A) if 'neural' in alg.name else np.reshape(context, (-1,1))
 
             action = alg.get_action(t, context)
 
-            # print('t', t, 'action', action, 'outcome', outcome, )
             feedback =  self.get_feedback( game, action, outcome )
 
             alg.update(action, feedback, outcome, t, context )
+
+            print('t', t, 'action', action, 'outcome', outcome, 'gaps', ( game.LossMatrix[0,...] - game.LossMatrix[1,...])  @ distribution  )
 
             i_star = np.argmin(  [ game.LossMatrix[i,...] @ np.array( distribution ) for i in range(alg.N) ]  )
             loss_diff = game.LossMatrix[action,...] - game.LossMatrix[i_star,...]
             val = loss_diff @ np.array( distribution )
             cumRegret[t] =  val
 
-        result = np.cumsum( cumRegret)
-        print('finished {}', jobid)
+        result = np.cumsum(cumRegret)
+        print(result)
+        print('finished', jobid)
         with gzip.open( './results/{}/benchmark_{}_{}_{}_{}_{}.pkl.gz'.format(self.game_name, self.task, self.context_type, self.horizon, self.n_folds, self.label) ,'ab') as f:
             pkl.dump(result,f)
-        print('saved {}', jobid)
+        print('saved', jobid)
 
         return True
 
@@ -171,53 +177,28 @@ args = parser.parse_args()
 horizon = int(args.horizon)
 n_folds = int(args.n_folds)
 id = int(args.id)
-print(id)
+print(id, args.context_type, args.approach)
 
 games = {'AT':games.apple_tasting()} #'LE': games.label_efficient(  ),
 game = games[args.game]
 
-factor_type = args.approach.split('_')
+factor_type = args.approach.split('_')[1]
+print('factor_type', factor_type)
 
-import torch
 
-num_devices = torch.cuda.device_count()
-print('num devices', num_devices)
-
+ncpus = os.environ.get('SLURM_CPUS_PER_TASK',default=1)
+ngpus = torch.cuda.device_count()
 if 'neural' in args.approach:
-    algos = [ neuralcbpside_v3.NeuralCBPside(game, factor_type, 1.01, 0.05, 5, "cuda:{}".format(i) ) for i in range(num_devices)  ]
+    nfolds = min([ncpus,ngpus]) 
 else:
-    algos = [ cbpside.CBPside(game, 1.01, 0.05 ) for i in range(num_devices)  ]
+    nfolds = ncpus
+    
+print('nfolds', nfolds)
 
+evaluator = Evaluation(args.game, args.task, n_folds, horizon, game, args.approach, args.context_type)
 
-evaluator = Evaluation(algos, args.game, args.task, n_folds, horizon, game, args.approach, args.context_type)
+with gzip.open( './results/{}/benchmark_{}_{}_{}_{}_{}.pkl.gz'.format(args.game, args.task, args.context_type, horizon, n_folds, args.approach) ,'wb') as g:
+    pkl.dump( [None]*horizon, g)
 
-evaluate_parallel(evaluator, algos, game, id)
+evaluate_parallel(evaluator, game, nfolds, id)
         
-# with gzip.open( './results/{}/benchmark_{}_{}_{}_{}_{}.pkl.gz'.format(args.game, args.task, args.context_type, horizon, n_folds, args.approach) ,'ab') as g:
-
-#     for jobid in range(n_folds):
-
-#         pkl.dump( result[jobid], g)
-
-
-
-
-
-
-
-
-
-
-
-#     with gzip.open(  './results/{}/benchmark_{}_{}_{}_{}_{}_{}.pkl.gz'.format(args.game, args.task, args.context_type, horizon, n_folds, args.approach, jobid) ,'rb') as f:
-#         r = pkl.load(f)
-
-# bashCommand = 'rm ./results/{}/benchmark_{}_{}_{}_{}_{}_{}.pkl.gz'.format(args.game, args.task, args.context_type, horizon, n_folds, args.approach, jobid)
-# process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE)
-# output, error = process.communicate()
-
-# algos_dico = {
-#           'neuralcbp_theory':neuralcbpside_v3.NeuralCBPside(game, 'theory', 1.01, 0.05),
-#           'neuralcbp_simplified':neuralcbpside_v3.NeuralCBPside(game, 'simplified', 1.01, 0.05),
-#           'neuralcbp_1':neuralcbpside_v3.NeuralCBPside(game, '1', 1.01, 0.05)  }
-#'CBPside':cbpside.CBPside(game, dim, factor_choice, 1.01, 0.05),

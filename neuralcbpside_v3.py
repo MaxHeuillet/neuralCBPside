@@ -9,11 +9,6 @@ import torch.optim as optim
 
 # import itertools
 
-# def get_combinations(A):
-#     identity_matrix = torch.eye(A)
-#     combinations = list(itertools.combinations(identity_matrix, A))[0]
-#     return torch.stack(combinations).to(self.device)
-
 class Network(nn.Module):
     def __init__(self, output_dim, dim, hidden_size=10):
         super(Network, self).__init__()
@@ -36,12 +31,7 @@ class Network(nn.Module):
 #         x = self.sigmoid(x)
 #         return x
 
-# def convert_list(A):
-#     B = []
-#     B.append(np.array([A[0]]).reshape(1, 1))
-#     sub_array = np.array(A[1:]).reshape(2, 1)
-#     B.append(sub_array)
-#     return B
+
 
 class NeuralCBPside():
 
@@ -87,7 +77,6 @@ class NeuralCBPside():
         self.features = None
         self.labels = None
         self.functionnal = []
-        # output_dim = self.A
         self.func = Network( 1, self.d * self.A, hidden_size=self.m).to(self.device)
         self.p = sum(p.numel() for p in self.func.parameters() if p.requires_grad)
         self.d_init = np.random.normal(0, 0.01, self.p).reshape(-1, 1)
@@ -199,7 +188,6 @@ class NeuralCBPside():
                 if self.factor_choice == '1':
                     factor = 1
                 elif self.factor_choice == 'simplified':
-                    
                     factor = sigma_i * (  np.sqrt(  self.p * np.log(t) + 2 * np.log(1/t**2)   ) + np.sqrt(self.lbd) * sigma_i )
                 else:
                     factor = self.gamma_t(i, t,  )

@@ -83,13 +83,13 @@ class CBPside():
                 factor = sigma_i * (  np.sqrt(  self.d * np.log(t) + 2 * np.log(1/t**2)   ) + np.sqrt(self.lbd) * sigma_i )
                 width = np.sqrt( X.T @ self.contexts[i]['V_it_inv'] @ X )
                 formule = factor * width
-                print('factor', factor, 'width', width)
+                # print('factor', factor, 'width', width)
                 # b = X.T @ np.linalg.inv( self.lbd * np.identity(D) + X_it @ X_it.T  ) @ X 
                 #print('action {}, first component {}, second component, {}'.format(i, a, b  ) )
                 #print('Xit', X_it.shape  )
                 w.append( formule )
             # print()    
-            print( 'estimate', q )
+            # print( 'estimate', q )
             # print('conf   ', w )
 
             for pair in self.mathcal_N:
@@ -105,7 +105,7 @@ class CBPside():
                     # print('k', k, 'pair ', pair, 'v ', self.v[ pair[0] ][ pair[1] ][k].T.shape , 'q[k] ', q[k].shape  )
                     tdelta += self.v[ pair[0] ][ pair[1] ][k].T @ q[k]
                     c += np.linalg.norm( self.v[ pair[0] ][ pair[1] ][k], np.inf ) * w[k] #* np.sqrt( (self.d+1) * np.log(t) ) * self.d
-                print('pair', pair, 'tdelta', tdelta, 'confidence', c)
+                # print('pair', pair, 'tdelta', tdelta, 'confidence', c)
                 # print('pair', pair,  'tdelta', tdelta, 'c', c, 'sign', np.sign(tdelta)  )
                 # print('sign', np.sign(tdelta) )
                 tdelta = tdelta[0]
@@ -140,7 +140,7 @@ class CBPside():
 
             union1= np.union1d(  P_t, Nplus_t )
             union1 = np.array(union1, dtype=int)
-            print('union1', union1)
+            # print('union1', union1)
             S =  np.union1d(  union1  , R_t )
             S = np.array( S, dtype = int)
             # print('S', S)
@@ -176,7 +176,7 @@ class CBPside():
 
         # print(X_it.shape)
         
-        print('Yit shape',Y_it.shape)
+        # print('Yit shape',Y_it.shape)
         
         V_it_inv = self.contexts[action]['V_it_inv']
         self.contexts[action]['V_it_inv'] = V_it_inv - ( V_it_inv @ X @ X.T @ V_it_inv ) / ( 1 + X.T @ V_it_inv @ X ) 

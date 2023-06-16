@@ -12,6 +12,10 @@
 #SBATCH --mail-user=maxime.heuillet.1@ulaval.ca
 #SBATCH --mail-type=ALL
 
+
+echo 'horizon' ${HORIZON} 'nfolds' ${NFOLDS} 'CONTEXT_TYPE' ${CONTEXT_TYPE} 'GAME' ${GAME} 'TASK' ${TASK} 'APPROACH' ${APR} 
+
+
 module --force purge
 module load StdEnv/2020
 module load python/3.10
