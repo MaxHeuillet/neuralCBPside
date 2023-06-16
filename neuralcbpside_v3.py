@@ -182,15 +182,16 @@ class NeuralCBPside():
             for i in range(self.N):
                 width2 = (self.g_list[i].T @ self.Z_it_inv @ self.g_list[i]) / self.m
                 width = np.sqrt( width2 )
-                width = width #.cpu().detach().numpy()
 
                 sigma_i = len(self.SignalMatrices[i])
                 if self.factor_choice == '1':
                     factor = 1
+                elif self.factor_choice == '01':
+                    factor = 0.1
                 elif self.factor_choice == 'simplified':
                     factor = sigma_i * (  np.sqrt(  self.p * np.log(t) + 2 * np.log(1/t**2)   ) + np.sqrt(self.lbd) * sigma_i )
                 else:
-                    factor = self.gamma_t(i, t,  )
+                    factor = self.gamma_t(i, t)
 
                 formule = factor * width
 
@@ -240,7 +241,7 @@ class NeuralCBPside():
     
             union1= np.union1d(  P_t, Nplus_t )
             union1 = np.array(union1, dtype=int)
-            # print('union1', union1)
+            print('union1', union1)
 
             S =  np.union1d(  union1  , R_t )
             S = np.array( S, dtype = int)
