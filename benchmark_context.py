@@ -186,13 +186,13 @@ factor_type = args.approach.split('_')[1]
 print('factor_type', factor_type)
 
 
-ncpus = os.environ.get('SLURM_CPUS_PER_TASK',default=1)
-ngpus = torch.cuda.device_count()
+ncpus = int ( os.environ.get('SLURM_CPUS_PER_TASK',default=1) )
+ngpus = int( torch.cuda.device_count() )
 if 'neural' in args.approach:
     nfolds = min([ncpus,ngpus]) 
 else:
     nfolds = ncpus
-nfolds = int(nfolds)
+
 print('nfolds', nfolds)
 
 evaluator = Evaluation(args.game, args.task, n_folds, horizon, game, args.approach, args.context_type)
