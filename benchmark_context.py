@@ -108,7 +108,7 @@ class Evaluation:
         context_generator, jobid, alg_id = job
         alg = self.algos[alg_id]
 
-        print('start 2', alg.device)
+        # print('start 2', alg.device)
         np.random.seed(jobid)
 
         alg.reset( context_generator.d )
