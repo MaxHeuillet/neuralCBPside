@@ -192,13 +192,13 @@ if 'neural' in args.approach:
     nfolds = min([ncpus,ngpus]) 
 else:
     nfolds = ncpus
-    
+
 print('nfolds', nfolds)
 
 evaluator = Evaluation(args.game, args.task, n_folds, horizon, game, args.approach, args.context_type)
 
-with gzip.open( './results/{}/benchmark_{}_{}_{}_{}_{}.pkl.gz'.format(args.game, args.task, args.context_type, horizon, n_folds, args.approach) ,'wb') as g:
-    pkl.dump( [None]*horizon, g)
+# with gzip.open( './results/{}/benchmark_{}_{}_{}_{}_{}.pkl.gz'.format(args.game, args.task, args.context_type, horizon, n_folds, args.approach) ,'wb') as g:
+#     pkl.dump( [None]*horizon, g)
 
 evaluate_parallel(evaluator, game, nfolds, id)
         
