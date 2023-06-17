@@ -60,6 +60,7 @@ class CBPside():
 
         if t < self.N:
             action = t
+            tdelta = 0
             # self.contexts[t]['weights'] = self.SignalMatrices[t] @ np.array( [ [0,1],[1,-1] ])
 
         else: 
@@ -109,6 +110,7 @@ class CBPside():
                 # print('pair', pair,  'tdelta', tdelta, 'c', c, 'sign', np.sign(tdelta)  )
                 # print('sign', np.sign(tdelta) )
                 tdelta = tdelta[0]
+                c =  np.inf
                 if( abs(tdelta) >= c):
                     halfspace.append( ( pair, np.sign(tdelta) ) ) 
             
@@ -140,7 +142,7 @@ class CBPside():
 
             union1= np.union1d(  P_t, Nplus_t )
             union1 = np.array(union1, dtype=int)
-            # print('union1', union1)
+            print('union1', union1)
             S =  np.union1d(  union1  , R_t )
             S = np.array( S, dtype = int)
             # print('S', S)
@@ -154,7 +156,7 @@ class CBPside():
             # 'P_t',P_t,'N_t', N_t,'Nplus_t',Nplus_t,'V_t',V_t, 'R_t',R_t,  print('n', self.n,'nu', self.nu)
             # print()
 
-        return action
+        return action, tdelta
 
     def update(self, action, feedback, outcome, t, X):
 
