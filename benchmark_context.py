@@ -131,7 +131,7 @@ class Evaluation:
             
             context = reshape_context(context, alg.A) if 'neural' in alg.name else np.reshape(context, (-1,1))
 
-            action = alg.get_action(t, context)
+            action, _ = alg.get_action(t, context)
 
             feedback =  self.get_feedback( game, action, outcome )
 

@@ -55,9 +55,9 @@ class QuadraticContexts:
         else:
             context = truncated_gaussian(0.5, 1, 0, 1/2, self.d )
             
-        cont = np.array(context).reshape(self.d,1)
+        cont = np.array(context) #.reshape(self.d,1)
         val = 2 * self.w @ cont**2 + self.w @ cont
-        val = [ val[0], 1-val[0] ]
+        val = [ val, 1-val ]
         return cont, val 
     
 
