@@ -30,6 +30,19 @@ class Network2(nn.Module):
         x = self.linear(x)
         return x
 
+class Network3(nn.Module):
+    def __init__(self, output_dim, dim, hidden_size=10):
+        super(Network3, self).__init__()
+        self.fc1 = nn.Linear(dim, hidden_size)
+        self.dropout = nn.Dropout(p=0.2)
+        self.activate = nn.ReLU()
+        self.fc2 = nn.Linear(hidden_size, output_dim)
+    
+    def forward(self, x):
+        x = self.dropout(self.activate(self.fc1(x)))
+        x = self.fc2(x)
+        return x
+
 # class Network(nn.Module):
 #     def __init__(self, output_dim, dim, hidden_size=10):
 #         super(Network, self).__init__()
@@ -90,7 +103,7 @@ class NeuralCBPside():
         self.features = None
         self.labels = None
         self.functionnal = []
-        self.func = Network2( 1, self.d * self.A, hidden_size=self.m).to(self.device)
+        self.func = Network( 1, self.d * self.A, hidden_size=self.m).to(self.device)
         self.p = sum(p.numel() for p in self.func.parameters() if p.requires_grad)
         self.d_init = np.random.normal(0, 0.01, self.p).reshape(-1, 1)
         self.detZt = self.lbd**self.p
@@ -239,7 +252,7 @@ class NeuralCBPside():
                     c += np.linalg.norm( self.v[ pair[0] ][ pair[1] ][k], np.inf ) * w[k] 
 
                 tdelta = tdelta[0]
-                c = np.inf #c[0][0]
+                c = c[0][0]
                 print('pair', pair, 'tdelta', tdelta, 'confidence', c)
                 if( abs(tdelta) >= c):
                     halfspace.append( ( pair, np.sign(tdelta) ) ) 
