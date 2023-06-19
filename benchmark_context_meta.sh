@@ -18,7 +18,7 @@ for context_type in 'linear' #'quintic'
 
             do
 
-            for approach in  'neuralcbp_1' 'neuralcbp_simplified' 'cbpside_theory'  # 'neuralcbp_01' 'neuralcbp_theory'
+            for approach in  'neuralcbp_theory' 'neuralcbp_simplified' 'neuralcbp_1' 'cbpside_theory'  # 'neuralcbp_01' 'neuralcbp_theory'
                     
                 do
 
