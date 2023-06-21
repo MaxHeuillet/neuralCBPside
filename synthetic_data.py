@@ -37,7 +37,12 @@ class LinearContexts:
         # cont = context.reshape(self.d,1)
         p = self.w @ context
         val = [ p, 1-p ]
-        context = context - np.ones(self.d) * 0.5
+
+        context = np.array(context)
+        mean = np.array([0.49894511, 0.49964278, 0.49914392, 0.50041341, 0.49964411])
+        std = np.array([0.31208973, 0.31217681, 0.31190383, 0.31202762, 0.31117992])
+        context = ( context - mean ) / std
+
         return context , val 
 
 
@@ -54,10 +59,15 @@ class QuadraticContexts:
             context = truncated_gaussian(0, 0.05, 0, 1/2, self.d ) if np.random.uniform(0,1)<0.5 else truncated_gaussian(1, 0.05, 0, 1/2, self.d )
         else:
             context = truncated_gaussian(0.5, 1, 0, 1/2, self.d )
-            
-        cont = np.array(context) #.reshape(self.d,1)
+
+        cont = np.array(context)
         val = 2 * self.w @ cont**2 + self.w @ cont
         val = [ val, 1-val ]
+
+        mean = np.array([0.29579965, 0.29536002, 0.29532072, 0.29525084, 0.29479779])
+        std = np.array([0.16030988, 0.16078859, 0.16100911, 0.16062282, 0.16077367])
+        cont = ( cont - mean ) / std
+
         return cont, val 
     
 
@@ -80,9 +90,15 @@ class SinusoidContexts:
             context = truncated_gaussian(np.pi/6, 0.1, 0, np.pi, self.d) if np.random.uniform(0,1)<0.5 else  truncated_gaussian(5 * np.pi / 6, 0.1, 0, np.pi, self.d)
         
         
-        cont = np.array(context).reshape(self.d,1)
-        val = np.sin(w@cont)
-        val = [ val[0], 1-val[0] ]
+        cont = np.array(context) 
+        val = np.sin(self.w@cont)
+        val = [ val, 1-val ]
+
+        mean = np.array([0.5812034 , 0.5774185 , 0.57832179, 0.57731911, 0.57838398])
+        std = np.array([0.78190242, 0.77617083, 0.77710955, 0.77693384, 0.77836506])
+        cont = ( cont - mean ) / std
+
+
         return cont, val 
 
 # class PolynomialContexts:

@@ -30,18 +30,18 @@ class Network2(nn.Module):
         x = self.linear(x)
         return x
 
-class Network3(nn.Module):
-    def __init__(self, output_dim, dim, hidden_size=10):
-        super(Network3, self).__init__()
-        self.fc1 = nn.Linear(dim, hidden_size)
-        self.dropout = nn.Dropout(p=0.2)
-        self.activate = nn.ReLU()
-        self.fc2 = nn.Linear(hidden_size, output_dim)
+# class Network3(nn.Module):
+#     def __init__(self, output_dim, dim, hidden_size=10):
+#         super(Network3, self).__init__()
+#         self.fc1 = nn.Linear(dim, hidden_size)
+#         self.dropout = nn.Dropout(p=0.2)
+#         self.activate = nn.ReLU()
+#         self.fc2 = nn.Linear(hidden_size, output_dim)
     
-    def forward(self, x):
-        x = self.dropout(self.activate(self.fc1(x)))
-        x = self.fc2(x)
-        return x
+#     def forward(self, x):
+#         x = self.dropout(self.activate(self.fc1(x)))
+#         x = self.fc2(x)
+#         return x
 
 # class Network(nn.Module):
 #     def __init__(self, output_dim, dim, hidden_size=10):
@@ -323,7 +323,7 @@ class NeuralCBPside():
         # print(self.features)
         # print(self.labels)
 
-        optimizer = optim.SGD(self.func.parameters(), lr=0.01, weight_decay=self.lbd) #, weight_decay=self.lbd
+        optimizer = optim.SGD(self.func.parameters(), lr=0.01, weight_decay=self.lbd) 
         length = self.labels.shape[0]
         X_tensor = torch.tensor(self.features)
         y_tensor = torch.tensor(self.labels)

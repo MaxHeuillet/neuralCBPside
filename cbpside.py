@@ -106,11 +106,11 @@ class CBPside():
                     # print('k', k, 'pair ', pair, 'v ', self.v[ pair[0] ][ pair[1] ][k].T.shape , 'q[k] ', q[k].shape  )
                     tdelta += self.v[ pair[0] ][ pair[1] ][k].T @ q[k]
                     c += np.linalg.norm( self.v[ pair[0] ][ pair[1] ][k], np.inf ) * w[k] #* np.sqrt( (self.d+1) * np.log(t) ) * self.d
-                # print('pair', pair, 'tdelta', tdelta, 'confidence', c)
+                print('pair', pair, 'tdelta', tdelta, 'confidence', c)
                 # print('pair', pair,  'tdelta', tdelta, 'c', c, 'sign', np.sign(tdelta)  )
                 # print('sign', np.sign(tdelta) )
                 tdelta = tdelta[0]
-                c =  np.inf
+                # c =  np.inf
                 if( abs(tdelta) >= c):
                     halfspace.append( ( pair, np.sign(tdelta) ) ) 
             

@@ -1,12 +1,12 @@
 #!/bin/bash
 
 horizon=2500
-nfolds=8
+nfolds=20
 
 
 
 
-for context_type in 'linear' #'quintic'
+for context_type in 'linear' 'quadratic' 'sinusoid'
 
     do
 
@@ -18,7 +18,7 @@ for context_type in 'linear' #'quintic'
 
             do
 
-            for approach in  'neuralcbp_theory' 'neuralcbp_simplified' 'neuralcbp_1' 'cbpside_theory'  # 'neuralcbp_01' 'neuralcbp_theory'
+            for approach in  'neuralcbp_theory' 'neuralcbp_1' 'cbpside_theory'  # 'neuralcbp_01' 'neuralcbp_theory'
                     
                 do
 
