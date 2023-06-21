@@ -127,8 +127,9 @@ class Evaluation:
 
             context, distribution = context_generator.get_context()
 
-            outcome = 0 if distribution[0]>0.5 else 1  #np.random.choice( 2 , p = distribution )
-            
+            # outcome = 0 if distribution[0]>0.5 else 1  
+            outcome = np.random.choice( 2 , p = distribution )
+
             context = reshape_context(context, alg.A) if 'neural' in alg.name else np.reshape(context, (-1,1))
 
             action, _ = alg.get_action(t, context)
@@ -147,7 +148,7 @@ class Evaluation:
         result = np.cumsum(cumRegret)
         print(result)
         print('finished', jobid)
-        with gzip.open( './results/{}/benchmark_{}_{}_{}_{}_{}.pkl.gz'.format(self.game_name, self.task, self.context_type, self.horizon, self.n_folds, self.label) ,'ab') as f:
+        with gzip.open( './results/{}/benchmark2_{}_{}_{}_{}_{}.pkl.gz'.format(self.game_name, self.task, self.context_type, self.horizon, self.n_folds, self.label) ,'ab') as f:
             pkl.dump(result,f)
         print('saved', jobid)
 
