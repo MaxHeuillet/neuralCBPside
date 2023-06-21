@@ -191,6 +191,8 @@ class NeuralCBPside():
         if t < self.N: # jouer chaque action une fois au debut du jeu
             action = t
             tdelta = 0
+            factor = 0
+            history = [t, np.nan, np.nan]
 
         else: 
             
@@ -291,7 +293,9 @@ class NeuralCBPside():
             values = { i:self.W[i]*w[i] for i in S}
             action = max(values, key=values.get)
 
-        return action, tdelta
+            history = [ action, factor, tdelta ]
+
+        return action, history #factor
 
     def update(self, action, feedback, outcome, t, X):
 
@@ -334,7 +338,6 @@ class NeuralCBPside():
         else:
             dataloader = DataLoader(dataset, batch_size=1000, shuffle=True)
 
-        # for t in range(1):
         train_loss = self.epoch(dataloader, self.func, optimizer)
         # print(train_loss)
 
