@@ -59,7 +59,7 @@ def evaluate_parallel(evaluator, game, nfolds, id):
     algos = []
     size = 5
     w = np.array([1/size]*size)
-    lbd = 0.1
+    lbd = 1
 
     for alg_id, seed in enumerate(range(id, id+nfolds,1)):
         
@@ -149,7 +149,7 @@ class Evaluation:
         result = np.cumsum(cumRegret)
         print(result)
         print('finished', jobid)
-        with gzip.open( './results/{}/benchmark3_{}_{}_{}_{}_{}.pkl.gz'.format(self.game_name, self.task, self.context_type, self.horizon, self.n_folds, self.label) ,'ab') as f:
+        with gzip.open( './results/{}/benchmark4_{}_{}_{}_{}_{}.pkl.gz'.format(self.game_name, self.task, self.context_type, self.horizon, self.n_folds, self.label) ,'ab') as f:
             pkl.dump(result,f)
         print('saved', jobid)
 
