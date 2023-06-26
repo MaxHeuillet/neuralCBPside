@@ -32,8 +32,9 @@ class LinearContexts:
 
         if self.task == 'imbalanced':
             context = truncated_gaussian(0, 0.1, 0, 1, self.d) if np.random.uniform(0,1)<0.5 else truncated_gaussian(1, 0.1, 0, 1, self.d)
-        else:
+        elif self.task == 'balanced':
             context = truncated_gaussian(0.5, 1, 0, 1, self.d)
+
         # cont = context.reshape(self.d,1)
         p = self.w @ context
         val = [ p, 1-p ]
@@ -45,7 +46,6 @@ class LinearContexts:
 
         return context , val 
 
-
 class QuadraticContexts:
     def __init__(self,  w, task):
         self.d = len(w) # number of features
@@ -56,20 +56,19 @@ class QuadraticContexts:
     def get_context(self, ):
 
         if self.task == 'imbalanced':
-            context = truncated_gaussian(0, 0.05, 0, 1/2, self.d ) if np.random.uniform(0,1)<0.5 else truncated_gaussian(1, 0.05, 0, 1/2, self.d )
+            context = truncated_gaussian(0, 0.2, 0, 1, self.d ) if np.random.uniform(0,1)<0.5 else truncated_gaussian(1, 0.025, 0,  1, self.d )
         else:
-            context = truncated_gaussian(0.5, 1, 0, 1/2, self.d )
+            context = truncated_gaussian(1/np.sqrt(2), 0.05, 0,  1, self.d )
 
         cont = np.array(context)
-        val = 2 * self.w @ cont**2 + self.w @ cont
+        val =  (self.w @ cont)**2 
         val = [ val, 1-val ]
 
-        mean = np.array([0.29579965, 0.29536002, 0.29532072, 0.29525084, 0.29479779])
-        std = np.array([0.16030988, 0.16078859, 0.16100911, 0.16062282, 0.16077367])
+        mean = np.array([0.60673928, 0.60526987, 0.60531421, 0.60608301, 0.6049472 ])
+        std = np.array([0.32465229, 0.32458575, 0.324807,   0.32434703, 0.32378323])
         cont = ( cont - mean ) / std
 
         return cont, val 
-    
 
 class SinusoidContexts:
     def __init__(self,  w, task):

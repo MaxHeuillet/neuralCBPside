@@ -7,9 +7,9 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import TensorDataset, DataLoader
+import copy
 
 from scipy.optimize import minimize
-import copy
 
 # import itertools
 
@@ -56,14 +56,13 @@ class Network2(nn.Module):
 #         x = self.sigmoid(x)
 #         return x
 
-
-
 class NeuralCBPside():
 
-    def __init__(self, game, factor_choice, alpha, lbd, hidden, device):
+    def __init__(self, game, horizon, factor_choice, alpha, lbd, hidden, device):
 
         self.name = 'neuralcbpside'
         self.device = device
+        self.horizon = horizon
 
         self.game = game
         
@@ -105,90 +104,23 @@ class NeuralCBPside():
         self.labels = None
         self.functionnal = []
         self.func = Network( 1, self.d * self.A, hidden_size=self.m).to(self.device)
+        self.func0 = copy.deepcopy(self.func)
         self.p = sum(p.numel() for p in self.func.parameters() if p.requires_grad)
         self.d_init = np.random.normal(0, 0.01, self.p).reshape(-1, 1)
         self.detZt = self.lbd**self.p
         self.Z_t = self.lbd * np.identity(self.p)
         self.Z_t_inv = self.lbd * np.identity(self.p)
-        # self.V_it_inv = np.identity(self.d)
-            
-    # def update_detZt(self, i, g):
 
-
-    #     d = self.d_init
-    #     eta = 0.05
-    #     threshold = 1e-6  # Adjust this threshold as per your requirements
-    #     decay_rate = 0.99  # Adjust the decay rate as per your requirements
-    #     max_iterations = 150
-
-    #     criteria = 0
-
-    #     gradient_norm = np.linalg.norm(self.Z_it @ d - g)  # Calculate the initial gradient norm
-    #     while gradient_norm > threshold and criteria < max_iterations:
-    #         decayed_eta = eta * decay_rate   # Calculate the decaying learning rate
-    #         grad = self.Z_it @ d - g
-    #         d = d - decayed_eta * self.Z_it @ (grad)
-    #         gradient_norm = np.linalg.norm(grad)  # Update the gradient norm
-    #         criteria += 1
-    #     print(criteria, gradient_norm, threshold, gradient_norm > threshold)
-
-    #     if gradient_norm > threshold:
-    #         d = self.d_init
-    #     else: 
-    #         self.d_init = d
-
-    #     detZt = (1 + g.T @ d / self.m ) * self.detZt
-    #     self.detZt = detZt[0][0]
-        
-    #     return detZt 
-
-    def update_detZt(self, i, g):
-
-        def objective_function(d, Z, g):
-            return np.linalg.norm( np.dot(Z, d) - g)
-
-        # Initial guess for d
-        initial_guess = np.random.normal(0, 0.01, (self.p, 1) )
-
-        # Minimize the objective function
-        result = minimize(objective_function, initial_guess, args=(self.Z_t, g), options={'gtol': 1e-6, 'disp': True})
-
-        # Extract the optimal solution
-        optimal_d = result.x
-
-        self.detZt = (1 + g.T @ optimal_d / self.m ) * self.detZt
-        print('detZt', self.detZt )
-        return True 
     
     def gamma_t(self, i, t, ):
-
-        L = 2
-        delta = 1/t**2
-        J = t
-        # print('det_Zt',det_Zt)
-        eta = 0.1
-        nu = 1
-        S = 1
-
-        C1 = 0
-        C2 = 0
-        C3 = 0
         
-        sqrt_log_m = np.sqrt( np.log( self.m ) )
-
-        A = np.sqrt( 1 + C1 * self.m**(-1/6) * sqrt_log_m * L**4 * t**(7/6) * self.lbd**(-7/6) )
-        print(self.detZt, self.lbd**self.p)
-        inside_sqrt = np.log( self.detZt / self.lbd**self.p ) + C2 * self.m**(-1/6) * sqrt_log_m * L**4 * t**(5/3) * self.lbd**(-1/6) - 2 * np.log( delta )
-        # print('inside_sqrt', inside_sqrt)
-        B = nu * np.sqrt( inside_sqrt ) + np.sqrt(self.lbd) * S
-        C = (1 - eta * self.m * self.lbd)**J * np.sqrt( t/self.lbd ) + self.m**(-1/6) * sqrt_log_m *  L**(7/2) * t**(5/3) * self.lbd**(-5/3) * ( 1 + np.sqrt(t/self.lbd) )
-        C = C3 * C
-        # print(A,B,C)
-        gamma_t = A * B +C
+        delta = 0.05 
+        gamma_t = 2 * np.log( 2 * self.horizon * self.A / delta )
 
         return gamma_t
 
     def get_action(self, t, X):
+        # print('self func0', self.func0)
 
         if t < self.N: # jouer chaque action une fois au debut du jeu
             action = t
@@ -211,13 +143,18 @@ class NeuralCBPside():
             unique_elements = [0, 2, 1] #np.unique(self.game.FeedbackMatrix)
             for feedback in unique_elements:
                 act_to_idx = np.where(self.game.FeedbackMatrix == feedback)[0][0]
-            
-                self.func.zero_grad()
-                pred =  self.func( torch.from_numpy( X[feedback] ).float().to(self.device) )
-                
-                pred.backward() 
-                g = torch.cat([p.grad.flatten().detach() for p in self.func.parameters()])
+
+                context = torch.from_numpy( X[feedback] ).float().to(self.device) 
+                pred =  self.func( context)
+                pred0 =  self.func0( context )
+
+                self.func0.zero_grad()
+
+                pred0.backward() 
+
+                g = torch.cat([p.grad.flatten().detach() for p in self.func0.parameters()])
                 g = torch.unsqueeze(g , 1)
+
                 g_buffer[act_to_idx].append(g.cpu().detach().numpy() )
                 pred_buffer[act_to_idx].append(pred.cpu().detach().numpy())
             
@@ -229,14 +166,8 @@ class NeuralCBPside():
                 width = np.sqrt( width2 )
 
                 sigma_i = len(self.SignalMatrices[i])
-                if self.factor_choice == '1':
-                    factor = 1
-                elif self.factor_choice == '01':
-                    factor = 0.1
-                elif self.factor_choice == 'simplified':
-                    factor =   np.sqrt(  self.p * np.log(t) + 2 * np.log(1/t**2)   ) + np.sqrt(self.lbd) * sigma_i 
-                else:
-                    factor = self.gamma_t(i, t)
+
+                factor = self.gamma_t(i, t)
 
                 formule = factor * width
 
@@ -297,19 +228,13 @@ class NeuralCBPside():
 
             history = [ action, factor, tdelta ]
 
-        return action, history #factor
+        return action, history 
 
     def update(self, action, feedback, outcome, t, X):
 
         if t >= self.N:
 
             z = self.g_list[action]  
-
-            if self.counter == 50 and self.factor_choice == 'theory':
-                self.update_detZt(action, z )
-                self.counter = 0
-            else:
-                self.counter += 1
             
             Z_t = self.Z_t
             Z_t += z @ z.T / self.m
