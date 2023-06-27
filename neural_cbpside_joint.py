@@ -106,7 +106,7 @@ class CBPside():
                 # print('weights', self.weights, self.weights.shape)
                 # print('pred', self.func( X[signal] ), self.func( X[signal] ).shape)
                 latent_rep =   self.func( torch.from_numpy( X[signal] ).float().to(self.device) ).cpu().detach().numpy()
-                # print('latent_rep and weights', self.weights.shape, latent_rep.shape,)
+                print('latent_rep and weights', self.weights.shape, latent_rep.shape,)
                 pred = self.weights.T @ latent_rep
                 # print('pred', pred)
                 # print('final', pred, pred.shape )
@@ -114,11 +114,14 @@ class CBPside():
                 self.latent_buffer = latent_rep if self.latent_buffer is None else np.vstack((self.latent_buffer, latent_rep) )
             # print('latent buffer', self.latent_buffer.shape)
 
+
+
             for i in range(self.N):
                 sigma_i = len(self.SignalMatrices[i])
                 factor = sigma_i * (  np.sqrt(  self.m * np.log(t) + 2 * np.log(1/t**2)   ) + np.sqrt(self.lbd) * sigma_i )
                 width = np.sqrt( self.latent_buffer[signal].T @ self.A_t_inv @ self.latent_buffer[signal] )
                 formule = factor * width
+                print('factor', factor, 'width', width)
                 w.append( formule )
                 q.append( np.array(pred_buffer[i]).reshape(sigma_i,1) )
             # print()    
@@ -138,7 +141,7 @@ class CBPside():
                 # print('pair', pair,  'tdelta', tdelta, 'c', c, 'sign', np.sign(tdelta)  )
                 # print('sign', np.sign(tdelta) )
                 tdelta = tdelta[0]
-                # c =  np.inf
+                c =  np.inf
                 if( abs(tdelta) >= c):
                     halfspace.append( ( pair, np.sign(tdelta) ) ) 
             

@@ -61,6 +61,7 @@ class CBPside():
         if t < self.N:
             action = t
             tdelta = 0
+            history = [t, np.nan, np.nan]
             # self.contexts[t]['weights'] = self.SignalMatrices[t] @ np.array( [ [0,1],[1,-1] ])
 
         else: 
@@ -155,8 +156,9 @@ class CBPside():
             # print('S',S, 'values', values, 'action', action)
             # 'P_t',P_t,'N_t', N_t,'Nplus_t',Nplus_t,'V_t',V_t, 'R_t',R_t,  print('n', self.n,'nu', self.nu)
             # print()
+            history = [ action, factor, tdelta ]
 
-        return action, tdelta
+        return action, history
 
     def update(self, action, feedback, outcome, t, X):
 
