@@ -36,19 +36,19 @@ def apple_tasting(  ):
 
     FeedbackMatrix_PMDMED =  np.array([ [0, 0],[1, 2] ])
     A = geometry_v3.alphabet_size(FeedbackMatrix_PMDMED,  len(FeedbackMatrix_PMDMED),len(FeedbackMatrix_PMDMED[0]) )
-    signal_matrices_Adim =  [ np.array( [ [1,1],[0,0],[0,0] ] ), np.array( [ [0,0],[1,0],[0,1] ] ) ]
+    signal_matrices_Adim =  [ np.array( [ [1,1],[0,0],[0,0] ] ), np.array( [ [0,0],[0,1],[1,0] ] ) ]
 
     mathcal_N = [ [0, 1] ] #, [1, 0] 
 
-    v = {0: {1: [np.array([0]), np.array([-1.,  1.])]}, 1: {0: [np.array([0]), np.array([ 1., -1.])]}}
+    v = { 0: {1: [np.array([0]), np.array([-1.,  1.])]} } #, 1: {0: [np.array([0]), np.array([ 1., -1.])]}
 
     N_plus =  collections.defaultdict(dict)
     N_plus[0][1] = [ 0, 1 ]
-    N_plus[1][0] = [ 0, 1 ]
+    # N_plus[1][0] = [ 0, 1 ]
 
     V = collections.defaultdict(dict)
     V[0][1] = [ 0,1 ]
-    V[1][0] = [ 0,1 ]
+    # V[1][0] = [ 0,1 ]
 
     game = Game( name, LossMatrix, FeedbackMatrix, FeedbackMatrix_PMDMED,signal_matrices, signal_matrices_Adim, mathcal_N, v, N_plus, V )
 

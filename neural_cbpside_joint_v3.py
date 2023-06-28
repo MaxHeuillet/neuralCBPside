@@ -22,15 +22,45 @@ class Network(nn.Module):
         x = self.fc2( self.activate( self.fc1(x) ) )
         return x
     
-
-    
-
 def convert_list(A):
     B = []
     B.append(np.array([A[0]]).reshape(1, 1))
     sub_array = np.array(A[1:]).reshape(2, 1)
     B.append(sub_array)
     return B
+
+
+from torch.utils.data import Dataset
+
+class ExperienceReplay(Dataset):
+    def __init__(self, size):
+        self.size = size
+        self.obs = None
+        self.latent_obs = None
+        self.labels = None
+
+    def __len__(self):
+        return len(self.obs)
+
+    def __getitem__(self, index):
+        return self.obs[index], self.latent_obs[index], self.labels[index]
+
+    def append(self, X, X_latent, y):
+        if self.obs is not None and len(self.obs) >= self.size :
+            self.obs = self.obs[1:, :]
+            self.latent_obs = self.latent_obs[1:, :]
+            self.labels = self.labels[1:, :]
+
+        self.obs = X if self.obs is None else np.concatenate( (self.obs, X), axis=0)
+        self.latent_obs = X_latent if self.latent_obs is None else np.concatenate( (self.latent_obs, X_latent), axis=0) 
+        self.labels = y if self.labels is None else np.concatenate( (self.labels, y), axis=0)
+
+    def clear(self):
+        self.obs = None
+        self.latent_obs = None
+        self.labels = None
+
+
 
 class CBPside():
 
@@ -83,19 +113,13 @@ class CBPside():
 
     def reset(self, d):
         self.d = d
-        self.n = np.zeros( self.N )
-        self.nu = [ np.zeros(   ( len( set(self.game.FeedbackMatrix[i]) ),1)  ) for i in range(self.N)]  #[ np.zeros(    len( np.unique(self.game.FeedbackMatrix[i] ) )  ) for i in range(self.N)] 
         self.memory_pareto = {}
         self.memory_neighbors = {}
-        self.features = None
-        self.labels = None
         self.weights = None
         self.A_t_inv = self.lbd_reg * np.identity(self.m)
-        self.b_t = np.zeros( (self.m,1) )
         self.func = Network( self.d * self.A, self.m).to(self.device)
         self.func0 = copy.deepcopy(self.func)
-        self.latent_buffer = None
-        self.latent_features = None
+        self.replay = ExperienceReplay(128)
         
 
  
@@ -201,46 +225,33 @@ class CBPside():
         Y_t = self.game.SignalMatricesAdim[action] @ e_y 
         # print('Y_t', Y_t.shape)
 
-        self.labels = Y_t.T if self.labels is None else np.concatenate( (self.labels, Y_t.T), axis=1)
-
-        self.features = X if self.features is None else np.concatenate( (self.features, X), axis=0)
-
-        self.latent_features = self.latent_X if self.latent_features is None else np.vstack( (self.latent_features, self.latent_X) )
+        self.replay.append( X, self.latent_X , Y_t )
 
         for i in range(self.A):
             Xi = np.expand_dims(self.latent_X[i], axis=1)
             A_t_inv = self.A_t_inv
             self.A_t_inv = A_t_inv - ( A_t_inv @ Xi @ Xi.T @ A_t_inv ) / ( 1 + Xi.T @ A_t_inv @ Xi ) 
         
-        print(t, self.labels.shape, self.latent_features.shape, self.A_t_inv.shape)
-        self.weights = self.labels @ self.latent_features @ self.A_t_inv
+        # print(t, self.replay.labels.shape, self.replay.latent_obs.shape, self.A_t_inv.shape)
+        self.weights = self.replay.labels.T @ self.replay.latent_obs @ self.A_t_inv
 
-        self.func = copy.deepcopy(self.func0) 
+        # print('replay shape', self.replay.obs.shape, self.replay.latent_obs.shape, self.replay.labels.shape,)
         optimizer = optim.SGD(self.func.parameters(), lr=10e-5, weight_decay=self.lbd_neural) 
+        dataloader = DataLoader(self.replay, batch_size=self.replay.size, shuffle=True) 
 
-        length = self.labels.shape[0]
-        X_tensor, y_tensor = torch.tensor(self.features), torch.tensor(self.labels.T)
-        print('X and y shape', X_tensor.shape, y_tensor.shape)
-        dataset = TensorDataset(X_tensor, y_tensor)
-        # print('dataset',dataset[0])
-        dataloader = DataLoader(dataset, batch_size=length, shuffle=True) if length < 1000 else DataLoader(dataset, batch_size=1000, shuffle=True)
-
-        for _ in range(50):
+        for _ in range(1):
             train_loss = self.SGD_step(dataloader, optimizer)
-            print(_, train_loss)
+
 
 
     def SGD_step(self, loader, opt=None):
         #""Standard training/evaluation epoch over the dataset"""
-        expected_dtype = next(self.func.parameters()).dtype
         lin_weights = torch.tensor(self.weights).float().to(self.device)
-        # print( 'batch size' , loader.batch_size )
-        # lin_weights_matrix = lin_weights.expand( lin_weights.shape[0], loader.batch_size)
-        # print('lin weights ', lin_weights.shape)
-        for X, y in loader:
-            X = X.to(self.device).float() #to(dtype=expected_dtype)
-            y = y.to(self.device).float() #to(dtype=expected_dtype)
+
+        for X, _, y in loader:
             # print('X and y', X.shape, y.shape )
+            X,y = X.to(self.device).float(), y.to(self.device).float() 
+            
             # print('latent prediction', self.func(X).shape )
             pred = self.func(X) @ lin_weights.T
             # print('pred', pred, pred.shape)

@@ -215,7 +215,7 @@ class CBPside():
         print(t, self.labels.shape, self.latent_features.shape, self.A_t_inv.shape)
         self.weights = self.labels @ self.latent_features @ self.A_t_inv
 
-        self.func = copy.deepcopy(self.func0) 
+        # self.func = copy.deepcopy(self.func0) 
         optimizer = optim.SGD(self.func.parameters(), lr=10e-5, weight_decay=self.lbd_neural) 
 
         length = self.labels.shape[0]
@@ -223,23 +223,21 @@ class CBPside():
         print('X and y shape', X_tensor.shape, y_tensor.shape)
         dataset = TensorDataset(X_tensor, y_tensor)
         # print('dataset',dataset[0])
-        dataloader = DataLoader(dataset, batch_size=length, shuffle=True) if length < 1000 else DataLoader(dataset, batch_size=1000, shuffle=True)
+        dataloader = DataLoader(dataset, batch_size=length, shuffle=True) if length < 128 else DataLoader(dataset, batch_size=1000, shuffle=True)
 
-        for _ in range(50):
+        for _ in range(1):
             train_loss = self.SGD_step(dataloader, optimizer)
-            print(_, train_loss)
+            # print(_, train_loss)
 
 
     def SGD_step(self, loader, opt=None):
         #""Standard training/evaluation epoch over the dataset"""
-        expected_dtype = next(self.func.parameters()).dtype
         lin_weights = torch.tensor(self.weights).float().to(self.device)
         # print( 'batch size' , loader.batch_size )
         # lin_weights_matrix = lin_weights.expand( lin_weights.shape[0], loader.batch_size)
         # print('lin weights ', lin_weights.shape)
         for X, y in loader:
-            X = X.to(self.device).float() #to(dtype=expected_dtype)
-            y = y.to(self.device).float() #to(dtype=expected_dtype)
+            X,y = X.to(self.device).float(), y.to(self.device).float() 
             # print('X and y', X.shape, y.shape )
             # print('latent prediction', self.func(X).shape )
             pred = self.func(X) @ lin_weights.T
