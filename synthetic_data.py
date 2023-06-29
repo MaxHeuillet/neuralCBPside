@@ -6,6 +6,7 @@ from numpy.linalg import norm
 import numpy as np
 # from mnist_c import corruptions
 from scipy.stats import truncnorm
+from scipy.special import expit
 
 
 def truncated_gaussian(mean, variance, a, b, size):
@@ -22,29 +23,56 @@ def truncated_gaussian(mean, variance, a, b, size):
     return np.array(samples)
 
 class LinearContexts:
-    def __init__(self,  w, task):
-        self.d = len(w) # number of features
-        self.w = w
+    def __init__(self,  d, task):
+        self.d = d
+        self.w = np.ones(self.d) * 1/(2*self.d)
+        self.b = 1/2
         self.type = 'linear'
         self.task = task
     
     def get_context(self, ):
 
         if self.task == 'imbalanced':
-            context = truncated_gaussian(0, 0.1, 0, 1, self.d) if np.random.uniform(0,1)<0.5 else truncated_gaussian(1, 0.1, 0, 1, self.d)
+            p = np.random.uniform(0, 0.2) if np.random.uniform(0, 1)<0.5 else np.random.uniform(0.8, 1)
+            mean = np.array([-0.00069175, -0.00069175, -0.00069175, -0.00069175, -0.00069175])
+            std = np.array([4.04096508, 4.04096508, 4.04096508, 4.04096508, 4.04096508])
         elif self.task == 'balanced':
-            context = truncated_gaussian(0.5, 1, 0, 1, self.d)
+            p = np.random.uniform(0.4, 0.6) 
+            mean = np.array([-0.00060318, -0.00060318, -0.00060318, -0.00060318, -0.00060318])
+            std = np.array([0.57770456, 0.57770456, 0.57770456, 0.57770456, 0.57770456])
 
-        # cont = context.reshape(self.d,1)
-        p = self.w @ context
+        context = (p-self.b) * 1/self.w
         val = [ p, 1-p ]
 
         context = np.array(context)
-        mean = np.array([0.49894511, 0.49964278, 0.49914392, 0.50041341, 0.49964411])
-        std = np.array([0.31208973, 0.31217681, 0.31190383, 0.31202762, 0.31117992])
         context = ( context - mean ) / std
 
         return context , val 
+
+# class LinearContexts:
+#     def __init__(self,  w, task):
+#         self.d = len(w) # number of features
+#         self.w = w
+#         self.type = 'linear'
+#         self.task = task
+    
+#     def get_context(self, ):
+
+#         if self.task == 'imbalanced':
+#             context = truncated_gaussian(0, 0.1, 0, 1, self.d) if np.random.uniform(0,1)<0.5 else truncated_gaussian(1, 0.1, 0, 1, self.d)
+#         elif self.task == 'balanced':
+#             context = truncated_gaussian(0.5, 1, 0, 1, self.d)
+
+#         # cont = context.reshape(self.d,1)
+#         p = self.w @ context
+#         val = [ p, 1-p ]
+
+#         context = np.array(context)
+#         mean = np.array([0.49894511, 0.49964278, 0.49914392, 0.50041341, 0.49964411])
+#         std = np.array([0.31208973, 0.31217681, 0.31190383, 0.31202762, 0.31117992])
+#         context = ( context - mean ) / std
+
+#         return context , val 
 
 class QuadraticContexts:
     def __init__(self,  w, task):
@@ -69,6 +97,33 @@ class QuadraticContexts:
         cont = ( cont - mean ) / std
 
         return cont, val 
+
+class NonLinearContexts:
+    def __init__(self,  w, task):
+        self.d = len(w) # number of features
+        self.w = w
+        self.type = 'nonlinear'
+        self.task = task
+    
+    def get_context(self, ):
+
+        if self.task == 'imbalanced':
+            context = np.random.uniform(-10, 10, self.d) 
+        # else:
+            # context = truncated_gaussian(0, 5, -10,  10, self.d )
+
+        cont = np.array(context)
+        # print(cont)
+
+        val =  (np.sin(  self.w @ context  ) + 1 ) / 2 
+        val = [ val, 1-val ]
+
+        mean = np.array([ 0.00210544, -0.02539498,  0.01848252, -0.00751817,  0.01412415])
+        std = np.array([5.77238894, 5.77531259, 5.7664777,  5.77564962, 5.77461231])
+        cont = ( cont - mean ) / std
+
+        return cont, val 
+
 
 class SinusoidContexts:
     def __init__(self,  w, task):

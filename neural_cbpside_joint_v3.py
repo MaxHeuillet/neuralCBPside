@@ -16,10 +16,11 @@ class Network(nn.Module):
     def __init__(self,  d, m):
         super(Network, self).__init__()
         self.fc1 = nn.Linear(d, m)
-        self.activate = nn.ReLU()
+        self.activate1 = nn.ReLU()
         self.fc2 = nn.Linear(m, m)
+        self.activate2 = nn.ReLU()
     def forward(self, x):
-        x = self.fc2( self.activate( self.fc1(x) ) )
+        x = self.activate2( self.fc2( self.activate1( self.fc1(x) ) ) )
         return x
     
 def convert_list(A):
@@ -145,8 +146,8 @@ class CBPside():
 
             for i in range(self.N):
                 sigma_i = len(self.SignalMatrices[i])
-                factor = sigma_i * (  np.sqrt(  self.d * np.log(t) + 2 * np.log(1/t**2)   ) + np.sqrt(self.lbd_reg) * sigma_i )
-                # factor = sigma_i * (  np.sqrt( 2 * ( self.d  * np.log( 1 + t * np.log(self.N * 1)/self.lbd_reg ) +  np.log(1/t**2) ) ) + np.sqrt(self.lbd_reg) * sigma_i )
+                # factor = sigma_i * (  np.sqrt(  self.d * np.log(t) + 2 * np.log(1/t**2)   ) + np.sqrt(self.lbd_reg) * sigma_i )
+                factor = sigma_i * (  np.sqrt( 2 * ( self.d  * np.log( 1 + t * np.log(self.N * 1)/self.lbd_reg ) +  np.log(1/t**2) ) ) + np.sqrt(self.lbd_reg) * sigma_i )
                 width = np.sqrt( self.latent_X[i].T @ self.A_t_inv @ self.latent_X[i] )
                 formule = factor * width
                 print('factor', factor, 'width', width)
