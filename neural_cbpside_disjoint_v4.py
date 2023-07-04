@@ -21,6 +21,7 @@ class Network(nn.Module):
         self.activate2 = nn.ReLU()
     def forward(self, x):
         x = self.activate2( self.fc2( self.activate1( self.fc1(x) ) ) )
+        # x = self.fc2( self.activate1( self.fc1(x) ) ) 
         return x
     
 def convert_list(A):
@@ -33,55 +34,24 @@ def convert_list(A):
 
 from torch.utils.data import Dataset
 
-class Representation(Dataset):
-    def __init__(self, size):
-        self.size = size
-        self.obs = None
-        self.latent_obs = None
-        self.labels = None
-
-    def __len__(self):
-        return len(self.obs)
-
-    def __getitem__(self, index):
-        return self.obs[index], self.latent_obs[index], self.labels[index]
-
-    def append(self, X, X_latent, y):
-        if self.obs is not None and len(self.obs) >= self.size :
-            self.obs = self.obs[3:, :]
-            self.latent_obs = self.latent_obs[3:, :]
-            self.labels = self.labels[3:, :]
-
-        self.obs = X if self.obs is None else np.concatenate( (self.obs, X), axis=0)
-        self.latent_obs = X_latent if self.latent_obs is None else np.concatenate( (self.latent_obs, X_latent), axis=0) 
-        self.labels = y if self.labels is None else np.concatenate( (self.labels, y), axis=0)
-
-    def clear(self):
-        self.obs = None
-        self.latent_obs = None
-        self.labels = None
-
-class Exploration(Dataset):
+class CustomDataset(Dataset):
     def __init__(self, ):
         self.obs = None
-        self.latent_obs = None
         self.labels = None
 
     def __len__(self):
         return len(self.obs)
 
     def __getitem__(self, index):
-        return self.obs[index], self.latent_obs[index], self.labels[index]
-
-    def append(self, X, X_latent, y):
-        self.obs = X if self.obs is None else np.concatenate( (self.obs, X), axis=0)
-        self.latent_obs = X_latent if self.latent_obs is None else np.concatenate( (self.latent_obs, X_latent), axis=0) 
+        return self.obs[index], self.labels[index] 
+    
+    def append(self, X , y):
+        self.obs = X if self.obs is None else np.concatenate( (self.obs, X), axis=0) 
         self.labels = y if self.labels is None else np.concatenate( (self.labels, y), axis=0)
+        
 
-    def clear(self):
-        self.obs = None
-        self.latent_obs = None
-        self.labels = None
+
+
 
 
 
@@ -89,7 +59,7 @@ class CBPside():
 
     def __init__(self, game, alpha, lbd_neural, lbd_reg, m, device):
 
-        self.name = 'cbpsidejoint'
+        self.name = 'cbpsidedisjoint'
         self.device = device
 
         self.game = game
@@ -139,40 +109,45 @@ class CBPside():
         self.memory_neighbors = {}
         self.weights = None
         self.A_t_inv = self.lbd_reg * np.identity(self.m)
-        self.func = Network( self.d * self.A, self.m).to(self.device)
+        self.func = Network( self.d , self.m).to(self.device)
         self.func0 = copy.deepcopy(self.func)
-        self.reps = Representation(300)
-        self.expl = Exploration()
-        
+        self.hist = CustomDataset()
+        self.feedbacks = []
 
- 
+        self.contexts = []
+        for i in range(self.N):
+            self.contexts.append( {'feats':None, 'labels':None, 'weights': None,
+                                    'V_it_inv': self.lbd_reg * np.identity(self.d),
+                                    'V_i0_inv': self.lbd_reg * np.identity(self.d) } )
+
     def get_action(self, t, X):
-        
-        print('X', X.shape)
-        self.latent_X = self.func( torch.from_numpy( X ).float().to(self.device) ).cpu().detach().numpy()
-        # self.latent_X = X
 
-        
+        self.latent_X = self.func( torch.from_numpy( X ).float().to(self.device) ).cpu().detach().numpy()
+        # print('latent X', self.latent_X.shape)
+        # print('X', X)
+        # self.latent_X = X
+        # print('latent X', self.latent_X.shape )
 
         if t < self.N:
             action = t
             history = [t, np.nan, np.nan]
             
         else: 
-            print('latent X', self.latent_X.shape , 'weights', self.weights.shape)
+
             halfspace = []
             q = []
             w = []
 
-            pred = self.latent_X @ self.weights.T 
-            q = convert_list( pred.squeeze() )
-
             for i in range(self.N):
 
+                pred = self.latent_X @ self.contexts[i]['weights'].T
+                print('action', i, pred.shape)
+                q.append(  pred  )
+
                 sigma_i = len(self.SignalMatrices[i])
-                # factor = sigma_i * (  np.sqrt(  self.d * np.log(t) + 2 * np.log(1/t**2)   ) + np.sqrt(self.lbd_reg) * sigma_i )
-                factor = sigma_i * (  np.sqrt( 2 * ( self.d  * np.log( 1 + t * np.log(self.N * 1)/self.lbd_reg ) +  np.log(1/t**2) ) ) + np.sqrt(self.lbd_reg) * sigma_i )
-                width = np.sqrt( self.latent_X[i].T @ self.A_t_inv @ self.latent_X[i] )
+                factor = sigma_i * (  np.sqrt(  self.d * np.log(t) + 2 * np.log(1/t**2)   ) + np.sqrt(self.lbd_reg) * sigma_i )
+                # factor = sigma_i * (  np.sqrt( 2 * ( self.d  * np.log( 1 + t * np.log(self.N * 1)/self.lbd_reg ) +  np.log(1/t**2) ) ) + np.sqrt(self.lbd_reg) * sigma_i )
+                width = np.sqrt( self.latent_X @ self.contexts[i]['V_it_inv'] @ self.latent_X.T )
                 formule = factor * width
                 print('factor', factor, 'width', width)
                 w.append( formule )
@@ -185,9 +160,13 @@ class CBPside():
                 tdelta, c = 0, 0
 
                 for k in  self.V[ pair[0] ][ pair[1] ]:
-                    tdelta += self.v[ pair[0] ][ pair[1] ][k].T @ q[k]
-                    c += np.linalg.norm( self.v[ pair[0] ][ pair[1] ][k], np.inf ) * w[k] 
+                    # print( 'pair ', pair, 'action ', k, 'proba ', self.nu[k]  / self.n[k]  )
+                    # print('k', k, 'pair ', pair, 'v ', self.v[ pair[0] ][ pair[1] ][k].T.shape , 'q[k] ', q[k].shape  )
+                    tdelta += self.v[ pair[0] ][ pair[1] ][k].T @ q[k].T
+                    c += np.linalg.norm( self.v[ pair[0] ][ pair[1] ][k], np.inf ) * w[k] #* np.sqrt( (self.d+1) * np.log(t) ) * self.d
                 print('pair', pair, 'tdelta', tdelta, 'confidence', c)
+                # print('pair', pair,  'tdelta', tdelta, 'c', c, 'sign', np.sign(tdelta)  )
+                # print('sign', np.sign(tdelta) )
                 tdelta = tdelta[0]
                 # c =  np.inf
                 if( abs(tdelta) >= c):
@@ -232,50 +211,76 @@ class CBPside():
             # print('value', values)
             action = max(values, key=values.get)
             # print('S',S, 'values', values, 'action', action)
-            # 'P_t',P_t,'N_t', N_t,'Nplus_t',Nplus_t,'V_t',V_t, 'R_t',R_t,  
+            # 'P_t',P_t,'N_t', N_t,'Nplus_t',Nplus_t,'V_t',V_t, 'R_t',R_t,  print('n', self.n,'nu', self.nu)
             # print()
 
             history = [ action, factor, tdelta ]
-
+            # action = np.random.randint(2)
         return action, history
 
     def update(self, action, feedback, outcome, t, X):
 
+        ### update exploration component:
+
         e_y = np.zeros( (self.M,1) )
         e_y[outcome] = 1
-        Y_t = self.game.SignalMatricesAdim[action] @ e_y 
+        Y_t = self.game.SignalMatrices[action] @ e_y 
 
-        self.reps.append( X, self.latent_X , Y_t )
-        self.expl.append( X, self.latent_X , Y_t )
+        print('action', action, 'feedback', feedback, 'Y_t', Y_t, 'latentX', self.latent_X)
 
-        for i in range(self.A):
-            Xi = np.expand_dims(self.latent_X[i], axis=1)
-            A_t_inv = self.A_t_inv
-            self.A_t_inv = A_t_inv - ( A_t_inv @ Xi @ Xi.T @ A_t_inv ) / ( 1 + Xi.T @ A_t_inv @ Xi ) 
-            self.weights = self.expl.labels.T @ self.expl.latent_obs @ self.A_t_inv
-
-        # print(t, self.replay.labels.shape, self.replay.latent_obs.shape, self.A_t_inv.shape)
-        # print('replay shape', self.replay.obs.shape, self.replay.latent_obs.shape, self.replay.labels.shape,)
-        # self.func = copy.deepcopy(self.func0)
-        optimizer = optim.SGD(self.func.parameters(), lr=10e-5, weight_decay=self.lbd_neural) 
-        dataloader = DataLoader(self.reps, batch_size=self.reps.size, shuffle=True) 
-
-        for _ in range(1):
-            train_loss = self.step(dataloader, optimizer)
+        self.contexts[action]['labels'] = Y_t if self.contexts[action]['labels'] is None else np.concatenate( (self.contexts[action]['labels'], Y_t), axis=1)
+        self.contexts[action]['feats'] = X if self.contexts[action]['feats'] is None else np.concatenate( (self.contexts[action]['feats'], X), axis=0)
 
 
+        actualized_cs = self.func( torch.tensor( self.contexts[action]['feats'] ).to(self.device).float() ).cpu().detach().numpy()
+        # print('actualized_cs', actualized_cs.shape)
+        V_it_inv = self.contexts[action]['V_i0_inv']
+        for c in actualized_cs:
+            # print('c', c)
+            c = np.array(c).reshape( (1, self.m) )
+            V_it_inv = V_it_inv - ( V_it_inv @ c.T @ c @ V_it_inv ) / ( 1 + c @ V_it_inv @ c.T ) 
+        self.contexts[action]['V_it_inv'] = V_it_inv
+        weights = self.contexts[action]['labels'] @ actualized_cs @ self.contexts[action]['V_it_inv']
+        self.contexts[action]['weights'] = weights
+        # print('weights', weights.shape, 'Y_t', Y_t.shape, )
 
-    def step(self, loader, opt=None):
+        self.hist.append( X , Y_t )
+        self.feedbacks.append(feedback) 
+
+        ## update representation component:
+
+        weight_list = []
+        for idx in self.feedbacks:
+            if idx == 0:
+                w = self.contexts[0]['weights']
+            else:
+                w = self.contexts[1]['weights']
+            weight_list.append( w )
+        weight_list = np.vstack(weight_list)
+        weight_list =  torch.tensor(weight_list).to(self.device).float()
+
+        if t>self.N:
+
+            self.func = copy.deepcopy(self.func0)
+            optimizer = optim.Adam(self.func.parameters(), lr=10e-5, weight_decay = self.lbd_neural )
+            dataloader = DataLoader(self.hist, batch_size=len(weight_list), shuffle=True) 
+
+            for _ in range(10):
+                train_loss = self.step(dataloader, weight_list, optimizer)
+
+
+    def step(self, loader, weight_list, opt):
         #""Standard training/evaluation epoch over the dataset"""
-        lin_weights = torch.tensor(self.weights).float().to(self.device)
-
-        for X, _, y in loader:
-            # print('X and y', X.shape, y.shape )
-            X,y = X.to(self.device).float(), y.to(self.device).float() 
+        
+        for X, y in loader:
             
-            # print('latent prediction', self.func(X).shape )
-            pred = self.func(X) @ lin_weights.T
-            # print('pred', pred, pred.shape)
+            # print('lin weights', lin_weights.shape)
+            X, y  = X.to(self.device).float(), y.to(self.device).float()#, w.to(self.device).float()
+            pred = self.func(X)
+            # print('X, y, w and pred', X.shape, y.shape, weight_list.shape, pred.shape )
+            pred = torch.diag( pred @ weight_list.T )
+            pred = torch.unsqueeze(pred, dim=1)
+            # print('pred',  pred.shape, 'y', y.shape)
             loss = nn.MSELoss()(pred, y)
 
             opt.zero_grad()

@@ -21,6 +21,7 @@ class Network(nn.Module):
         self.activate2 = nn.ReLU()
     def forward(self, x):
         x = self.activate2( self.fc2( self.activate1( self.fc1(x) ) ) )
+        # x = self.fc2( self.activate1( self.fc1(x) ) ) 
         return x
     
 def convert_list(A):
@@ -33,11 +34,10 @@ def convert_list(A):
 
 from torch.utils.data import Dataset
 
-class ExperienceReplay(Dataset):
+class ReplayBuffer(Dataset):
     def __init__(self, size):
         self.size = size
         self.obs = None
-        self.latent_obs = None
         self.labels = None
         self.weights = None
 
@@ -45,25 +45,25 @@ class ExperienceReplay(Dataset):
         return len(self.obs)
 
     def __getitem__(self, index):
-        return self.obs[index], self.latent_obs[index], self.labels[index], self.weights[index]
+        return self.obs[index], self.labels[index], self.weights[index]
 
-    def append(self, X, X_latent, y, weight):
+    def append(self, X , y, weight):
+
         if self.obs is not None and len(self.obs) >= self.size :
-            self.obs = self.obs[1:, :]
-            self.latent_obs = self.latent_obs[1:, :]
-            self.labels = self.labels[1:, :]
-            self.weights = self.weights[1:, :]
+            self.obs = self.obs[3:, :]
+            self.labels = self.labels[3:, :]
+            self.weights = self.weights[3:, :]
 
-        self.obs = X if self.obs is None else np.concatenate( (self.obs, X), axis=0)
-        self.latent_obs = X_latent if self.latent_obs is None else np.concatenate( (self.latent_obs, X_latent), axis=0) 
+        self.obs = X if self.obs is None else np.concatenate( (self.obs, X), axis=0) 
         self.labels = y if self.labels is None else np.concatenate( (self.labels, y), axis=0)
         self.weights = weight if self.weights is None else np.concatenate( (self.weights, weight), axis=0)
 
     def clear(self):
         self.obs = None
-        self.latent_obs = None
         self.labels = None
         self.weights = None
+
+
 
 
 
@@ -103,7 +103,6 @@ class CBPside():
 
         self.eta =  self.W ** 2/3 
         self.m = m
-        self.H = 50
 
 
     def getConfidenceWidth(self, ):
@@ -124,22 +123,19 @@ class CBPside():
         self.A_t_inv = self.lbd_reg * np.identity(self.m)
         self.func = Network( self.d , self.m).to(self.device)
         self.func0 = copy.deepcopy(self.func)
-        self.replay = ExperienceReplay(128)
+        self.replay = ReplayBuffer(300)
 
         self.contexts = []
         for i in range(self.N):
             self.contexts.append( {'latent_fs':None, 'labels':None, 'weights': None,
                                     'V_it_inv': self.lbd_reg * np.identity(self.d) } )
 
-        
-
- 
     def get_action(self, t, X):
 
         self.latent_X = self.func( torch.from_numpy( X ).float().to(self.device) ).cpu().detach().numpy()
-        print('latent X', self.latent_X.shape)
+        # print('latent X', self.latent_X.shape)
+        # print('X', X)
         # self.latent_X = X
-
         # print('latent X', self.latent_X.shape )
 
         if t < self.N:
@@ -234,10 +230,11 @@ class CBPside():
 
     def update(self, action, feedback, outcome, t, X):
 
+        ### update exploration component:
+
         e_y = np.zeros( (self.M,1) )
         e_y[outcome] = 1
         Y_t = self.game.SignalMatrices[action] @ e_y 
-        # Y_t = np.array([feedback]).reshape((-1,1))
 
         self.contexts[action]['labels'] = Y_t if self.contexts[action]['labels'] is None else np.concatenate( (self.contexts[action]['labels'], Y_t), axis=1)
         self.contexts[action]['latent_fs'] = self.latent_X if self.contexts[action]['latent_fs'] is None else np.concatenate( (self.contexts[action]['latent_fs'], self.latent_X), axis=0)
@@ -246,28 +243,54 @@ class CBPside():
         self.contexts[action]['V_it_inv'] = V_it_inv - ( V_it_inv @ X.T @ X @ V_it_inv ) / ( 1 + X @ V_it_inv @ X.T ) 
         weights = self.contexts[action]['labels'] @ self.contexts[action]['latent_fs'] @ self.contexts[action]['V_it_inv']
         self.contexts[action]['weights'] = weights
-        print('weights', weights.shape)
-        self.replay.append( X, self.latent_X , Y_t, weights )
+        # print('weights', weights.shape, 'Y_t', Y_t.shape, )
         
-        # print('replay shape', self.replay.obs.shape, self.replay.latent_obs.shape, self.replay.labels.shape,)
-        # optimizer = optim.SGD(self.func.parameters(), lr=0.01, weight_decay=self.lbd_neural) 
-        # dataloader = DataLoader(self.replay, batch_size=self.replay.size, shuffle=True) 
 
-        # for _ in range(1):
-        #     train_loss = self.SGD_step(dataloader, optimizer)
+        ### update representation component:
 
+        if t>self.N:
 
+            # e_y2 = np.zeros( (self.M,1) )
+            # e_y2[outcome] = 1
+            # Y_t2 = self.game.SignalMatricesAdim[action] @ e_y2
 
-    def SGD_step(self, loader, opt=None):
-        #""Standard training/evaluation epoch over the dataset"""
+            sigma_i = len(self.SignalMatrices[action])
 
-        for X, _, y, lin_weights in loader:
-            print('X, y and weights', X.shape, y.shape, lin_weights.shape )
-            X,y,lin_weights = X.to(self.device).float(), y.to(self.device).float(), lin_weights.to(self.device).float()
+            context = np.tile(X, (sigma_i,1) )
+
+            # weights = np.vstack( [ self.contexts[i]['weights'] for i in [action] ] )
             
-            # print('latent prediction', self.func(X).shape )
-            pred = self.func(X) @ lin_weights.T
-            # print('pred', pred, pred.shape)
+            self.replay.append( context, Y_t, self.contexts[action]['weights'] )
+            
+            # print('replay shape', self.replay.obs.shape, self.replay.weights.shape, self.replay.labels.shape )
+            # self.func = copy.deepcopy(self.func0)
+            # optimizer = optim.SGD(self.func.parameters(), lr=10e-8, weight_decay=self.lbd_neural) 
+            optimizer = optim.Adam(self.func.parameters(), lr=10e-8, weight_decay = self.lbd_neural )
+            dataloader = DataLoader(self.replay, batch_size=self.replay.size, shuffle=True) 
+
+            # weights = torch.tensor(weights).to(self.device).float()
+            # N = int( self.replay.obs.shape[0] / 3 ) if self.replay.obs.shape[0]>3 else 1
+            # # print('N',N)
+            # weights =  weights.repeat(N, 1)
+
+            for _ in range(1):
+                train_loss = self.step(dataloader, weights, optimizer)
+
+
+    def step(self, loader, weights, opt):
+        #""Standard training/evaluation epoch over the dataset"""
+        
+        for X, y, w in loader:
+            
+            print('X, y and weights', X.shape, y.shape, w.shape )
+            # print('lin weights', lin_weights.shape)
+            X, y, w = X.to(self.device).float(), y.to(self.device).float(), w.to(self.device).float()
+            
+            print('latent prediction', self.func(X).shape )
+            
+            pred = torch.diag( self.func(X) @ w.T )
+            pred = torch.unsqueeze(pred, dim=1)
+            # print('pred',  pred.shape, 'y', y.shape)
             loss = nn.MSELoss()(pred, y)
 
             opt.zero_grad()
