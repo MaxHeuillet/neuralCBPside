@@ -241,6 +241,36 @@ class CBPside():
 
     def update(self, action, feedback, outcome, t, X):
 
+        # e_y = np.zeros( (self.M,1) )
+        # e_y[outcome] = 1
+        # Y_t = self.game.SignalMatrices[action] @ e_y 
+
+        # if action == 0:
+        #     sub_latent =  self.latent_X[0].reshape((1,-1)) 
+        #     sub_X = X[0].reshape((1,-1)) 
+        # else:
+        #     sub_latent =  self.latent_X[1:3] 
+        #     sub_X = X[1:3]
+
+        # print(self.latent_X.shape, sub_latent.shape, sub_X.shape)
+
+        # self.reps.append( sub_X, sub_latent , Y_t )
+        # self.expl.append( sub_X, sub_latent , Y_t )
+
+        # if action == 0:
+        #     Xi = np.expand_dims(self.latent_X[0], axis=1)
+        #     A_t_inv = self.A_t_inv
+        #     self.A_t_inv = A_t_inv - ( A_t_inv @ Xi @ Xi.T @ A_t_inv ) / ( 1 + Xi.T @ A_t_inv @ Xi ) 
+        #     self.weights = self.expl.labels.T @ self.expl.latent_obs @ self.A_t_inv
+        # elif action == 1:
+        #     for i in [1,2]:
+        #         Xi = np.expand_dims(self.latent_X[i], axis=1)
+        #         A_t_inv = self.A_t_inv
+        #         self.A_t_inv = A_t_inv - ( A_t_inv @ Xi @ Xi.T @ A_t_inv ) / ( 1 + Xi.T @ A_t_inv @ Xi ) 
+        #         self.weights = self.expl.labels.T @ self.expl.latent_obs @ self.A_t_inv
+
+
+
         e_y = np.zeros( (self.M,1) )
         e_y[outcome] = 1
         Y_t = self.game.SignalMatricesAdim[action] @ e_y 
@@ -253,6 +283,7 @@ class CBPside():
             A_t_inv = self.A_t_inv
             self.A_t_inv = A_t_inv - ( A_t_inv @ Xi @ Xi.T @ A_t_inv ) / ( 1 + Xi.T @ A_t_inv @ Xi ) 
             self.weights = self.expl.labels.T @ self.expl.latent_obs @ self.A_t_inv
+
 
         # print(t, self.replay.labels.shape, self.replay.latent_obs.shape, self.A_t_inv.shape)
         # print('replay shape', self.replay.obs.shape, self.replay.latent_obs.shape, self.replay.labels.shape,)
