@@ -126,7 +126,7 @@ class CBPside():
 
         self.latent_X = self.func( torch.from_numpy( X ).float().to(self.device) ).cpu().detach().numpy()
         # self.latent_X = X
-        print(self.latent_X)
+        # print(self.latent_X)
 
 
         if t < self.N:
@@ -216,7 +216,7 @@ class CBPside():
             # print()
 
             history = [ action, factor, tdelta ]
-            action = np.random.randint(2)
+            # action = np.random.randint(2)
         return action, history
 
     def update(self, action, feedback, outcome, t, X):
@@ -235,24 +235,41 @@ class CBPside():
         V_it_inv = self.contexts[action]['V_it_inv']
         V_it_inv = V_it_inv - ( V_it_inv @ self.latent_X.T @ self.latent_X @ V_it_inv ) / ( 1 + self.latent_X @ V_it_inv @ self.latent_X.T ) 
         self.contexts[action]['V_it_inv'] = V_it_inv
-        # weights = self.contexts[action]['labels'] @ self.contexts[action]['feats'] @ self.contexts[action]['V_it_inv']
-        # self.contexts[action]['weights'] = weights
+        weights = self.contexts[action]['labels'] @ self.contexts[action]['feats'] @ self.contexts[action]['V_it_inv']
+        self.contexts[action]['weights'] = weights
 
-        self.contexts[0]['weights'] = np.array([-0.02140834, -0.29438304, -0.26244912, -0.09696549, -0.17131766]) 
-        self.contexts[1]['weights'] = np.array([ [ 0.01914168,  0.08223168,  0.09814917,  0.08253076,  0.05234343],
-                                                 [-0.01559319, -0.11930555, -0.04220433, -0.01523744, -0.07525949] ] ) 
+        # self.contexts[0]['weights'] = np.array([-0.02140834, -0.29438304, -0.26244912, -0.09696549, -0.17131766]) 
+        # self.contexts[1]['weights'] = np.array([ [ 0.01914168,  0.08223168,  0.09814917,  0.08253076,  0.05234343],
+        #                                          [-0.01559319, -0.11930555, -0.04220433, -0.01523744, -0.07525949] ] ) 
 
         # print('weights', weights.shape, 'Y_t', Y_t.shape, )
         self.hist.append( X , Y_t, feedback, action )
         if t>self.N:
             self.weights = np.vstack( [ self.contexts[i]['weights'] for i in range(self.N) ] )
             self.func = copy.deepcopy(self.func0)
-            optimizer = optim.Adam(self.func.parameters(), lr=1e-3, weight_decay = self.lbd_neural )
+            optimizer = optim.Adam(self.func.parameters(), lr=1e-1, weight_decay = self.lbd_neural )
             dataloader = DataLoader(self.hist, batch_size=len(self.hist), shuffle=True) 
-            for _ in range(10):
-                train_loss = self.step(dataloader, optimizer)
-                print(train_loss)
+            scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, 0.99)
+            loss_monitor = []
 
+            for _ in range(1000):
+                
+                train_loss = self.step(dataloader, optimizer)
+                current_lr = optimizer.param_groups[0]['lr']
+                scheduler.step()
+
+                loss_monitor.append(train_loss)
+                if len(loss_monitor) >= 2:
+                    loss_monitor = loss_monitor[-2:]
+
+                if _ % 25 == 0:
+                    print(train_loss)
+
+                if len(loss_monitor) >= 2 and abs(loss_monitor[1] - loss_monitor[0]) < 1e-5:
+                    print('nb epochs', _, train_loss, current_lr)
+                    break
+
+                
 
     def step(self, loader, opt):
         #""Standard training/evaluation epoch over the dataset"""
@@ -269,7 +286,7 @@ class CBPside():
                 fdks_filtered = fdks[mask]
                 for s in symbols[i]:
                     y_filtered = fdks_filtered[:,s].unsqueeze(1)
-                    weights = torch.from_numpy( self.weights[i] ).unsqueeze(0).float().to(self.device)
+                    weights = torch.from_numpy( self.weights[s] ).unsqueeze(0).float().to(self.device)
                     pred = self.func(X_filtered) @ weights.T
                     # print('pred',pred.shape,'y_filtered', y_filtered.shape)
                     loss += nn.MSELoss()(pred, y_filtered)
