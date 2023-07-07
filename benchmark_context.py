@@ -22,15 +22,15 @@ import pickle as pkl
 
 import subprocess
 
-
-import neuralcbpside_v1
-import neuralcbpside_v2
-import neuralcbpside_v3
-
+import cbpside
+import rand_cbpside
+import neural_lin_cbpside_disjoint
+import rand_neural_lin_cbpside_disjoint
 
 import argparse
 import os
 import torch
+import random
 
 ######################
 ######################
@@ -53,13 +53,23 @@ def evaluate_parallel(evaluator, game, nfolds, id):
     pool = Pool(processes=nfolds)
 
     np.random.seed(1)
+    torch.manual_seed(1)
+    random.seed(1)
+
     context_generators = []
     alg_ids =[]
     seeds = []
     algos = []
+
     size = 5
     w = np.array([1/size]*size)
-    lbd = 1
+
+    lbd_neural = 0
+    lbd_reg = 1
+
+    sigma = 1
+    K = 10
+    epsilon = 10e-7
 
     for alg_id, seed in enumerate(range(id, id+nfolds,1)):
         
@@ -75,10 +85,20 @@ def evaluate_parallel(evaluator, game, nfolds, id):
             contexts = synthetic_data.SinusoidContexts( w , evaluator.task )
             context_generators.append( contexts )
 
-        if 'neural' in args.approach:
-            algos.append( neuralcbpside_v3.NeuralCBPside(game, factor_type, 1.01, lbd, 5, "cuda:{}".format(alg_id) ) )
-        else:
-            algos.append( cbpside.CBPside(game, 1.01, lbd )  )
+
+
+        if args.approach == 'cbpside':
+            alg = cbpside.CBPside(game, 1.01, lbd_reg  )
+            algos.append( alg )
+        elif args.approach == 'randcbpside':
+            alg = rand_cbpside.CBPside(game, 1.01, lbd_reg,  sigma, K , epsilon)
+            algos.append( alg )
+        elif args.approach == 'neurallincbpside':
+            alg = neural_lin_cbpside_disjoint.CBPside( game,  1.01, lbd_neural, lbd_reg, 5,  'cuda:0'  )
+            algos.append( alg )
+        elif args.approach == 'randneurallincbpside':
+            alg = rand_neural_lin_cbpside_disjoint.CBPside( game,  1.01, lbd_neural, lbd_reg, sigma, K, epsilon, 5, 'cuda:0')
+            algos.append( alg )
 
         seeds.append(seed)
         alg_ids.append(alg_id)
@@ -115,6 +135,8 @@ class Evaluation:
 
         # print('start 2', alg.device)
         np.random.seed(jobid)
+        torch.manual_seed(jobid)
+        random.seed(jobid)
 
         alg.reset( context_generator.d )
 
@@ -128,8 +150,8 @@ class Evaluation:
 
             context, distribution = context_generator.get_context()
 
-            outcome = 0 if distribution[0]>0.5 else 1  
-            # outcome = np.random.choice( 2 , p = distribution )
+            # outcome = 0 if distribution[0]>0.5 else 1  
+            outcome = np.random.choice( 2 , p = distribution )
 
             context = reshape_context(context, alg.A) if 'neural' in alg.name else np.reshape(context, (-1,1))
 
@@ -149,7 +171,7 @@ class Evaluation:
         result = np.cumsum(cumRegret)
         print(result)
         print('finished', jobid)
-        with gzip.open( './results/{}/benchmark5_{}_{}_{}_{}_{}.pkl.gz'.format(self.game_name, self.task, self.context_type, self.horizon, self.n_folds, self.label) ,'ab') as f:
+        with gzip.open( './results/{}/benchmark_{}_{}_{}_{}_{}.pkl.gz'.format(self.game_name, self.task, self.context_type, self.horizon, self.n_folds, self.label) ,'ab') as f:
             pkl.dump(result,f)
         print('saved', jobid)
 
@@ -184,23 +206,16 @@ print(id, args.context_type, args.approach)
 games = {'AT':games.apple_tasting()} #'LE': games.label_efficient(  ),
 game = games[args.game]
 
-factor_type = args.approach.split('_')[1]
-print('factor_type', factor_type)
+# factor_type = args.approach.split('_')[1]
+# print('factor_type', factor_type)
 
-
-ncpus = int ( os.environ.get('SLURM_CPUS_PER_TASK',default=1) )
+ncpus = int ( os.environ.get('SLURM_CPUS_PER_TASK', default=1) )
 ngpus = int( torch.cuda.device_count() )
-if 'neural' in args.approach:
-    nfolds = min([ncpus,ngpus]) 
-else:
-    nfolds = ncpus
+nfolds = min([ncpus,ngpus]) 
 
 print('nfolds', nfolds)
 
 evaluator = Evaluation(args.game, args.task, n_folds, horizon, game, args.approach, args.context_type)
-
-# with gzip.open( './results/{}/benchmark_{}_{}_{}_{}_{}.pkl.gz'.format(args.game, args.task, args.context_type, horizon, n_folds, args.approach) ,'wb') as g:
-#     pkl.dump( [None]*horizon, g)
 
 evaluate_parallel(evaluator, game, nfolds, id)
         

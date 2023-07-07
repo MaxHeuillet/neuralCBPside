@@ -61,7 +61,7 @@ class CBPside():
 
     def __init__(self, game, alpha, lbd_neural, lbd_reg, m, device):
 
-        self.name = 'cbpsidedisjoint'
+        self.name = 'neurallincbpsidedisjoint'
         self.device = device
 
         self.game = game
@@ -91,7 +91,7 @@ class CBPside():
         self.lbd_neural = lbd_neural
         self.lbd_reg = lbd_reg
 
-        self.eta =  self.W ** 2/3 
+        self.eta =  self.W**(2/3) 
         self.m = m
 
 
@@ -146,8 +146,7 @@ class CBPside():
                 q.append(  pred  )
 
                 sigma_i = len(self.SignalMatrices[i])
-                factor = sigma_i * (  np.sqrt(  self.d * np.log(t) + 2 * np.log(1/t**2)   ) + np.sqrt(self.lbd_reg) * sigma_i )
-                # factor = sigma_i * (  np.sqrt( 2 * ( self.d  * np.log( 1 + t * np.log(self.N * 1)/self.lbd_reg ) +  np.log(1/t**2) ) ) + np.sqrt(self.lbd_reg) * sigma_i )
+                factor = sigma_i * (  np.sqrt( 2 * ( self.d  * np.log( 1 + t * np.log(self.N * 1)/self.lbd_reg ) +  np.log(1/t**2) ) ) + np.sqrt(self.lbd_reg) * sigma_i )
                 width = np.sqrt( self.latent_X @ self.contexts[i]['V_it_inv'] @ self.latent_X.T )
                 formule = factor * width
                 print('factor', factor, 'width', width)

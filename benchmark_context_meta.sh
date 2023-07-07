@@ -18,7 +18,7 @@ for context_type in 'linear' 'quadratic' 'sinusoid'
 
             do
 
-            for approach in  'neuralcbp_theory' 'neuralcbp_1' 'cbpside_theory'  # 'neuralcbp_01' 'neuralcbp_theory'
+            for approach in  'cbpside' 'randcbpside' 'neurallincbpside' 'randneurallincbpside'
                     
                 do
 

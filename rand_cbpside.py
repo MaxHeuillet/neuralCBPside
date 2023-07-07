@@ -1,31 +1,21 @@
 import numpy as np
 import geometry_v3
 
-class RandCPBside():
+class CBPside():
 
-    def __init__(self, game, d, alpha, lbd, sigma, K , epsilon):
+    def __init__(self, game, alpha, lbd, sigma, K , epsilon):
 
-        self.name = 'randcbpside'
+        self.name = 'cbpside'
 
         self.game = game
-        self.d = d
 
         self.N = game.n_actions
         self.M = game.n_outcomes
         self.A = geometry_v3.alphabet_size(game.FeedbackMatrix, self.N, self.M)
-
-        self.sigma = sigma
-        self.K = K
-        self.epsilon = epsilon
-
         # print('n-actions', self.N, 'n-outcomes', self.M, 'alphabet', self.A)
 
         self.SignalMatrices = game.SignalMatrices
         # print('signalmatrices', self.SignalMatrices)
-
-        self.n = np.zeros( self.N )
-        self.nu = [ np.zeros(   ( len( set(self.game.FeedbackMatrix[i]) ),1)  ) for i in range(self.N)]  #[ np.zeros(   ( len( set(game.FeedbackMatrix[i]) ),1)  ) for i in range(self.N)] 
-        # print('nu', self.nu)
 
         self.pareto_actions = geometry_v3.getParetoOptimalActions(game.LossMatrix, self.N, self.M, [])
         self.mathcal_N = game.mathcal_N
@@ -42,17 +32,12 @@ class RandCPBside():
         self.alpha = alpha
         self.lbd = lbd
 
-        self.eta =  self.W **2/3 
+        self.eta =  self.W**(2/3) 
 
-        self.memory_pareto = {}
-        self.memory_neighbors = {}
+        self.sigma = sigma
+        self.K = K
+        self.epsilon = epsilon
 
-        # self.contexts = []
-        # for i in range(self.N):
-        #     self.contexts.append( {'features':[], 'labels':[], 'weights': None, 'V_it_inv': np.identity(self.d) } )
-
-    def set_nlabels(self, nlabels):
-        self.d = nlabels
 
     def getConfidenceWidth(self, ):
         W = np.zeros(self.N)
@@ -61,22 +46,21 @@ class RandCPBside():
             for k in self.V[ pair[0] ][ pair[1] ]:
                 # print('pair ', pair, 'v ', v[ pair[0] ][ pair[1] ], 'V ', V[ pair[0] ][ pair[1] ] )
                 vec = self.v[ pair[0] ][ pair[1] ][k]
-                W[k] = np.max( [ W[k], np.linalg.norm(vec ) ] )
+                W[k] = np.max( [ W[k], np.linalg.norm(vec , np.inf) ] )
         return W
 
-    def reset(self,):
-        self.n = np.zeros( self.N )
-        self.nu = [ np.zeros(   ( len( set(self.game.FeedbackMatrix[i]) ),1)  ) for i in range(self.N)]  #[ np.zeros(    len( np.unique(self.game.FeedbackMatrix[i] ) )  ) for i in range(self.N)] 
+    def reset(self, d):
+        self.d = d
         self.memory_pareto = {}
         self.memory_neighbors = {}
         self.contexts = []
         for i in range(self.N):
-            self.contexts.append( {'features':[], 'labels':[], 'weights': None, 'V_it_inv': np.identity(self.d)  } )
-
-    def obtain_probability(self,  t):
+            self.contexts.append( {'features':None, 'labels':None, 'weights': None, 
+                                   'V_it_inv': self.lbd * np.identity(self.d) } )
+            
+    def obtain_probability(self,  t, factor):
     
-        # U = np.sqrt( self.alpha  * np.log(t) ) 
-        U =  np.sqrt( self.d * np.log(t) + 2 * np.log(1/t**2)  )
+        U = factor
         rhos = np.arange(0, U, U/self.K )
         p_m_hat =  np.array([ np.exp( -(rhos[i]**2) / 2*(self.sigma**2)  )  for i in range(len(rhos)-1) ] )
 
@@ -90,9 +74,11 @@ class RandCPBside():
  
     def get_action(self, t, X):
 
+        # print('X', X.shape)
+
         if t < self.N:
             action = t
-            # self.d = len(X)
+            history = [t, np.nan, np.nan]
             # self.contexts[t]['weights'] = self.SignalMatrices[t] @ np.array( [ [0,1],[1,-1] ])
 
         else: 
@@ -101,34 +87,34 @@ class RandCPBside():
             q = []
             w = []
             
-            
             for i in range(self.N):
-
-                Z = self.obtain_probability(t)
                 # # print( self.contexts[i]['weights'] )
                 # print('context shape', X.shape)
                 # print('weights shape', self.contexts[i]['weights'].shape)
-                
-                q.append( self.contexts[i]['weights'] @ X  )
+                pred = X @ self.contexts[i]['weights'].T
+                print('action', i, pred.shape)
+                q.append(  pred  )
 
-                X_it =  np.array( self.contexts[i]['features'] )
-                # print('init Xit', X_it)
-                # n, d, _ = X_it.shape
-                X_it = np.squeeze(X_it, 2).T #X_it.reshape( (d, n) )
-                # print('new Xit', X_it)
-
-                factor = self.d * (  Z + len(self.SignalMatrices[i]) )
-                width = X.T @ self.contexts[i]['V_it_inv'] @ X 
-                formule = factor * width
-
+                # factor = self.d * (  np.sqrt(  self.d * np.log(t) + 2 * np.log(1/t**2)   ) + len(self.SignalMatrices[i]) )
+                # factor = self.d * (  np.sqrt(  (self.d+1) * np.log(t)  ) + len(self.SignalMatrices[i]) )
+                # factor = 1
+                # factor =  sigma_i * (  np.sqrt(  (self.d+1) * np.log(t)  ) +  sigma_i )
+                sigma_i = len(self.SignalMatrices[i])
+                factor = sigma_i * (  np.sqrt(  self.d * np.log(t) + 2 * np.log(1/t**2)   ) + np.sqrt(self.lbd) * sigma_i )
+                Z = self.obtain_probability(t, factor)
+                width = np.sqrt( X @ self.contexts[i]['V_it_inv'] @ X.T )
+                formule = Z * width
+                # print('factor', factor, 'width', width)
+                # b = X.T @ np.linalg.inv( self.lbd * np.identity(D) + X_it @ X_it.T  ) @ X 
+                #print('action {}, first component {}, second component, {}'.format(i, a, b  ) )
+                #print('Xit', X_it.shape  )
                 w.append( formule )
             # print()    
-            # print( 'q   ', q )
-            # print('conf   ', w )
+            print( 'estimate', q )
+            print('conf   ', w )
 
             for pair in self.mathcal_N:
-                tdelta = np.zeros( (1,) )
-                c = 0
+                tdelta , c = 0 , 0
 
                 # print( self.v[ pair[0] ][ pair[1] ][0].shape )
                 # print( self.v[ pair[0] ][ pair[1] ][1].shape )
@@ -137,19 +123,19 @@ class RandCPBside():
                 for k in  self.V[ pair[0] ][ pair[1] ]:
                     # print( 'pair ', pair, 'action ', k, 'proba ', self.nu[k]  / self.n[k]  )
                     # print('k', k, 'pair ', pair, 'v ', self.v[ pair[0] ][ pair[1] ][k].T.shape , 'q[k] ', q[k].shape  )
-                    tdelta += self.v[ pair[0] ][ pair[1] ][k].T @ q[k]
-                    c += np.linalg.norm( self.v[ pair[0] ][ pair[1] ][k] ) * w[k] #* np.sqrt( (self.d+1) * np.log(t) ) * self.d
-                #print('pair', pair, 'tdelta', tdelta, 'confidence', c)
+                    tdelta += self.v[ pair[0] ][ pair[1] ][k].T @ q[k].T
+                    c += np.linalg.norm( self.v[ pair[0] ][ pair[1] ][k], np.inf ) * w[k] #* np.sqrt( (self.d+1) * np.log(t) ) * self.d
+                print('pair', pair, 'tdelta', tdelta, 'confidence', c)
                 # print('pair', pair,  'tdelta', tdelta, 'c', c, 'sign', np.sign(tdelta)  )
                 # print('sign', np.sign(tdelta) )
                 tdelta = tdelta[0]
+                # c =  np.inf
                 if( abs(tdelta) >= c):
                     halfspace.append( ( pair, np.sign(tdelta) ) ) 
             
             # print('halfspace', halfspace)
             P_t = self.pareto_halfspace_memory(halfspace)
             N_t = self.neighborhood_halfspace_memory(halfspace)
-
 
             Nplus_t = []
             for pair in N_t:
@@ -162,9 +148,8 @@ class RandCPBside():
             V_t = np.unique(V_t)
 
             R_t = []
-            
             for k in V_t:
-              val =  X.T @ self.contexts[k]['V_it_inv'] @ X
+              val =  X @ self.contexts[k]['V_it_inv'] @ X.T
               t_prime = t
               with np.errstate(divide='ignore'): 
                 rate = np.sqrt( self.eta[k] * self.N**2 * 4 *  self.d**2  *(t_prime**(2/3) ) * ( self.alpha * np.log(t_prime) )**(1/3) ) 
@@ -173,10 +158,10 @@ class RandCPBside():
                     # print('append action ', k)
                     # print('action', k, 'threshold', self.eta[k] * geometry_v3.f(t, self.alpha), 'constant', self.eta[k], 'value', geometry_v3.f(t, self.alpha)  )
                     R_t.append(k)
-    
+
             union1= np.union1d(  P_t, Nplus_t )
             union1 = np.array(union1, dtype=int)
-            # print('union1', union1)
+            print('union1', union1)
             S =  np.union1d(  union1  , R_t )
             S = np.array( S, dtype = int)
             # print('S', S)
@@ -186,39 +171,32 @@ class RandCPBside():
             values = { i:self.W[i]*w[i] for i in S}
             # print('value', values)
             action = max(values, key=values.get)
-            # print('P_t',P_t,'N_t', N_t,'Nplus_t',Nplus_t,'V_t',V_t, 'R_t',R_t, 'S',S,'values', values, 'action', action)
-            # print('n', self.n,'nu', self.nu)
+            # print('S',S, 'values', values, 'action', action)
+            # 'P_t',P_t,'N_t', N_t,'Nplus_t',Nplus_t,'V_t',V_t, 'R_t',R_t,  print('n', self.n,'nu', self.nu)
             # print()
+            history = [ action, factor, tdelta ]
 
-
-        return action
+        return action, history
 
     def update(self, action, feedback, outcome, t, X):
 
-        self.n[action] += 1
-        
         e_y = np.zeros( (self.M, 1) )
-        e_y[outcome] = 1
+        e_y[outcome] = 1 
         Y_t =  self.game.SignalMatrices[action] @ e_y 
-        
-        self.contexts[action]['labels'].append( Y_t )
-        self.contexts[action]['features'].append( X )
-        
-        Y_it = np.array( self.contexts[action]['labels'] )
-        X_it =  np.array( self.contexts[action]['features'] )
 
-        Y_it =  np.squeeze(Y_it, 2).T # Y_it.reshape( (sigma, n) )
-        X_it =  np.squeeze(X_it, 2).T #X_it.reshape( (d, n) )
 
+        print(Y_t.shape, X.shape)
+        self.contexts[action]['labels'] = Y_t if self.contexts[action]['labels'] is None else np.concatenate( (self.contexts[action]['labels'], Y_t), axis=1)
+        self.contexts[action]['features'] = X if self.contexts[action]['features'] is None else np.concatenate( (self.contexts[action]['features'], X), axis=0)
+
+        print(self.contexts[action]['labels'].shape, self.contexts[action]['features'].shape)
+        
         V_it_inv = self.contexts[action]['V_it_inv']
-        low =  1 + X.T @ V_it_inv @ X  
-        high =  V_it_inv @ X @ X.T @ V_it_inv 
-        self.contexts[action]['V_it_inv'] = V_it_inv - high / low
-        weights = Y_it @ X_it.T @ self.contexts[action]['V_it_inv']
+        self.contexts[action]['V_it_inv'] = V_it_inv - ( V_it_inv @ X.T @ X @ V_it_inv ) / ( 1 + X @ V_it_inv @ X.T ) 
+        weights = self.contexts[action]['labels'] @ self.contexts[action]['features'] @ self.contexts[action]['V_it_inv']
         self.contexts[action]['weights'] = weights
 
 
-        
 
     def halfspace_code(self, halfspace):
         string = ''
@@ -259,24 +237,3 @@ class RandCPBside():
             self.memory_neighbors[code ] =result
  
         return result
-
-    def feedback_idx(self, feedback):
-        idx = None
-        if self.N ==2:
-            if feedback == 0:
-                idx = 0
-            elif feedback == 1:
-                idx = 1
-        elif self.N == 3:
-            if feedback == 1:
-                idx = 0
-            elif feedback == 0.5:
-                idx = 1
-            elif feedback == 0.25:
-                idx = 2
-        else:
-            if feedback == 1:
-                idx = 0
-            elif feedback == 2:
-                idx = 1
-        return idx
