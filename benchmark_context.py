@@ -153,8 +153,9 @@ class Evaluation:
             # outcome = 0 if distribution[0]>0.5 else 1  
             outcome = np.random.choice( 2 , p = distribution )
 
-            context = reshape_context(context, alg.A) if 'neural' in alg.name else np.reshape(context, (-1,1))
-
+            # context = reshape_context(context, alg.A) if 'neural' in alg.name else np.reshape(context, (-1,1))
+            context = np.expand_dims(context, axis=0)
+            
             action, _ = alg.get_action(t, context)
 
             feedback =  self.get_feedback( game, action, outcome )
