@@ -270,7 +270,7 @@ class CBPside():
             scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, 0.99)
             loss_monitor = []
 
-            for _ in range(1000):
+            for _ in range(1000): 
                 
                 train_loss = self.step(dataloader, optimizer)
                 current_lr = optimizer.param_groups[0]['lr']
@@ -296,7 +296,7 @@ class CBPside():
 
         for X, y, feedbacks, actions in loader:
             X, y  = X.to(self.device).float(), y.to(self.device).float()
-            fdks = torch.nn.functional.one_hot(feedbacks[:,0]).to(self.device).float()
+            fdks = torch.nn.functional.one_hot(feedbacks[:,0], num_classes= self.A).to(self.device).float()
             loss = 0
             for i in range(self.N): 
                 mask = (actions == i)[:,0]
