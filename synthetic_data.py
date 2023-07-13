@@ -9,6 +9,115 @@ from scipy.stats import truncnorm
 from scipy.special import expit
 
 
+#############################################################################
+#############################################################################
+
+
+class BullsEyeContexts:
+    def __init__(self,  ):
+        self.d = 5 # number of features
+        self.type = 'bullseye'
+        self.inner_radius1 = 0.7
+        self.outer_radius1 = 0.8
+        self.inner_radius2 = 0.2
+        self.outer_radius2 = 0.3
+
+    def get_context(self, ):
+
+        sample = np.random.uniform(-1, 1, 2)
+        x,y = sample 
+        distance = np.sqrt(x**2 + y**2)
+
+        if ( self.inner_radius1 <= distance <= self.outer_radius1) or (self.inner_radius2 <= distance <= self.outer_radius2):
+            p = 1
+        else:
+            p = 0
+
+        sample = np.array([x/2, x/2, y/3, y/3, y/3])
+        sample = sample.reshape(1, self.d)
+        val = [ p, 1-p ]
+
+        mean = np.array([[-0.00057691, -0.00057691, -0.00016921, -0.00016921, -0.00016921]])
+        std = np.array([[0.28898979, 0.28898979, 0.1923455 , 0.1923455 , 0.1923455 ]])
+        sample = ( sample - mean ) / std
+
+        return sample , val 
+    
+
+class MixtureContexts:
+    def __init__(self,  ):
+        self.d = 5 # number of features
+        self.type = 'mixture'
+        self.num_circles = 8
+        # Generate the positions of the centers of the smaller circles
+        self.center_radius = 0.75  # Radius of the larger circle
+        self.center_angles = np.linspace(0, 2*np.pi, self.num_circles, endpoint=False)
+        self.center_x = self.center_radius * np.cos(self.center_angles)
+        self.center_y = self.center_radius * np.sin(self.center_angles)
+
+    def get_context(self, ):
+
+        sample = np.random.uniform(-1, 1, 2)
+        x,y = sample 
+
+        circle = False
+        # Check if the sample belongs to one of the circles
+        for i in range(self.num_circles):
+            distance = np.sqrt((x - self.center_x[i])**2 + (y - self.center_y[i])**2)
+            if distance <= 0.1:  # Adjust the distance threshold as per your preference
+                circle = True
+                p = 1
+                break
+        if circle==False:
+            p = 0
+
+        sample = np.array([x/2, x/2, y/3, y/3, y/3])
+        sample = sample.reshape(1, self.d)
+        val = [ p, 1-p ]
+
+        # sample = np.array(sample)
+        # mean = np.array([0.00052123, 0.00041331])
+        # std = np.array([0.57674398, 0.57732179])
+        # sample = ( sample - mean ) / std
+
+        return sample , val 
+    
+
+class QuinticContexts:
+    def __init__(self,  ):
+        self.d = 5 # number of features
+        self.type = 'quintic'
+        
+    def get_context(self, ):
+
+        sample = np.random.uniform(-1, 1, 2)
+        x,y = sample 
+
+        # Evaluate the quintic function as the decision boundary
+        decision_boundary = x**5  - y**5 + y**3
+
+        # Assign the label based on the decision boundary
+        if decision_boundary >= 0:
+            p =1
+        else:
+            p = 0
+
+        sample = np.array([x/2, x/2, y/3, y/3, y/3])
+        sample = sample.reshape(1, self.d)
+        val = [ p, 1-p ]
+
+        # sample = np.array(sample)
+        # mean = np.array([0.00052123, 0.00041331])
+        # std = np.array([0.57674398, 0.57732179])
+        # sample = ( sample - mean ) / std
+
+        return sample , val 
+
+
+
+##############################################################################
+##############################################################################
+
 def truncated_gaussian(mean, variance, a, b, size):
     # Calculate the standard deviation from the variance
     std_dev = np.sqrt(variance)
