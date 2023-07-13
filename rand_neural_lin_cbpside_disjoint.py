@@ -11,6 +11,7 @@ import copy
 
 from scipy.optimize import minimize
 import copy
+import pickle
 
 class Network(nn.Module):
     def __init__(self,  d, m):
@@ -19,12 +20,16 @@ class Network(nn.Module):
         self.activate1 = nn.Tanh() #nn.ReLU()
         self.fc2 = nn.Linear(m, m)
         self.activate2 = nn.Tanh() #nn.ReLU()
+        self.fc3 = nn.Linear(m, m)
+        self.activate3 = nn.Tanh() #nn.ReLU()
         nn.init.normal_(self.fc1.weight, mean=0, std=0.1)
         nn.init.normal_(self.fc2.weight, mean=0, std=0.1)
+        nn.init.normal_(self.fc3.weight, mean=0, std=0.1)
         nn.init.zeros_(self.fc1.bias)
         nn.init.zeros_(self.fc2.bias)
+        nn.init.zeros_(self.fc3.bias)
     def forward(self, x):
-        x = self.activate2( self.fc2( self.activate1( self.fc1(x) ) ) )
+        x = self.activate3( self.fc3( self.activate2( self.fc2( self.activate1( self.fc1( x ) ) ) ) ) )
         # x = self.fc2( self.activate1( self.fc1(x) ) ) 
         return x
     
@@ -113,8 +118,7 @@ class CBPside():
         self.d = d
         self.memory_pareto = {}
         self.memory_neighbors = {}
-        self.weights = None
-        self.A_t_inv = self.lbd_reg * np.identity(self.m)
+
         self.func = Network( self.d , self.m).to(self.device)
         self.func0 = copy.deepcopy(self.func)
         self.hist = CustomDataset()
@@ -123,9 +127,21 @@ class CBPside():
         self.contexts = []
         for i in range(self.N):
             self.contexts.append( {'feats':None, 'labels':None, 'weights': None,
-                                    'V_it_inv': self.lbd_reg * np.identity(self.d),
-                                    'V_i0_inv': self.lbd_reg * np.identity(self.d) } )
+                                    'V_it_inv': self.lbd_reg * np.identity(self.m),
+                                    'V_i0_inv': self.lbd_reg * np.identity(self.m) } )
             
+    def load(self, d):
+
+        self.memory_pareto = {}
+        self.memory_neighbors = {}
+
+        self.d = d
+
+        with open('./quintic_contexts', 'rb') as file:
+            self.contexts = pickle.load(file)
+
+        self.func = torch.load('./quintic')
+
     def obtain_probability(self,  t, factor):
     
         U = factor
@@ -171,9 +187,9 @@ class CBPside():
                 print('factor', factor, 'width', width)
                 w.append( formule )
 
-            # print()    
-            print( 'estimate', q )
-            print('conf   ', w )
+            # # print()    
+            # print( 'estimate', q )
+            # print('conf   ', w )
 
             for pair in self.mathcal_N:
                 tdelta, c = 0, 0
@@ -187,7 +203,7 @@ class CBPside():
                 # print('pair', pair,  'tdelta', tdelta, 'c', c, 'sign', np.sign(tdelta)  )
                 # print('sign', np.sign(tdelta) )
                 tdelta = tdelta[0]
-                # c =  np.inf
+                #c =  np.inf
                 if( abs(tdelta) >= c):
                     halfspace.append( ( pair, np.sign(tdelta) ) ) 
             
@@ -219,13 +235,13 @@ class CBPside():
 
             union1= np.union1d(  P_t, Nplus_t )
             union1 = np.array(union1, dtype=int)
-            print('union1', union1)
+            # print('union1', union1)
             S =  np.union1d(  union1  , R_t )
             S = np.array( S, dtype = int)
             # print('S', S)
             S = np.unique(S)
             # print('outcome frequency', self.nu, 'action frequency', self.n )
-            #print()
+            # print()
             values = { i:self.W[i]*w[i] for i in S}
             # print('value', values)
             action = max(values, key=values.get)
@@ -233,8 +249,9 @@ class CBPside():
             # 'P_t',P_t,'N_t', N_t,'Nplus_t',Nplus_t,'V_t',V_t, 'R_t',R_t,  print('n', self.n,'nu', self.nu)
             # print()
 
+        # action = np.random.randint(2)
             history = [ action, factor, tdelta ]
-            # action = np.random.randint(2)
+            
         return action, history
 
     def update(self, action, feedback, outcome, t, X):
@@ -283,7 +300,7 @@ class CBPside():
                 if _ % 25 == 0:
                     print(train_loss)
 
-                if len(loss_monitor) >= 2 and abs(loss_monitor[1] - loss_monitor[0]) < 1e-5:
+                if len(loss_monitor) >= 2 and abs(loss_monitor[1] - loss_monitor[0]) < 1e-6:
                     print('nb epochs', _, train_loss, current_lr)
                     break
 
