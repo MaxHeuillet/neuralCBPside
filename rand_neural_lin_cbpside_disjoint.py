@@ -156,7 +156,7 @@ class CBPside():
 
         return Z
 
-    def get_action(self, t, X):
+    def get_action(self, t, X, mode = 'train'):
 
         self.latent_X = self.func( torch.from_numpy( X ).float().to(self.device) ).cpu().detach().numpy()
         # self.latent_X = X
@@ -176,7 +176,7 @@ class CBPside():
             for i in range(self.N):
 
                 pred = self.latent_X @ self.contexts[i]['weights'].T
-                print('action', i, pred.shape)
+                # print('action', i, pred.shape)
                 q.append(  pred  )
 
                 sigma_i = len(self.SignalMatrices[i])
@@ -203,7 +203,8 @@ class CBPside():
                 # print('pair', pair,  'tdelta', tdelta, 'c', c, 'sign', np.sign(tdelta)  )
                 # print('sign', np.sign(tdelta) )
                 tdelta = tdelta[0]
-                #c =  np.inf
+                if mode == 'eval':
+                    c = 0
                 if( abs(tdelta) >= c):
                     halfspace.append( ( pair, np.sign(tdelta) ) ) 
             
@@ -279,30 +280,33 @@ class CBPside():
 
         # print('weights', weights.shape, 'Y_t', Y_t.shape, )
         self.hist.append( X , Y_t, feedback, action )
-        if t>self.N:
+        if (t>self.N) and (t % 50 == 0): #t<1000 or 
+
             self.weights = np.vstack( [ self.contexts[i]['weights'] for i in range(self.N) ] )
             self.func = copy.deepcopy(self.func0)
-            optimizer = optim.Adam(self.func.parameters(), lr=1e-1, weight_decay = self.lbd_neural )
+            optimizer = optim.Adam(self.func.parameters(), lr=0.1, weight_decay = self.lbd_neural )
             dataloader = DataLoader(self.hist, batch_size=len(self.hist), shuffle=True) 
             scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, 0.99)
-            loss_monitor = []
+            # loss_monitor = []
 
             for _ in range(1000): 
                 
-                train_loss = self.step(dataloader, optimizer)
+                train_loss, losses = self.step(dataloader, optimizer)
                 current_lr = optimizer.param_groups[0]['lr']
-                scheduler.step()
 
-                loss_monitor.append(train_loss)
-                if len(loss_monitor) >= 2:
-                    loss_monitor = loss_monitor[-2:]
+                if _ % 10 == 0 :
+                    scheduler.step()
+
+                # loss_monitor.append(train_loss)
+                # if len(loss_monitor) >= 2:
+                #     loss_monitor = loss_monitor[-2:]
 
                 if _ % 25 == 0:
-                    print(train_loss)
+                    print('train loss', train_loss, 'losses', [i.item() for i in losses ] )
 
-                if len(loss_monitor) >= 2 and abs(loss_monitor[1] - loss_monitor[0]) < 1e-6:
-                    print('nb epochs', _, train_loss, current_lr)
-                    break
+                # if len(loss_monitor) >= 2 and abs(loss_monitor[1] - loss_monitor[0]) < 1e-7:
+                #     print('nb epochs', _, train_loss, current_lr)
+                #     break
 
                 
 
@@ -315,6 +319,7 @@ class CBPside():
             X, y  = X.to(self.device).float(), y.to(self.device).float()
             fdks = torch.nn.functional.one_hot(feedbacks[:,0], num_classes= self.A).to(self.device).float()
             loss = 0
+            losses = []
             for i in range(self.N): 
                 mask = (actions == i)[:,0]
                 X_filtered = X[mask]
@@ -324,13 +329,22 @@ class CBPside():
                     weights = torch.from_numpy( self.weights[s] ).unsqueeze(0).float().to(self.device)
                     pred = self.func(X_filtered) @ weights.T
                     # print('pred',pred.shape,'y_filtered', y_filtered.shape)
-                    loss += nn.MSELoss()(pred, y_filtered)
-
+                    l = nn.MSELoss()(pred, y_filtered)
+                    loss += l
+                    losses.append( l )
+            # Stack the loss elements into a tensor
+            # print('losses before', losses)
+            loss_tensor = torch.stack(losses)
+            # print('losses after', loss_tensor)
+            loss_sum = torch.sum(loss_tensor)
+            # print('losses sum', loss_sum)
+            # ch.tensor(losses).to(self.device)
+            # print(loss_sum )
             opt.zero_grad()
-            loss.backward()
+            loss_sum.backward()
             opt.step()
-
-        return loss.item()
+            # print(losses)
+        return loss.item(), losses
 
 
     def halfspace_code(self, halfspace):

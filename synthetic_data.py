@@ -17,10 +17,10 @@ class BullsEyeContexts:
     def __init__(self,  ):
         self.d = 5 # number of features
         self.type = 'bullseye'
-        self.inner_radius1 = 0.7
-        self.outer_radius1 = 0.8
-        self.inner_radius2 = 0.2
-        self.outer_radius2 = 0.3
+        self.inner_radius1 = 0.65
+        self.outer_radius1 = 0.95
+        self.inner_radius2 = 0.15
+        self.outer_radius2 = 0.4
 
     def get_context(self, ):
 
@@ -37,8 +37,8 @@ class BullsEyeContexts:
         sample = sample.reshape(1, self.d)
         val = [ p, 1-p ]
 
-        mean = np.array([[-0.00057691, -0.00057691, -0.00016921, -0.00016921, -0.00016921]])
-        std = np.array([[0.28898979, 0.28898979, 0.1923455 , 0.1923455 , 0.1923455 ]])
+        mean = np.array([[-1.80108367e-04, -1.80108367e-04, -9.08900288e-05, -9.08900288e-05, -9.08900288e-05]])
+        std = np.array([[0.28863607, 0.28863607, 0.19246712, 0.19246712, 0.19246712]])
         sample = ( sample - mean ) / std
 
         return sample , val 
