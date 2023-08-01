@@ -98,6 +98,7 @@ class CBPside():
 
         self.eta =  self.W**(2/3) 
         self.m = m
+        self.H = 50
         
         self.sigma = sigma
         self.K = K
@@ -137,10 +138,13 @@ class CBPside():
 
         self.d = d
 
-        with open('./quintic_contexts', 'rb') as file:
-            self.contexts = pickle.load(file)
+        # with open('./bullseye_2500_contexts', 'rb') as file:
+        #     self.contexts = pickle.load(file)
+        # self.func = torch.load('./bullseye_2500')
 
-        self.func = torch.load('./quintic')
+        with open('./quintic_2500_contexts', 'rb') as file:
+            self.contexts = pickle.load(file)
+        self.func = torch.load('./quintic_2500')
 
     def obtain_probability(self,  t, factor):
     
@@ -180,7 +184,7 @@ class CBPside():
                 q.append(  pred  )
 
                 sigma_i = len(self.SignalMatrices[i])
-                factor = sigma_i * (  np.sqrt( 2 * ( self.d  * np.log( 1 + t * np.log(self.N * 1)/self.lbd_reg ) +  np.log(1/t**2) ) ) + np.sqrt(self.lbd_reg) * sigma_i )
+                factor = sigma_i * (  np.sqrt( 2 * ( self.d  * np.log( 1 + t * np.log(self.N * self.H)/self.lbd_reg ) +  np.log(1/t**2) ) ) + np.sqrt(self.lbd_reg) * sigma_i )
                 factor = self.obtain_probability(t, factor)
                 width = np.sqrt( self.latent_X @ self.contexts[i]['V_it_inv'] @ self.latent_X.T )
                 formule = factor * width
@@ -223,16 +227,16 @@ class CBPside():
             V_t = np.unique(V_t)
 
             R_t = []
-            # for k in V_t:
-            #   val =  X.T @ self.contexts[k]['V_it_inv'] @ X
-            #   t_prime = t
-            #   with np.errstate(divide='ignore'): 
-            #     rate = np.sqrt( self.eta[k] * self.N**2 * 4 *  self.d**2  *(t_prime**(2/3) ) * ( self.alpha * np.log(t_prime) )**(1/3) ) 
-            #     # print(k, val[0][0], 1/rate)
-            #     if val[0][0] > 1/rate : 
-            #         # print('append action ', k)
-            #         # print('action', k, 'threshold', self.eta[k] * geometry_v3.f(t, self.alpha), 'constant', self.eta[k], 'value', geometry_v3.f(t, self.alpha)  )
-            #         R_t.append(k)
+            for k in V_t:
+              val =  self.latent_X @ self.contexts[k]['V_it_inv'] @ self.latent_X.T
+              t_prime = t
+              with np.errstate(divide='ignore'): 
+                rate = np.sqrt( self.eta[k] * self.N**2 * 4 *  self.d**2  *(t_prime**(2/3) ) * ( self.alpha * np.log(t_prime) )**(1/3) ) 
+                # print(k, val[0][0], 1/rate)
+                if val[0][0] > 1/rate : 
+                    # print('append action ', k)
+                    # print('action', k, 'threshold', self.eta[k] * geometry_v3.f(t, self.alpha), 'constant', self.eta[k], 'value', geometry_v3.f(t, self.alpha)  )
+                    R_t.append(k)
 
             union1= np.union1d(  P_t, Nplus_t )
             union1 = np.array(union1, dtype=int)
@@ -280,7 +284,7 @@ class CBPside():
 
         # print('weights', weights.shape, 'Y_t', Y_t.shape, )
         self.hist.append( X , Y_t, feedback, action )
-        if (t>self.N) and (t % 50 == 0): #t<1000 or 
+        if (t>self.N) and (t % self.H == 0): #t<1000 or 
 
             self.weights = np.vstack( [ self.contexts[i]['weights'] for i in range(self.N) ] )
             self.func = copy.deepcopy(self.func0)

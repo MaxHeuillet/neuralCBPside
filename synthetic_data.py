@@ -8,19 +8,54 @@ import numpy as np
 from scipy.stats import truncnorm
 from scipy.special import expit
 
+class QuinticContexts:
 
-#############################################################################
-#############################################################################
+    def __init__(self):
+        self.type = 'quintic'
+        self.d = 2
+        self.mean = np.array([[0.00031191, 0.00048158]])
+        self.std = np.array([[0.57730562, 0.57743101]])
+        
+    def get_context(self, b= 0):
+
+        sample = np.random.uniform(-1, 1, 2)
+        x,y = sample 
+        x = x + b
+
+        # Evaluate the quintic function as the decision boundary
+        decision_boundary = x**5 - y**5 + y**3 
+
+        # Assign the label based on the decision boundary
+        if decision_boundary >= 0:
+            p =1
+        else:
+            p = 0
+
+        sample = sample.reshape(1, len(sample) )
+        val = [ p, 1-p ]
+        norm_sample = ( sample - self.mean ) / self.std
+
+        return norm_sample , val 
+    
+    def decision_boundary_function(self, x, y, b=0):
+        x = x + b
+        decision_boundary = x**5 - y**5 + y**3
+        return decision_boundary >= 0
+    
+    def denormalize(self,x):
+        return (x+self.mean) * self.std 
 
 
 class BullsEyeContexts:
     def __init__(self,  ):
-        self.d = 5 # number of features
         self.type = 'bullseye'
+        self.d = 2
         self.inner_radius1 = 0.65
-        self.outer_radius1 = 0.95
+        self.outer_radius1 = 0.75 #0.95 
         self.inner_radius2 = 0.15
-        self.outer_radius2 = 0.4
+        self.outer_radius2 = 0.25 #0.4
+        self.mean = np.array([[0.00031191, 0.00048158]])
+        self.std = np.array([[0.57730562, 0.57743101]])
 
     def get_context(self, ):
 
@@ -33,17 +68,24 @@ class BullsEyeContexts:
         else:
             p = 0
 
-        sample = np.array([x/2, x/2, y/3, y/3, y/3])
-        sample = sample.reshape(1, self.d)
+        sample = sample.reshape(1, len(sample))
         val = [ p, 1-p ]
 
-        mean = np.array([[-1.80108367e-04, -1.80108367e-04, -9.08900288e-05, -9.08900288e-05, -9.08900288e-05]])
-        std = np.array([[0.28863607, 0.28863607, 0.19246712, 0.19246712, 0.19246712]])
-        sample = ( sample - mean ) / std
+        # mean = np.array([[-1.80108367e-04, -1.80108367e-04, -9.08900288e-05, -9.08900288e-05, -9.08900288e-05]])
+        # std = np.array([[0.28863607, 0.28863607, 0.19246712, 0.19246712, 0.19246712]])
+        sample = ( sample - self.mean ) / self.std
 
         return sample , val 
     
-
+    def decision_boundary_function(self, x, y):
+            distance = np.sqrt(x**2 + y**2)
+            condition1 = np.logical_and(self.inner_radius1 <= distance, distance <= self.outer_radius1)
+            condition2 = np.logical_and(self.inner_radius2 <= distance, distance <= self.outer_radius2)
+            return np.logical_or(condition1, condition2)
+    
+    def denormalize(self,x):
+            return (x+self.mean) * self.std 
+    
 class MixtureContexts:
     def __init__(self,  ):
         self.d = 5 # number of features
@@ -81,39 +123,6 @@ class MixtureContexts:
         # sample = ( sample - mean ) / std
 
         return sample , val 
-    
-
-class QuinticContexts:
-    def __init__(self,  ):
-        self.d = 5 # number of features
-        self.type = 'quintic'
-        
-    def get_context(self, ):
-
-        sample = np.random.uniform(-1, 1, 2)
-        x,y = sample 
-
-        # Evaluate the quintic function as the decision boundary
-        decision_boundary = x**5  - y**5 + y**3
-
-        # Assign the label based on the decision boundary
-        if decision_boundary >= 0:
-            p =1
-        else:
-            p = 0
-
-        sample = np.array([x/2, x/2, y/3, y/3, y/3])
-        sample = sample.reshape(1, self.d)
-        val = [ p, 1-p ]
-
-        # sample = np.array(sample)
-        # mean = np.array([0.00052123, 0.00041331])
-        # std = np.array([0.57674398, 0.57732179])
-        # sample = ( sample - mean ) / std
-
-        return sample , val 
-
-
 
 ##############################################################################
 ##############################################################################
