@@ -12,16 +12,42 @@ import copy
 from scipy.optimize import minimize
 import copy
 import pickle
+from torch.utils.data import Dataset
+from torch.optim.lr_scheduler import StepLR
 
-class Network(nn.Module):
+
+class OriginalNetwork(nn.Module):
     def __init__(self,  d, m):
-        super(Network, self).__init__()
+        super(OriginalNetwork, self).__init__()
         self.fc1 = nn.Linear(d, m)
         self.activate1 = nn.Tanh() #nn.ReLU()
         self.fc2 = nn.Linear(m, m)
         self.activate2 = nn.Tanh() #nn.ReLU()
         self.fc3 = nn.Linear(m, m)
         self.activate3 = nn.Tanh() #nn.ReLU()
+        self.fc4 = nn.Linear(m, 1)
+        nn.init.normal_(self.fc1.weight, mean=0, std=0.1)
+        nn.init.normal_(self.fc2.weight, mean=0, std=0.1)
+        nn.init.normal_(self.fc3.weight, mean=0, std=0.1)
+        nn.init.normal_(self.fc4.weight, mean=0, std=0.1)
+        nn.init.zeros_(self.fc1.bias)
+        nn.init.zeros_(self.fc2.bias)
+        nn.init.zeros_(self.fc3.bias)
+        nn.init.zeros_(self.fc4.bias)
+    def forward(self, x):
+        x = self.fc4( self.activate3( self.fc3( self.activate2( self.fc2( self.activate1( self.fc1( x ) ) ) ) ) ) )
+        # x = self.fc2( self.activate1( self.fc1(x) ) ) 
+        return x
+
+class DeployedNetwork(nn.Module):
+    def __init__(self,  d, m):
+        super(DeployedNetwork, self).__init__()
+        self.fc1 = nn.Linear(d, m)
+        self.activate1 = nn.Tanh() #nn.ReLU()
+        self.fc2 = nn.Linear(m, m)
+        self.activate2 = nn.Tanh() #nn.ReLU()
+        self.fc3 = nn.Linear(m, m)
+        # self.activate3 = nn.Tanh() #nn.ReLU()
         nn.init.normal_(self.fc1.weight, mean=0, std=0.1)
         nn.init.normal_(self.fc2.weight, mean=0, std=0.1)
         nn.init.normal_(self.fc3.weight, mean=0, std=0.1)
@@ -29,7 +55,8 @@ class Network(nn.Module):
         nn.init.zeros_(self.fc2.bias)
         nn.init.zeros_(self.fc3.bias)
     def forward(self, x):
-        x = self.activate3( self.fc3( self.activate2( self.fc2( self.activate1( self.fc1( x ) ) ) ) ) )
+        # x = self.activate3( self.fc3( self.activate2( self.fc2( self.activate1( self.fc1( x ) ) ) ) ) )
+        x = self.fc3( self.activate2( self.fc2( self.activate1( self.fc1( x ) ) ) ) ) 
         # x = self.fc2( self.activate1( self.fc1(x) ) ) 
         return x
     
@@ -40,8 +67,6 @@ def convert_list(A):
     B.append(sub_array)
     return B
 
-
-from torch.utils.data import Dataset
 
 class CustomDataset(Dataset):
     def __init__(self, ):
@@ -120,7 +145,7 @@ class CBPside():
         self.memory_pareto = {}
         self.memory_neighbors = {}
 
-        self.func = Network( self.d , self.m).to(self.device)
+        self.func = DeployedNetwork( self.d , self.m).to(self.device)
         self.func0 = copy.deepcopy(self.func)
         self.hist = CustomDataset()
         self.feedbacks = []
@@ -131,25 +156,38 @@ class CBPside():
                                     'V_it_inv': self.lbd_reg * np.identity(self.m),
                                     'V_i0_inv': self.lbd_reg * np.identity(self.m) } )
             
-    def load(self, d):
+    def load(self, path):
 
         self.memory_pareto = {}
         self.memory_neighbors = {}
 
-        self.d = d
+        # self.d = d
+        original_model = OriginalNetwork(d=self.d, m=self.m)
+        original_model.load_state_dict(torch.load(path))
+        original_model.to(self.device)
+        # print('original_model model')
+        # print( original_model )
 
-        # with open('./bullseye_2500_contexts', 'rb') as file:
-        #     self.contexts = pickle.load(file)
-        # self.func = torch.load('./bullseye_2500')
+        self.func = DeployedNetwork(d=self.d, m=self.m).to(self.device)
+        # print('deployed model')
+        # print( self.func )
 
-        with open('./quintic_2500_contexts', 'rb') as file:
-            self.contexts = pickle.load(file)
-        self.func = torch.load('./quintic_2500')
+        self.func.fc1.load_state_dict(original_model.fc1.state_dict())
+        self.func.activate1 = original_model.activate1
+        self.func.fc2.load_state_dict(original_model.fc2.state_dict())
+        self.func.activate2 = original_model.activate2
+        self.func.fc3.load_state_dict(original_model.fc3.state_dict())
+        # self.func.activate3 = original_model.activate3
 
-    def obtain_probability(self,  t, factor):
+    def obtain_probability(self,  t , factor):
+
+        def divide_interval(start, end, k):
+            intervals = np.linspace(start, end, k).tolist()
+            return intervals
     
-        U = factor
-        rhos = np.arange(0, U, U/self.K )
+        # U = np.sqrt( self.alpha  * np.log(t) ) 
+        U =  factor
+        rhos = divide_interval(0, U, self.K)
         p_m_hat =  np.array([ np.exp( -(rhos[i]**2) / 2*(self.sigma**2)  )  for i in range(len(rhos)-1) ] )
 
         p_m = (1 - self.epsilon) * p_m_hat / p_m_hat.sum()
@@ -163,9 +201,7 @@ class CBPside():
     def get_action(self, t, X, mode = 'train'):
 
         self.latent_X = self.func( torch.from_numpy( X ).float().to(self.device) ).cpu().detach().numpy()
-        # self.latent_X = X
-        # print(self.latent_X)
-
+        # print('latent', self.latent_X.shape, self.latent_X)
 
         if t < self.N:
             action = t
@@ -227,20 +263,24 @@ class CBPside():
             V_t = np.unique(V_t)
 
             R_t = []
-            for k in V_t:
-              val =  self.latent_X @ self.contexts[k]['V_it_inv'] @ self.latent_X.T
-              t_prime = t
-              with np.errstate(divide='ignore'): 
-                rate = np.sqrt( self.eta[k] * self.N**2 * 4 *  self.d**2  *(t_prime**(2/3) ) * ( self.alpha * np.log(t_prime) )**(1/3) ) 
-                # print(k, val[0][0], 1/rate)
-                if val[0][0] > 1/rate : 
-                    # print('append action ', k)
-                    # print('action', k, 'threshold', self.eta[k] * geometry_v3.f(t, self.alpha), 'constant', self.eta[k], 'value', geometry_v3.f(t, self.alpha)  )
-                    R_t.append(k)
+            if mode == 'eval':
+                R_t = []
+            else:
+                R_t = []
+                for k in V_t:
+                    val =  self.latent_X @ self.contexts[k]['V_it_inv'] @ self.latent_X.T 
+                    t_prime = t
+                    with np.errstate(divide='ignore'): 
+                        rate = self.eta[k] * t_prime**(2/3)  * ( self.alpha * np.log(t_prime) )**(1/3)  #* self.N**2 * 4 *  self.d**2
+                        print(k, val[0][0], 1/rate)
+                        if val[0][0] > 1/rate : 
+                            # print('append action ', k)
+                            # print('action', k, 'threshold', self.eta[k] * geometry_v3.f(t, self.alpha), 'constant', self.eta[k], 'value', geometry_v3.f(t, self.alpha)  )
+                            R_t.append(k)
 
             union1= np.union1d(  P_t, Nplus_t )
             union1 = np.array(union1, dtype=int)
-            # print('union1', union1)
+            print('union1', union1, 'R', R_t)
             S =  np.union1d(  union1  , R_t )
             S = np.array( S, dtype = int)
             # print('S', S)
@@ -262,7 +302,6 @@ class CBPside():
     def update(self, action, feedback, outcome, t, X):
 
         ### update exploration component:
-
         e_y = np.zeros( (self.M,1) )
         e_y[outcome] = 1
         Y_t = self.game.SignalMatrices[action] @ e_y 
@@ -278,40 +317,32 @@ class CBPside():
         weights = self.contexts[action]['labels'] @ self.contexts[action]['feats'] @ self.contexts[action]['V_it_inv']
         self.contexts[action]['weights'] = weights
 
-        # self.contexts[0]['weights'] = np.array([-0.02140834, -0.29438304, -0.26244912, -0.09696549, -0.17131766]) 
-        # self.contexts[1]['weights'] = np.array([ [ 0.01914168,  0.08223168,  0.09814917,  0.08253076,  0.05234343],
-        #                                          [-0.01559319, -0.11930555, -0.04220433, -0.01523744, -0.07525949] ] ) 
-
         # print('weights', weights.shape, 'Y_t', Y_t.shape, )
         self.hist.append( X , Y_t, feedback, action )
-        if (t>self.N) and (t % self.H == 0): #t<1000 or 
+        global_loss = []
+        global_losses = []
+        if (t>self.N) and (t % self.H == 0):  
 
             self.weights = np.vstack( [ self.contexts[i]['weights'] for i in range(self.N) ] )
             self.func = copy.deepcopy(self.func0)
             optimizer = optim.Adam(self.func.parameters(), lr=0.1, weight_decay = self.lbd_neural )
             dataloader = DataLoader(self.hist, batch_size=len(self.hist), shuffle=True) 
             scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, 0.99)
-            # loss_monitor = []
-
+            # scheduler = StepLR(optimizer, step_size=250, last_epoch=-1, gamma=0.1)
             for _ in range(1000): 
                 
                 train_loss, losses = self.step(dataloader, optimizer)
                 current_lr = optimizer.param_groups[0]['lr']
+                global_loss.append(train_loss)
+                global_losses.append(losses)
 
                 if _ % 10 == 0 :
                     scheduler.step()
-
-                # loss_monitor.append(train_loss)
-                # if len(loss_monitor) >= 2:
-                #     loss_monitor = loss_monitor[-2:]
-
+                # scheduler.step()
                 if _ % 25 == 0:
-                    print('train loss', train_loss, 'losses', [i.item() for i in losses ] )
+                    print('train loss', train_loss, 'losses', losses )
 
-                # if len(loss_monitor) >= 2 and abs(loss_monitor[1] - loss_monitor[0]) < 1e-7:
-                #     print('nb epochs', _, train_loss, current_lr)
-                #     break
-
+        return global_loss, global_losses
                 
 
     def step(self, loader, opt):
@@ -324,6 +355,7 @@ class CBPside():
             fdks = torch.nn.functional.one_hot(feedbacks[:,0], num_classes= self.A).to(self.device).float()
             loss = 0
             losses = []
+            losses_vec =[]
             for i in range(self.N): 
                 mask = (actions == i)[:,0]
                 X_filtered = X[mask]
@@ -336,6 +368,7 @@ class CBPside():
                     l = nn.MSELoss()(pred, y_filtered)
                     loss += l
                     losses.append( l )
+                    losses_vec.append(l.item())
             # Stack the loss elements into a tensor
             # print('losses before', losses)
             loss_tensor = torch.stack(losses)
@@ -348,7 +381,7 @@ class CBPside():
             loss_sum.backward()
             opt.step()
             # print(losses)
-        return loss.item(), losses
+        return loss.item(), losses_vec
 
 
     def halfspace_code(self, halfspace):

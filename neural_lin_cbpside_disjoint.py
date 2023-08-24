@@ -93,6 +93,7 @@ class CBPside():
 
         self.eta =  self.W**(2/3) 
         self.m = m
+        self.H = 50
 
 
     def getConfidenceWidth(self, ):
@@ -187,16 +188,16 @@ class CBPside():
             V_t = np.unique(V_t)
 
             R_t = []
-            # for k in V_t:
-            #   val =  X.T @ self.contexts[k]['V_it_inv'] @ X
-            #   t_prime = t
-            #   with np.errstate(divide='ignore'): 
-            #     rate = np.sqrt( self.eta[k] * self.N**2 * 4 *  self.d**2  *(t_prime**(2/3) ) * ( self.alpha * np.log(t_prime) )**(1/3) ) 
-            #     # print(k, val[0][0], 1/rate)
-            #     if val[0][0] > 1/rate : 
-            #         # print('append action ', k)
-            #         # print('action', k, 'threshold', self.eta[k] * geometry_v3.f(t, self.alpha), 'constant', self.eta[k], 'value', geometry_v3.f(t, self.alpha)  )
-            #         R_t.append(k)
+            for k in V_t:
+              val =  self.latent_X @ self.contexts[k]['V_it_inv'] @ self.latent_X.T
+              t_prime = t
+              with np.errstate(divide='ignore'): 
+                rate = np.sqrt( self.eta[k] * self.N**2 * 4 *  self.d**2  *(t_prime**(2/3) ) * ( self.alpha * np.log(t_prime) )**(1/3) ) 
+                # print(k, val[0][0], 1/rate)
+                if val[0][0] > 1/rate : 
+                    # print('append action ', k)
+                    # print('action', k, 'threshold', self.eta[k] * geometry_v3.f(t, self.alpha), 'constant', self.eta[k], 'value', geometry_v3.f(t, self.alpha)  )
+                    R_t.append(k)
 
             union1= np.union1d(  P_t, Nplus_t )
             union1 = np.array(union1, dtype=int)
@@ -243,30 +244,33 @@ class CBPside():
 
         # print('weights', weights.shape, 'Y_t', Y_t.shape, )
         self.hist.append( X , Y_t, feedback, action )
-        if t>self.N:
+        if (t>self.N) and (t % self.H == 0):
+
             self.weights = np.vstack( [ self.contexts[i]['weights'] for i in range(self.N) ] )
             self.func = copy.deepcopy(self.func0)
-            optimizer = optim.Adam(self.func.parameters(), lr=1e-1, weight_decay = self.lbd_neural )
+            optimizer = optim.Adam(self.func.parameters(), lr=0.1, weight_decay = self.lbd_neural )
             dataloader = DataLoader(self.hist, batch_size=len(self.hist), shuffle=True) 
             scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, 0.99)
-            loss_monitor = []
+            # loss_monitor = []
 
-            for _ in range(1000):
+            for _ in range(1000): 
                 
-                train_loss = self.step(dataloader, optimizer)
+                train_loss, losses = self.step(dataloader, optimizer)
                 current_lr = optimizer.param_groups[0]['lr']
-                scheduler.step()
 
-                loss_monitor.append(train_loss)
-                if len(loss_monitor) >= 2:
-                    loss_monitor = loss_monitor[-2:]
+                if _ % 10 == 0 :
+                    scheduler.step()
+
+                # loss_monitor.append(train_loss)
+                # if len(loss_monitor) >= 2:
+                #     loss_monitor = loss_monitor[-2:]
 
                 if _ % 25 == 0:
-                    print(train_loss)
+                    print('train loss', train_loss, 'losses', [i.item() for i in losses ] )
 
-                if len(loss_monitor) >= 2 and abs(loss_monitor[1] - loss_monitor[0]) < 1e-5:
-                    print('nb epochs', _, train_loss, current_lr)
-                    break
+                # if len(loss_monitor) >= 2 and abs(loss_monitor[1] - loss_monitor[0]) < 1e-7:
+                #     print('nb epochs', _, train_loss, current_lr)
+                #     break
 
                 
 
@@ -274,11 +278,13 @@ class CBPside():
         #""Standard training/evaluation epoch over the dataset"""
 
         symbols = [ np.unique(self.game.FeedbackMatrix[i,...]) for i in range(self.N) ]
+        # print('symbols', symbols)
 
         for X, y, feedbacks, actions in loader:
             X, y  = X.to(self.device).float(), y.to(self.device).float()
             fdks = torch.nn.functional.one_hot(feedbacks[:,0], num_classes= self.A).to(self.device).float()
             loss = 0
+            losses = []
             for i in range(self.N): 
                 mask = (actions == i)[:,0]
                 X_filtered = X[mask]
@@ -288,13 +294,22 @@ class CBPside():
                     weights = torch.from_numpy( self.weights[s] ).unsqueeze(0).float().to(self.device)
                     pred = self.func(X_filtered) @ weights.T
                     # print('pred',pred.shape,'y_filtered', y_filtered.shape)
-                    loss += nn.MSELoss()(pred, y_filtered)
-
+                    l = nn.MSELoss()(pred, y_filtered)
+                    loss += l
+                    losses.append( l )
+            # Stack the loss elements into a tensor
+            # print('losses before', losses)
+            loss_tensor = torch.stack(losses)
+            # print('losses after', loss_tensor)
+            loss_sum = torch.sum(loss_tensor)
+            # print('losses sum', loss_sum)
+            # ch.tensor(losses).to(self.device)
+            # print(loss_sum )
             opt.zero_grad()
-            loss.backward()
+            loss_sum.backward()
             opt.step()
-
-        return loss.item()
+            # print(losses)
+        return loss.item(), losses
 
 
     def halfspace_code(self, halfspace):

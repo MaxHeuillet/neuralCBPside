@@ -55,7 +55,7 @@ class CBPside():
                                    'V_it_inv': self.lbd * np.identity(self.d) } )
 
  
-    def get_action(self, t, X):
+    def get_action(self, t, X, mode = 'train'):
 
         # print('X', X.shape)
 
@@ -111,7 +111,8 @@ class CBPside():
                 # print('pair', pair,  'tdelta', tdelta, 'c', c, 'sign', np.sign(tdelta)  )
                 # print('sign', np.sign(tdelta) )
                 tdelta = tdelta[0]
-                # c =  np.inf
+                if mode == 'eval':
+                    c = 0
                 if( abs(tdelta) >= c):
                     halfspace.append( ( pair, np.sign(tdelta) ) ) 
             
