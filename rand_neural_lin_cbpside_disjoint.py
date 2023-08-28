@@ -89,7 +89,7 @@ class CustomDataset(Dataset):
 
 class CBPside():
 
-    def __init__(self, game, alpha, lbd_neural, lbd_reg, sigma, K, epsilon, m, device):
+    def __init__(self, game, budget, alpha, lbd_neural, lbd_reg, sigma, K, epsilon, m, device):
 
         self.name = 'neurallinrandcbpsidedisjoint'
         self.device = device
@@ -99,14 +99,16 @@ class CBPside():
         self.N = game.n_actions
         self.M = game.n_outcomes
         self.A = geometry_v3.alphabet_size(game.FeedbackMatrix, self.N, self.M)
-        # print('n-actions', self.N, 'n-outcomes', self.M, 'alphabet', self.A)
 
         self.SignalMatrices = game.SignalMatrices
-        # print('signalmatrices', self.SignalMatrices)
 
         self.pareto_actions = geometry_v3.getParetoOptimalActions(game.LossMatrix, self.N, self.M, [])
         self.mathcal_N = game.mathcal_N
-        # print('mathcal_N', self.mathcal_N)
+
+
+        self.budget = budget
+        self.counter = 0
+        self.over_budget = False
 
         self.N_plus =  game.N_plus
 
@@ -142,6 +144,7 @@ class CBPside():
 
     def reset(self, d):
         self.d = d
+        
         self.memory_pareto = {}
         self.memory_neighbors = {}
 
@@ -149,6 +152,9 @@ class CBPside():
         self.func0 = copy.deepcopy(self.func)
         self.hist = CustomDataset()
         self.feedbacks = []
+
+        self.over_budget = False
+        self.counter = 0
 
         self.contexts = []
         for i in range(self.N):
@@ -290,9 +296,6 @@ class CBPside():
             values = { i:self.W[i]*w[i] for i in S}
             # print('value', values)
             action = max(values, key=values.get)
-            # print('S',S, 'values', values, 'action', action)
-            # 'P_t',P_t,'N_t', N_t,'Nplus_t',Nplus_t,'V_t',V_t, 'R_t',R_t,  print('n', self.n,'nu', self.nu)
-            # print()
 
         # action = np.random.randint(2)
             history = [ action, factor, tdelta ]
@@ -300,6 +303,12 @@ class CBPside():
         return action, history
 
     def update(self, action, feedback, outcome, t, X):
+
+        if self.counter > self.budget:
+            self.over_budget = True
+
+        if action == 0:
+            self.counter += 1
 
         ### update exploration component:
         e_y = np.zeros( (self.M,1) )
@@ -321,7 +330,7 @@ class CBPside():
         self.hist.append( X , Y_t, feedback, action )
         global_loss = []
         global_losses = []
-        if (t>self.N) and (t % self.H == 0):  
+        if (t>self.N) and (self.counter % self.H == 0):  
 
             self.weights = np.vstack( [ self.contexts[i]['weights'] for i in range(self.N) ] )
             self.func = copy.deepcopy(self.func0)
