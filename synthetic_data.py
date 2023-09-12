@@ -107,6 +107,59 @@ class QuinticContexts:
 
 
 
+class QuinticContexts_imbalanced:
+
+    def __init__(self):
+        self.type = 'quintic'
+        self.d = 2
+        self.mean = None
+        self.std = None
+
+    def set_b(self, b):
+        self.b = b
+
+    def normalization(self,):
+        all = []
+        for _ in range(100000):
+            c, _ = self.get_context(False)
+            all.append(c)
+        all = np.array(all)
+        self.mean = np.mean(all,0)
+        self.std = np.std(all,0)   
+        
+    def get_context(self, normalize):
+
+        sample = np.random.uniform(-1, 1, 2) if np.random.uniform(0,1)<0.05 else np.random.uniform(-0.25, 0.25, 2)
+        x, y = sample 
+        x = x + self.b
+        decision_boundary = x**5 - y**5 + y**3 
+        p = 1 if decision_boundary >= 0 else 0
+        # p = logit(decision_boundary)
+
+        # sample = np.array([x/2, x/2, y/3, y/3, y/3])
+        # sample = sample.reshape(1, len(sample) )
+        sample = sample.reshape(1, self.d)
+        val = [ p, 1-p ]
+
+        if normalize:
+            sample = ( sample - self.mean ) / self.std
+
+        return sample , val 
+    
+    def decision_boundary_function(self, x, y, b=0):
+        x = x + b
+        decision_boundary = x**5 - y**5 + y**3
+        return decision_boundary >= 0
+    
+    def denormalize(self,x):
+        return (x+self.mean) * self.std 
+
+
+
+
+
+
+
 
 
 

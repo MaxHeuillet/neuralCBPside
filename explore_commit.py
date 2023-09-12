@@ -1,7 +1,5 @@
 import numpy as np
 import geometry_v3
-
-
 import scipy as sp
 import torch
 import torch.nn as nn
@@ -37,7 +35,6 @@ class OriginalNetwork(nn.Module):
     def forward(self, x):
         x = self.fc4( self.activate3( self.fc3( self.activate2( self.fc2( self.activate1( self.fc1( x ) ) ) ) ) ) )
         return x
-
 
 class CustomDataset(Dataset):
     def __init__(self, ):
@@ -93,28 +90,22 @@ class ExploreCommit():
         self.y_pred = 1 if y_pred >= 0.5 else 2
         print('y_pred', self.y_pred, y_pred)
 
-        if mode == 'train':
-
-            if self.counters[self.y_pred]<=self.budget/self.n_classes:
-                action = 0
-            else:
-                action = self.y_pred 
-
+        if self.over_budget == False:
+            action = 0
         else:
-            action = self.y_pred
+            action = self.y_pred 
 
-        history = [action, self.counter ]
+        history = [action, self.counter, np.nan, self.over_budget]
     
         return action, history
 
     def update(self, action, feedback, outcome, t, X):
 
-        if self.counter > self.budget:
+        if self.counter>self.budget:
             self.over_budget = True
 
         if action == 0:
             self.counter += 1
-            self.counters[self.y_pred]
             self.hist.append( X , [outcome] )
 
         global_loss = []
@@ -157,44 +148,3 @@ class ExploreCommit():
 
         return loss.item()
 
-
-
-    def halfspace_code(self, halfspace):
-        string = ''
-        for element in halfspace:
-            pair, sign = element
-            string += '{}{}{}'.format(pair[0],pair[1], sign)
-        return string 
-
-
-    def pareto_halfspace_memory(self,halfspace):
-
-        code = self.halfspace_code(  sorted( halfspace) )
-        known = False
-        for mem in self.memory_pareto.keys():
-            if code  == mem:
-                known = True
-
-        if known:
-            result = self.memory_pareto[ code ]
-        else:
-            result =  geometry_v3.getParetoOptimalActions(self.game.LossMatrix, self.N, self.M, halfspace)
-            self.memory_pareto[code ] =result
- 
-        return result
-
-    def neighborhood_halfspace_memory(self,halfspace):
-
-        code = self.halfspace_code(  sorted( halfspace) )
-        known = False
-        for mem in self.memory_neighbors.keys():
-            if code  == mem:
-                known = True
-
-        if known:
-            result = self.memory_neighbors[ code ]
-        else:
-            result =  geometry_v3.getNeighborhoodActions(self.game.LossMatrix, self.N, self.M, halfspace,  self.mathcal_N )
-            self.memory_neighbors[code ] =result
- 
-        return result

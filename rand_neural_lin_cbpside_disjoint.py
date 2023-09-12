@@ -211,7 +211,7 @@ class CBPside():
 
         if t < self.N:
             action = t
-            history = [t, np.nan, np.nan]
+            history = [ action, np.nan, np.nan, self.over_budget ]
             
         else: 
 
@@ -249,7 +249,7 @@ class CBPside():
                 # print('pair', pair,  'tdelta', tdelta, 'c', c, 'sign', np.sign(tdelta)  )
                 # print('sign', np.sign(tdelta) )
                 tdelta = tdelta[0]
-                if mode == 'eval':
+                if self.over_budget:
                     c = 0
                 if( abs(tdelta) >= c):
                     halfspace.append( ( pair, np.sign(tdelta) ) ) 
@@ -298,7 +298,7 @@ class CBPside():
             action = max(values, key=values.get)
 
         # action = np.random.randint(2)
-            history = [ action, factor, tdelta ]
+            history = [ action, factor, tdelta, self.over_budget ]
             
         return action, history
 
@@ -330,7 +330,7 @@ class CBPside():
         self.hist.append( X , Y_t, feedback, action )
         global_loss = []
         global_losses = []
-        if (t>self.N) and (self.counter % self.H == 0):  
+        if (t>self.N) and (t % self.H == 0):  
 
             self.weights = np.vstack( [ self.contexts[i]['weights'] for i in range(self.N) ] )
             self.func = copy.deepcopy(self.func0)
