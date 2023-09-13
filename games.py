@@ -79,6 +79,44 @@ def label_efficient(  ):
     return Game( name, LossMatrix, FeedbackMatrix, FeedbackMatrix_PMDMED, signal_matrices, signal_matrices_Adim, mathcal_N, v, N_plus, V )
 
 
+
+
+
+
+def detection_game( threshold ):
+
+    tho = 1/threshold -1
+
+    name = 'DG'
+    LossMatrix = np.array( [ [0, 1], [tho, 0] ] )
+    FeedbackMatrix =  np.array([ [0, 1], [2, 2] ])
+    signal_matrices =  [ np.array( [ [1, 0], [0, 1] ] ), np.array( [ [1, 1] ] ) ]
+
+    FeedbackMatrix_PMDMED =  np.array([ [0, 1],[2, 2] ])
+    A = geometry_v3.alphabet_size(FeedbackMatrix_PMDMED,  len(FeedbackMatrix_PMDMED),len(FeedbackMatrix_PMDMED[0]) )
+    signal_matrices_Adim =  [ np.array( [ [0,0],[1,0],[0,1] ] ), np.array( [ [1,1],[0,0],[0,0] ] ) ]
+
+    mathcal_N = [ [0, 1] ] 
+
+    v = { 0: {1: [np.array([-tho,  1.]), np.array([0]) ]} } 
+
+    N_plus =  collections.defaultdict(dict)
+    N_plus[0][1] = [ 0, 1 ]
+
+    V = collections.defaultdict(dict)
+    V[0][1] = [ 0,1 ]
+
+    game = Game( name, LossMatrix, FeedbackMatrix, FeedbackMatrix_PMDMED,signal_matrices, signal_matrices_Adim, mathcal_N, v, N_plus, V )
+
+    return game
+
+
+
+
+
+
+
+
 from scipy.optimize import fsolve
 def objective_fn(b, a, T):
     return a/b - T
