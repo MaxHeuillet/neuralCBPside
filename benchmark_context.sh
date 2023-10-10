@@ -22,11 +22,11 @@ module load StdEnv/2020
 module load python/3.10
 module load scipy-stack
 module load gurobi
-source /home/mheuill/projects/def-adurand/mheuill/ENV_nogurobi/bin/activate
+source /home/mheuill/projects/def-adurand/mheuill/MYENV2/bin/activate
 
-virtualenv-clone /home/mheuill/projects/def-adurand/mheuill/ENV_nogurobi $SLURM_TMPDIR/ENV_nogurobi
+virtualenv-clone /home/mheuill/projects/def-adurand/mheuill/NYENV2 $SLURM_TMPDIR/MYENV2
 deactivate
-source $SLURM_TMPDIR/ENV_nogurobi/bin/activate
+source $SLURM_TMPDIR/MYENV2/bin/activate
 
 echo 'HZ: start python3 ./experiment.py ..at '; date
 

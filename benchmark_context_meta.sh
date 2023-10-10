@@ -32,8 +32,7 @@ for context_type in  'MNISTbinary' #'linear' 'quadratic' 'sinusoid'
 
                 done
                 
-            done
-        
         done
-
+        
     done
+
