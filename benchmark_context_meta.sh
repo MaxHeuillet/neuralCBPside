@@ -18,7 +18,7 @@ for context_type in  'MNISTbinary' #'linear' 'quadratic' 'sinusoid'
                     
                 do
 
-                python3 ./create_storage.py --horizon $horizon --n_folds $nfolds --game $game --approach $approach --task $task --context_type $context_type 
+                python3 ./create_storage.py --horizon $horizon --n_folds $nfolds --game $game --approach $approach --context_type $context_type 
   
                 for ((id=0; id<$nfolds; id+=4)) 
 

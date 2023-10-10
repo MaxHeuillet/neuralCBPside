@@ -52,13 +52,6 @@ def evaluate_parallel(evaluator, game, nfolds, id):
     size = 5
     w = np.array([1/size]*size)
 
-    lbd_neural = 0
-    lbd_reg = 1
-
-    sigma = 1
-    K = 10
-    epsilon = 10e-7
-
     for alg_id, seed in enumerate(range(id, id+nfolds,1)):
         
         if evaluator.context_type == 'linear':
@@ -76,24 +69,34 @@ def evaluate_parallel(evaluator, game, nfolds, id):
             context_generator = synthetic_data.MNISTcontexts_binary()
             context_generators.append( contexts )
 
-
-
         if args.approach == 'random':
             alg = random_algo.Random(game,)
 
         if args.approach == 'cbpside':
+            lbd_reg = 1
             alg = cbpside.CBPside(game, 1.01, lbd_reg  )
             algos.append( alg )
 
         elif args.approach == 'randcbpside':
+            lbd_reg = 1
+            sigma = 1
+            K = 10
+            epsilon = 10e-7
             alg = rand_cbpside.CBPside(game, 1.01, lbd_reg,  sigma, K , epsilon)
             algos.append( alg )
 
         elif args.approach == 'neurallincbpside':
+            lbd_reg = 1
+            lbd_neural = 0
+            sigma = 1
+            K = 10
+            epsilon = 10e-7
             alg = neural_lin_cbpside_disjoint.CBPside( game,  1.01, lbd_neural, lbd_reg, 5,  'cuda:0'  )
             algos.append( alg )
 
         elif args.approach == 'randneurallincbpside':
+            lbd_reg = 1
+            lbd_neural = 0
             alg = rand_neural_lin_cbpside_disjoint.CBPside( game,  1.01, lbd_neural, lbd_reg, sigma, K, epsilon, 5, 'cuda:0')
             algos.append( alg )
 
