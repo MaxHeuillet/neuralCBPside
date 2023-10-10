@@ -58,7 +58,7 @@ class CustomDataset(Dataset):
 
 class CBPside():
 
-    def __init__(self, game, budget, alpha, info_actions, lbd_neural, lbd_reg, sigma, K, epsilon, m, device):
+    def __init__(self, game, budget, alpha, info_actions, lbd_neural, lbd_reg, sigma, K, epsilon, m, H, device):
 
         self.name = 'neurallinrandcbpsidedisjoint'
         self.device = device
@@ -94,7 +94,7 @@ class CBPside():
 
         self.eta =  self.W**(2/3) 
         self.m = m
-        self.H = 50
+        self.H = H
         
         self.sigma = sigma
         self.K = K
@@ -149,14 +149,14 @@ class CBPside():
 
         return Z
 
-    def get_action(self, t, X, prediction):
+    def get_action(self, t, X, y_pred):
 
         self.latent_X = self.func( torch.from_numpy( X ).float().to(self.device) ).cpu().detach().numpy()
         # print('latent', self.latent_X.shape, self.latent_X)
 
         if t < self.N:
             action = t
-            history = [ action, prediction, np.nan, np.nan, self.over_budget ]
+            history = {'monitor_action':action, 'explore':1, 'model_pred':y_pred, 'counter':self.counter, 'over_budget':self.over_budget}
             
         else: 
 
@@ -233,6 +233,9 @@ class CBPside():
 
             union1= np.union1d(  P_t, Nplus_t )
             union1 = np.array(union1, dtype=int)
+            
+            explored = 1 if len(union1)==2 else 0
+        
             print('union1', union1, 'R', R_t)
             S =  np.union1d(  union1  , R_t )
             S = np.array( S, dtype = int)
@@ -243,7 +246,7 @@ class CBPside():
             # print('value', values)
             action = max(values, key=values.get)
 
-            history = [ action, prediction, factor, tdelta, self.over_budget ]
+            history = {'monitor_action':action, 'explore':explored, 'model_pred':y_pred, 'counter':self.counter, 'over_budget':self.over_budget}
             
         return action, history
 
@@ -259,6 +262,7 @@ class CBPside():
         e_y = np.zeros( (self.M,1) )
         e_y[outcome] = 1
         Y_t = self.game.SignalMatrices[action] @ e_y 
+        print('Y_t', Y_t)
 
         # print('action', action, 'feedback', feedback, 'Y_t', Y_t, 'latentX', self.latent_X)
 
@@ -269,10 +273,10 @@ class CBPside():
         V_it_inv = V_it_inv - ( V_it_inv @ self.latent_X.T @ self.latent_X @ V_it_inv ) / ( 1 + self.latent_X @ V_it_inv @ self.latent_X.T ) 
         self.contexts[action]['V_it_inv'] = V_it_inv
         weights = self.contexts[action]['labels'] @ self.contexts[action]['feats'] @ self.contexts[action]['V_it_inv']
-        self.contexts[action]['weights'] = weights[0]
+        self.contexts[action]['weights'] = weights
 
         # print('weights', weights.shape, 'Y_t', Y_t.shape, )
-        self.hist.append( X , Y_t, feedback, action )
+        self.hist.append(X, Y_t, feedback, action)
         global_loss = []
         global_losses = []
         if (t>self.N) and (t % self.H == 0):  

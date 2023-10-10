@@ -9,6 +9,41 @@ from scipy.stats import truncnorm
 from scipy.special import expit
 from scipy.special import logit, expit
 
+import torch
+from torchvision import datasets, transforms
+
+
+class MNISTcontexts_binary():
+
+    def __init__(self, ):
+
+        transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,)) ])
+        #train_dataset = datasets.MNIST(root='./data', train=True, transform=transform, download=True)
+        test_dataset = datasets.MNIST(root='./data', train=False, transform=transform, download=True)
+        test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=1, shuffle=True)
+        self.test_loader = list(test_loader)
+        self.index = 0
+
+    def get_context(self,):
+        
+        x, y = self.test_loader[self.index]
+        x = x.flatten()
+        sample = x.numpy() #.reshape(1, -1)
+
+        p = 1 if y.item() % 2 == 0 else 0
+        
+        val = [ p, 1-p ]
+
+        self.index += 1
+
+        return sample , val 
+
+
+
+
+
+
+
 class QuadraticContexts:
 
     def __init__(self):
@@ -516,43 +551,3 @@ class QuinticContexts_imbalanced:
 
 
 
-# class MNISTcontexts():
-
-#     def __init__(self, replacements, sampling_indexes):
-
-#         self.horizon = len( sampling_indexes )
-#         self.replacements = replacements 
-#         self.sampling_indexes = sampling_indexes
-
-#         self.switches = { '0':[6, 8, 9], '1':[4, 7], '2':[3], '3':[8, 9], '4':[8], '5':[6, 8], '6':[8], '7':[4, 8],'8':[0], '9':[8] }
-        
-#         # if digit_distribution == 'uniform':
-#         self.digit_distribution =  [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
-#         # elif digit_distribution == 'gaussian':
-#         #     self.digit_distribution = [0.00938744, 0.02826442, 0.06660327, 0.12284535, 0.17736299, 0.2004605, 0.17736299, 0.12284535, 0.06660327, 0.02826442]
-#         # else:
-#         #     self.digit_distribution = [3.03931336e-02, 1.21241604e-01, 1.92058772e-01, 1.21241604e-01, 3.03931336e-02, 2.99782587e-03, 1.15116446e-04, 5.01558658e-01, 1.53276385e-07, 2.01265511e-11]
-        
-#     def get_contexts(self, data, outcomes):
-#         contexts = np.empty( ( self.horizon, 784) )
-#         # stream = np.empty( ( horizon, 785) )
-#         labels = np.zeros( self.horizon)
-#         outcomes = np.zeros( self.horizon)
-
-#         for i, index, in enumerate( range( len(self.sampling_indexes) ) ) :
-
-#             outcome = outcomes[i]
-#             X, y =  data[index]
-#             X = X.numpy()
-
-#             if outcome == 1:
-#                 #attacked_digit =  np.random.choice( [0,1,2,3,4,5,6,7,8,9], p= digit_distribution )
-#                 candidates = self.switches[str(y)]
-#                 replacement_digit = np.random.choice( candidates , p= np.ones( len(candidates)  ) / len(candidates) )
-#                 choice = np.random.randint( 0, len(self.replacements[ replacement_digit ])-1 )
-#                 replaced_image = self.replacements[replacement_digit][choice]
-#                 X = replaced_image
-#             contexts[i] = X.flatten()
-#             labels[i] = y
-
-#         return contexts

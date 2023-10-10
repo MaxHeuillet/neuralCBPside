@@ -1,7 +1,5 @@
 
 import numpy as np
-
-
 from multiprocess import Pool
 #import multiprocessing as mp
 import os
@@ -32,23 +30,13 @@ import os
 import torch
 import random
 
+import random_algo
+
 ######################
 ######################
 
-
-def reshape_context(context, A):
-    d = context.shape[0]
-    reshaped_context = np.zeros((A, d * A))
-    
-    for i in range(A):
-        start_idx = i * d
-        end_idx = start_idx + d
-        reshaped_context[i, start_idx:end_idx] = context
-    
-    return reshaped_context
 
 def evaluate_parallel(evaluator, game, nfolds, id):
-
     
     pool = Pool(processes=nfolds)
 
@@ -81,21 +69,30 @@ def evaluate_parallel(evaluator, game, nfolds, id):
             contexts = synthetic_data.QuadraticContexts( w , evaluator.task )
             context_generators.append( contexts )
 
-        else: 
+        elif evaluator.context_type == 'sinusoid':
             contexts = synthetic_data.SinusoidContexts( w , evaluator.task )
+            context_generators.append( contexts )
+        else: 
+            context_generator = synthetic_data.MNISTcontexts_binary()
             context_generators.append( contexts )
 
 
 
+        if args.approach == 'random':
+            alg = random_algo.Random(game,)
+
         if args.approach == 'cbpside':
             alg = cbpside.CBPside(game, 1.01, lbd_reg  )
             algos.append( alg )
+
         elif args.approach == 'randcbpside':
             alg = rand_cbpside.CBPside(game, 1.01, lbd_reg,  sigma, K , epsilon)
             algos.append( alg )
+
         elif args.approach == 'neurallincbpside':
             alg = neural_lin_cbpside_disjoint.CBPside( game,  1.01, lbd_neural, lbd_reg, 5,  'cuda:0'  )
             algos.append( alg )
+
         elif args.approach == 'randneurallincbpside':
             alg = rand_neural_lin_cbpside_disjoint.CBPside( game,  1.01, lbd_neural, lbd_reg, sigma, K, epsilon, 5, 'cuda:0')
             algos.append( alg )
@@ -130,10 +127,9 @@ class Evaluation:
     def eval_policy_once(self, game, job):
 
         print('start 1')
-
         context_generator, jobid, alg = job
 
-        # print('start 2', alg.device)
+        print('start 2', alg.device)
         np.random.seed(jobid)
         torch.manual_seed(jobid)
         random.seed(jobid)
@@ -150,11 +146,11 @@ class Evaluation:
 
             context, distribution = context_generator.get_context()
 
-            # outcome = 0 if distribution[0]>0.5 else 1  
-            outcome = np.random.choice( 2 , p = distribution )
+            outcome = 0 if distribution[0]>0.5 else 1  
+            # outcome = np.random.choice( 2 , p = distribution )
 
-            # context = reshape_context(context, alg.A) if 'neural' in alg.name else np.reshape(context, (-1,1))
             context = np.expand_dims(context, axis=0)
+            print('context shape', context.shape)
             
             action, _ = alg.get_action(t, context)
 
@@ -204,7 +200,7 @@ n_folds = int(args.n_folds)
 id = int(args.id)
 print(id, args.context_type, args.approach)
 
-games = {'AT':games.apple_tasting()} #'LE': games.label_efficient(  ),
+games = { 'AT':games.apple_tasting(), 'LE': games.label_efficient(  ) }
 game = games[args.game]
 
 # factor_type = args.approach.split('_')[1]
