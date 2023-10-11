@@ -1,7 +1,7 @@
 
 import numpy as np
-from multiprocess import Pool
-#import multiprocessing as mp
+# from multiprocess import Pool
+import multiprocessing as mp
 import os
 
 from functools import partial
@@ -38,7 +38,7 @@ import random_algo
 
 def evaluate_parallel(evaluator, game, nfolds, id):
     
-    pool = Pool(processes=nfolds)
+    pool = mp.Pool(processes=nfolds)
 
     np.random.seed(1)
     torch.manual_seed(1)
@@ -68,6 +68,8 @@ def evaluate_parallel(evaluator, game, nfolds, id):
         else: 
             context_generator = synthetic_data.MNISTcontexts_binary()
             context_generators.append( contexts )
+
+
 
         if args.approach == 'random':
             alg = random_algo.Random(game,)
