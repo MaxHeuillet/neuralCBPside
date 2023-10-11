@@ -9,6 +9,6 @@ matplotlib
 multiprocess
 #multiprocessing
 #os-sys
-functools
+#functools
 pickle5
 scipy
