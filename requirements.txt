@@ -7,7 +7,7 @@ matplotlib
 #gurobipy
 #cuda-python
 multiprocess
-multiprocessing
+#multiprocessing
 os-sys
 functools
 pickle5
