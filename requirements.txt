@@ -8,7 +8,7 @@ matplotlib
 #cuda-python
 multiprocess
 #multiprocessing
-os-sys
+#os-sys
 functools
 pickle5
 scipy
