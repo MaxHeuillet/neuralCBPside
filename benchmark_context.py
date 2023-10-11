@@ -15,10 +15,6 @@ import cbpside
 
 import synthetic_data
 
-import gzip
-import pickle as pkl
-
-import subprocess
 
 import cbpside
 import rand_cbpside

@@ -7,3 +7,8 @@ matplotlib
 gurobipy
 cuda-python
 multiprocess
+multiprocessing
+os-sys
+functools
+pickle5
+scipy
