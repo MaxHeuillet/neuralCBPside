@@ -5,7 +5,7 @@ torchaudio
 pandas
 matplotlib
 #gurobipy
-cuda-python
+#cuda-python
 multiprocess
 multiprocessing
 os-sys
