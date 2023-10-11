@@ -24,7 +24,7 @@ module load scipy-stack
 module load gurobi
 source /home/mheuill/projects/def-adurand/mheuill/MYENV2/bin/activate
 
-virtualenv-clone /home/mheuill/projects/def-adurand/mheuill/NYENV2 $SLURM_TMPDIR/MYENV2
+virtualenv-clone /home/mheuill/projects/def-adurand/mheuill/MYENV2 $SLURM_TMPDIR/MYENV2
 deactivate
 source $SLURM_TMPDIR/MYENV2/bin/activate
 
