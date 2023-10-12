@@ -107,10 +107,9 @@ def evaluate_parallel(evaluator, game, nfolds, id):
 
 class Evaluation:
 
-    def __init__(self, game_name, task, n_folds, horizon, game, label, context_type):
+    def __init__(self, game_name, n_folds, horizon, game, label, context_type):
 
         self.game_name = game_name
-        self.task = task
         self.n_folds = n_folds
         self.horizon = horizon
         self.game = game
@@ -169,7 +168,7 @@ class Evaluation:
         result = np.cumsum(cumRegret)
         print(result)
         print('finished', jobid)
-        with gzip.open( './results/{}/benchmark_{}_{}_{}_{}_{}.pkl.gz'.format(self.game_name, self.task, self.context_type, self.horizon, self.n_folds, self.label) ,'ab') as f:
+        with gzip.open( './results/{}/benchmark_{}_{}_{}_{}.pkl.gz'.format(self.game_name, self.context_type, self.horizon, self.n_folds, self.label) ,'ab') as f:
             pkl.dump(result,f)
         print('saved', jobid)
 
@@ -212,7 +211,7 @@ nfolds = min([ncpus,ngpus])
 
 print('nfolds', nfolds)
 
-evaluator = Evaluation(args.game, args.task, n_folds, horizon, game, args.approach, args.context_type)
+evaluator = Evaluation(args.game, n_folds, horizon, game, args.approach, args.context_type)
 
 evaluate_parallel(evaluator, game, nfolds, id)
         
