@@ -19,7 +19,7 @@ module --force purge
 module load StdEnv/2020
 module load python/3.10
 module load scipy-stack
-module load gurobi
+#module load gurobi
 source /home/mheuill/projects/def-adurand/mheuill/MYENV3/bin/activate
 
 virtualenv-clone /home/mheuill/projects/def-adurand/mheuill/MYENV3 $SLURM_TMPDIR/MYENV2
