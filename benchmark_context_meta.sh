@@ -1,9 +1,7 @@
 #!/bin/bash
 
-horizon=2500
+horizon=500
 nfolds=20
-
-
 
 
 for context_type in  'MNISTbinary' #'linear' 'quadratic' 'sinusoid'
@@ -14,7 +12,7 @@ for context_type in  'MNISTbinary' #'linear' 'quadratic' 'sinusoid'
 
         do
 
-            for approach in  'random' #'cbpside' 'randcbpside' 'neurallincbpside' 'randneurallincbpside'
+            for approach in  'cbpside' #'random' 'randcbpside' 'neurallincbpside' 'randneurallincbpside'
                     
                 do
 
