@@ -207,7 +207,7 @@ game = games[args.game]
 
 ncpus = int ( os.environ.get('SLURM_CPUS_PER_TASK', default=1) )
 ngpus = int( torch.cuda.device_count() )
-nfolds = min([ncpus,ngpus]) 
+nfolds = 4 #min([ncpus,ngpus]) 
 
 print('nfolds', nfolds)
 
