@@ -34,6 +34,7 @@ import random_algo
 
 def evaluate_parallel(evaluator, game, nfolds, id):
     
+    print('numbers of processes to be launched', nfolds)
     pool = Pool(processes=nfolds)
 
     np.random.seed(1)
@@ -44,8 +45,6 @@ def evaluate_parallel(evaluator, game, nfolds, id):
     alg_ids =[]
     seeds = []
     algos = []
-
-
 
     for alg_id, seed in enumerate(range(id, id+nfolds,1)):
         
@@ -107,6 +106,7 @@ def evaluate_parallel(evaluator, game, nfolds, id):
         alg_ids.append(alg_id)
 
     print('send jobs')
+    print('seeds', seeds)
         
     return pool.map( partial( evaluator.eval_policy_once, game ), zip(context_generators, seeds, algos ) ) 
 
