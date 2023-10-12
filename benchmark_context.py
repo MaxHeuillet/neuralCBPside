@@ -1,7 +1,7 @@
 
 import numpy as np
-# from multiprocess import Pool
-import multiprocessing as mp
+from multiprocess import Pool
+# import multiprocessing as mp
 import os
 
 from functools import partial
@@ -34,7 +34,7 @@ import random_algo
 
 def evaluate_parallel(evaluator, game, nfolds, id):
     
-    pool = mp.Pool(processes=nfolds)
+    pool = Pool(processes=nfolds)
 
     np.random.seed(1)
     torch.manual_seed(1)
@@ -45,20 +45,25 @@ def evaluate_parallel(evaluator, game, nfolds, id):
     seeds = []
     algos = []
 
-    size = 5
-    w = np.array([1/size]*size)
+
 
     for alg_id, seed in enumerate(range(id, id+nfolds,1)):
         
         if evaluator.context_type == 'linear':
+            size = 5
+            w = np.array([1/size]*size)
             contexts = synthetic_data.LinearContexts( w , evaluator.task) 
             context_generators.append( contexts )
 
         elif evaluator.context_type == 'quadratic':
+            size = 5
+            w = np.array([1/size]*size)
             contexts = synthetic_data.QuadraticContexts( w , evaluator.task )
             context_generators.append( contexts )
 
         elif evaluator.context_type == 'sinusoid':
+            size = 5
+            w = np.array([1/size]*size)
             contexts = synthetic_data.SinusoidContexts( w , evaluator.task )
             context_generators.append( contexts )
         else: 
