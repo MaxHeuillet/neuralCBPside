@@ -62,7 +62,7 @@ def evaluate_parallel(evaluator, game, nfolds, id):
             contexts = synthetic_data.SinusoidContexts( w , evaluator.task )
             context_generators.append( contexts )
         else: 
-            context_generator = synthetic_data.MNISTcontexts_binary()
+            contexts = synthetic_data.MNISTcontexts_binary()
             context_generators.append( contexts )
 
 
