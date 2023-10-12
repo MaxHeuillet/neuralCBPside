@@ -211,10 +211,10 @@ game = games[args.game]
 # factor_type = args.approach.split('_')[1]
 # print('factor_type', factor_type)
 
-# ncpus = int ( os.environ.get('SLURM_CPUS_PER_TASK', default=1) )
-# ngpus = int( torch.cuda.device_count() )
+ncpus = int ( os.environ.get('SLURM_CPUS_PER_TASK', default=1) )
+ngpus = int( torch.cuda.device_count() )
 # nfolds = 5 #min([ncpus,ngpus]) 
-# print('nfolds', nfolds)
+print('ncpus', ncpus,'ngpus', ngpus)
 
 
 evaluator = Evaluation(args.game, n_folds, horizon, game, args.approach, args.context_type)

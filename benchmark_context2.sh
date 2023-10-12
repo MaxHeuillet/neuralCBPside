@@ -2,7 +2,7 @@
 
 #SBATCH --account=def-adurand
 
-#SBATCH --gpus-per-task=1
+#--gres=gpu:1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=5
 
