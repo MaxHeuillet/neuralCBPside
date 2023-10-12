@@ -42,11 +42,12 @@ def evaluate_parallel(evaluator, game, nfolds, id):
     random.seed(1)
 
     context_generators = []
-    alg_ids =[]
     seeds = []
     algos = []
 
-    for alg_id, seed in enumerate(range(id, id+nfolds,1)):
+    gpu_id = 0
+
+    for seed in range(nfolds):
         
         if evaluator.context_type == 'linear':
             size = 5
@@ -72,7 +73,7 @@ def evaluate_parallel(evaluator, game, nfolds, id):
 
 
         if args.approach == 'random':
-            alg = random_algo.Egreedy(game,)
+            alg = random_algo.Egreedy(game, 'cuda:0')
             algos.append( alg )
 
         if args.approach == 'cbpside':
@@ -94,17 +95,16 @@ def evaluate_parallel(evaluator, game, nfolds, id):
             sigma = 1
             K = 10
             epsilon = 10e-7
-            alg = neural_lin_cbpside_disjoint.CBPside( game,  1.01, lbd_neural, lbd_reg, 5,  'cuda:0'  )
+            alg = neural_lin_cbpside_disjoint.CBPside( game,  1.01, lbd_neural, lbd_reg, 5,  'cuda:{}'.format(gpu_id) )
             algos.append( alg )
 
         elif args.approach == 'randneurallincbpside':
             lbd_reg = 1
             lbd_neural = 0
-            alg = rand_neural_lin_cbpside_disjoint.CBPside( game,  1.01, lbd_neural, lbd_reg, sigma, K, epsilon, 5, 'cuda:0')
+            alg = rand_neural_lin_cbpside_disjoint.CBPside( game,  1.01, lbd_neural, lbd_reg, sigma, K, epsilon, 5, 'cuda:{}'.format(gpu_id) )
             algos.append( alg )
 
         seeds.append(seed)
-        alg_ids.append(alg_id)
 
     print('send jobs')
     print('seeds', context_generators, seeds, algos)
@@ -212,13 +212,13 @@ game = games[args.game]
 # factor_type = args.approach.split('_')[1]
 # print('factor_type', factor_type)
 
-ncpus = int ( os.environ.get('SLURM_CPUS_PER_TASK', default=1) )
-ngpus = int( torch.cuda.device_count() )
-nfolds = 4 #min([ncpus,ngpus]) 
+# ncpus = int ( os.environ.get('SLURM_CPUS_PER_TASK', default=1) )
+# ngpus = int( torch.cuda.device_count() )
+# nfolds = 5 #min([ncpus,ngpus]) 
+# print('nfolds', nfolds)
 
-print('nfolds', nfolds)
 
 evaluator = Evaluation(args.game, n_folds, horizon, game, args.approach, args.context_type)
 
-evaluate_parallel(evaluator, game, nfolds, id)
+evaluate_parallel(evaluator, game, n_folds, id)
         
