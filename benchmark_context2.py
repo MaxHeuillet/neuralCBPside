@@ -32,7 +32,7 @@ import random_algo
 ######################
 
 
-def evaluate_parallel(evaluator, game, nfolds, id):
+def evaluate_parallel(evaluator, game, nfolds):
     
     print('numbers of processes to be launched', nfolds)
     pool = Pool(processes=nfolds)
@@ -202,8 +202,7 @@ args = parser.parse_args()
 
 horizon = int(args.horizon)
 n_folds = int(args.n_folds)
-id = int(args.id)
-print(id, args.context_type, args.approach)
+print(args.context_type, args.approach)
 
 games = { 'AT':games.apple_tasting(), 'LE': games.label_efficient(  ) }
 game = games[args.game]
@@ -219,5 +218,5 @@ print('ncpus', ncpus,'ngpus', ngpus)
 
 evaluator = Evaluation(args.game, n_folds, horizon, game, args.approach, args.context_type)
 
-evaluate_parallel(evaluator, game, n_folds, id)
+evaluate_parallel(evaluator, game, n_folds)
         
