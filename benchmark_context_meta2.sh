@@ -1,6 +1,6 @@
 #!/bin/bash
 
-horizon=500
+horizon=9999
 nfolds=10
 
 
