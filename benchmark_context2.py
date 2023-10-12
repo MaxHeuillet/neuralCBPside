@@ -197,7 +197,6 @@ parser.add_argument("--n_folds", required=True, help="number of folds")
 parser.add_argument("--game", required=True, help="game")
 parser.add_argument("--context_type", required=True, help="context type")
 parser.add_argument("--approach", required=True, help="algorithme")
-parser.add_argument("--id", required=True, help="algorithme")
 
 args = parser.parse_args()
 

@@ -29,5 +29,5 @@ source /home/mheuill/projects/def-adurand/mheuill/MYENV3/bin/activate
 
 echo 'HZ: start python3 ./experiment.py ..at '; date
 
-python3 ./benchmark_context.py --horizon ${HORIZON} --n_folds ${NFOLDS} --game ${GAME} --approach ${APR} --context_type ${CONTEXT_TYPE} --id ${ID} > stdout_$SLURM_JOB_ID 2>stderr_$SLURM_JOB_ID
+python3 ./benchmark_context.py --horizon ${HORIZON} --n_folds ${NFOLDS} --game ${GAME} --approach ${APR} --context_type ${CONTEXT_TYPE}  > stdout_$SLURM_JOB_ID 2>stderr_$SLURM_JOB_ID
 
