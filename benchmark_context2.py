@@ -73,7 +73,8 @@ def evaluate_parallel(evaluator, game, nfolds):
 
 
         if args.approach == 'random':
-            alg = random_algo.Egreedy(game, 'cuda:0')
+            m = 20
+            alg = random_algo.Egreedy(game, m, 'cuda:0')
             algos.append( alg )
 
         if args.approach == 'cbpside':
