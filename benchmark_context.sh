@@ -22,9 +22,9 @@ module load scipy-stack
 #module load gurobi
 source /home/mheuill/projects/def-adurand/mheuill/MYENV3/bin/activate
 
-virtualenv-clone /home/mheuill/projects/def-adurand/mheuill/MYENV3 $SLURM_TMPDIR/MYENV2
-deactivate
-source $SLURM_TMPDIR/MYENV3/bin/activate
+# virtualenv-clone /home/mheuill/projects/def-adurand/mheuill/MYENV3 $SLURM_TMPDIR/MYENV2
+# deactivate
+# source $SLURM_TMPDIR/MYENV3/bin/activate
 
 echo 'HZ: start python3 ./experiment.py ..at '; date
 
