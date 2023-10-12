@@ -23,6 +23,9 @@ class MNISTcontexts_binary():
         test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=1, shuffle=True)
         self.test_loader = list(test_loader)
         self.index = 0
+        x, y = self.test_loader[self.index]
+        x = x.flatten()
+        self.d = x.shape[0]
 
     def get_context(self,):
         
