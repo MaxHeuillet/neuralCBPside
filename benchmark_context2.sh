@@ -2,7 +2,6 @@
 
 #SBATCH --account=def-adurand
 
-#SBATCH --partition=gpubase_interac
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=10
 #SBATCH --gpus-per-node=1
