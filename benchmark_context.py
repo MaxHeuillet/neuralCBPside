@@ -106,9 +106,11 @@ def evaluate_parallel(evaluator, game, nfolds, id):
         alg_ids.append(alg_id)
 
     print('send jobs')
-    print('seeds', seeds)
+    print('seeds', context_generators, seeds, algos)
         
-    return pool.map( partial( evaluator.eval_policy_once, game ), zip(context_generators, seeds, algos ) ) 
+    pool.map( partial( evaluator.eval_policy_once, game ), zip(context_generators, seeds, algos ) ) 
+
+    return True
 
 class Evaluation:
 
@@ -120,7 +122,6 @@ class Evaluation:
         self.game = game
         self.label =  label
         self.context_type = context_type
-        
 
     def get_outcomes(self, game, ):
         outcomes = np.random.choice( game.n_outcomes , p= list( game.outcome_dist.values() ), size= self.horizon) 
