@@ -73,6 +73,7 @@ def evaluate_parallel(evaluator, game, nfolds, id):
 
         if args.approach == 'random':
             alg = random_algo.Random(game,)
+            algos.append( alg )
 
         if args.approach == 'cbpside':
             lbd_reg = 1
