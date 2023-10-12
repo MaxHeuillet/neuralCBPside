@@ -2,10 +2,10 @@
 
 #SBATCH --account=def-adurand
 
-
+#SBATCH --partition=gpubase_interac
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=5
-#SBATCH --gpus-per-node=4
+#SBATCH --cpus-per-task=10
+#SBATCH --gpus-per-node=1
 
 #SBATCH --mem-per-cpu=3072M
 #SBATCH --time=00:15:00
