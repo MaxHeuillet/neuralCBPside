@@ -136,7 +136,7 @@ class Evaluation:
         print('start 1')
         context_generator, jobid, alg = job
 
-        print('start 2', alg.device)
+        #print('start 2', alg.device)
         np.random.seed(jobid)
         torch.manual_seed(jobid)
         random.seed(jobid)
