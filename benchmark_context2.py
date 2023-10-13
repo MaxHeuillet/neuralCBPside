@@ -181,7 +181,8 @@ class Evaluation:
 
             context, distribution = context_generator.get_context()
 
-            outcome = 0 if distribution[0]>0.5 else 1  
+            #outcome = 0 if distribution[0]>0.5 else 1  
+            outcome = 0 if distribution[0]<0.5 else 1
             # outcome = np.random.choice( 2 , p = distribution )
 
             context = np.expand_dims(context, axis=0)
