@@ -23,6 +23,7 @@ import neuralcbp_LE
 import margin_based
 import rand_neural_lin_cbpside_disjoint
 import ineural_multi
+import cesa_bianchi
 
 import argparse
 import os
@@ -123,6 +124,12 @@ def evaluate_parallel(evaluator, game, nfolds):
             budget = evaluator.horizon
             nclasses = 2 
             alg = ineural_multi.INeurALmulti('cuda:0', budget, nclasses)
+            algos.append( alg )
+
+        elif args.approach == 'cesa':
+            m = 20
+            alg = cesa_bianchi.CesaBianchi(game, m, 'cuda:0')
+            algos.append( alg )
 
 
         seeds.append(seed)
