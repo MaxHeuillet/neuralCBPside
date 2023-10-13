@@ -123,7 +123,7 @@ def evaluate_parallel(evaluator, game, nfolds):
         elif args.approach == 'ineural':
             budget = evaluator.horizon
             nclasses = 2 
-            alg = ineural_multi.INeurALmulti('cuda:0', budget, nclasses)
+            alg = ineural_multi.INeurALmulti(budget, nclasses, 'cuda:0')
             algos.append( alg )
 
         elif args.approach == 'cesa':
