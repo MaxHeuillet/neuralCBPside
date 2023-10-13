@@ -23,7 +23,7 @@ class DeployedNetwork(nn.Module):
         self.activate1 = nn.Tanh() #nn.ReLU()
         self.fc2 = nn.Linear(m, m)
         self.activate2 = nn.Tanh() #nn.ReLU()
-        self.fc3 = nn.Linear(m, m)
+        self.fc3 = nn.Linear(m, 20)
         self.activate3 = nn.Tanh() #nn.ReLU()
         nn.init.normal_(self.fc1.weight, mean=0, std=0.1)
         nn.init.normal_(self.fc2.weight, mean=0, std=0.1)
@@ -118,8 +118,8 @@ class CBPside():
         self.hist = CustomDataset()
 
         self.contexts = {'feats':None, 'r_feats':None, 'labels':None, 'weights': None,
-                                    'V_it_inv': self.lbd_reg * np.identity(self.m+1),
-                                    'V_i0_inv': self.lbd_reg * np.identity(self.m+1) } 
+                                    'V_it_inv': self.lbd_reg * np.identity(20+1),
+                                    'V_i0_inv': self.lbd_reg * np.identity(20+1) } 
             
     def obtain_probability(self,  t , factor):
 
