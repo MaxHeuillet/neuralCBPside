@@ -45,7 +45,6 @@ class CustomDataset(Dataset):
     def __init__(self, ):
         self.obs = None
         self.feedbacks = None
-        self.actions = None
 
     def __len__(self):
         return len(self.obs)
@@ -55,7 +54,7 @@ class CustomDataset(Dataset):
     
     def append(self, X , f):
         self.obs = X if self.obs is None else np.concatenate( (self.obs, X), axis=0) 
-        self.feedbacks = [[f]] if self.feedbacks is None else np.concatenate( (self.feedbacks, [[f]] ), axis=0)
+        self.feedbacks = np.array([[f]]) if self.feedbacks is None else np.concatenate( (self.feedbacks, [[f]] ), axis=0)
 
 class CBPside():
 
@@ -117,7 +116,6 @@ class CBPside():
         self.func = DeployedNetwork( self.d , self.m).to(self.device)
         self.func0 = copy.deepcopy(self.func)
         self.hist = CustomDataset()
-        self.feedbacks = []
 
         self.contexts = {'feats':None, 'r_feats':None, 'labels':None, 'weights': None,
                                     'V_it_inv': self.lbd_reg * np.identity(self.m+1),
@@ -306,6 +304,7 @@ class CBPside():
     def step(self, loader, opt):
 
         for X, feedbacks in loader:
+            #print(X, feedbacks)
             X = X.to(self.device).float() 
             feedbacks = feedbacks.to(self.device).float()
 

@@ -55,7 +55,7 @@ class CustomDataset(Dataset):
     
     def append(self, X , f):
         self.obs = X if self.obs is None else np.concatenate( (self.obs, X), axis=0) 
-        self.feedbacks = [[f]] if self.feedbacks is None else np.concatenate( (self.feedbacks, [[f]] ), axis=0)
+        self.feedbacks = np.array([[f]]) if self.feedbacks is None else np.concatenate( (self.feedbacks, [[f]] ), axis=0)
 
 class CBPside():
 
