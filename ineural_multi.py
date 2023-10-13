@@ -45,29 +45,25 @@ def EE_forward(net1, net2, x):
 
 class INeurALmulti():
 
-    def __init__(self, device, budget, d, num_cls):
+    def __init__(self, budget, num_cls, device):
         self.name = 'ineuralmulti'
         
         self.device = device
 
-        self.d = d
         self.num_cls = num_cls
 
         self.budget = budget
         self.query_num = 0
-        self.margin = 7 # on MNIST they use 3
+        self.margin = 3 #according to their parameter search
         self.N = 3
 
         self.ber = 1.1
 
         self.X1_train, self.X2_train, self.y1, self.y2 = [], [], [], []
 
-        input_dim = self.d + (self.num_cls-1) * self.d
-        # print( 'input dim',  input_dim)
-        self.net1 = Network_exploitation(input_dim).to(self.device)
-        self.net2 = Network_exploration(input_dim * 2).to(self.device)
+    def reset(self, d):
 
-    def reset(self,):
+        self.d = d
 
         self.query_num = 0
         self.X1_train, self.X2_train, self.y1, self.y2 = [], [], [], []

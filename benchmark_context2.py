@@ -18,8 +18,11 @@ import synthetic_data
 
 import cbpside
 import rand_cbpside
-import neural_lin_cbpside_disjoint
+import randneuralcbp_LE
+import neuralcbp_LE
+import margin_based
 import rand_neural_lin_cbpside_disjoint
+import ineural_multi
 
 import argparse
 import os
@@ -72,6 +75,7 @@ def evaluate_parallel(evaluator, game, nfolds):
 
 
 
+
         if args.approach == 'random':
             m = 20
             alg = random_algo.Egreedy(game, m, 'cuda:0')
@@ -90,20 +94,36 @@ def evaluate_parallel(evaluator, game, nfolds):
             alg = rand_cbpside.CBPside(game, 1.01, lbd_reg,  sigma, K , epsilon)
             algos.append( alg )
 
-        elif args.approach == 'neurallincbpside':
-            lbd_reg = 1
+        elif args.approach == 'neuralcbpside':
             lbd_neural = 0
+            lbd_reg = 1
+            m = 20
+            H = None
+            alg = neuralcbp_LE.CBPside( game, 1.01, lbd_neural, lbd_reg, m, H,  'cuda:0')
+            algos.append( alg )
+
+        elif args.approach == 'randneuralcbpside':
+            lbd_neural = 0
+            lbd_reg = 1
             sigma = 1
             K = 10
             epsilon = 10e-7
-            alg = neural_lin_cbpside_disjoint.CBPside( game,  1.01, lbd_neural, lbd_reg, 5,  'cuda:{}'.format(gpu_id) )
+            m = 20
+            H = None
+            alg = randneuralcbp_LE.CBPside( game, 1.01, lbd_neural, lbd_reg, sigma, K, epsilon, m, H,  'cuda:0')
             algos.append( alg )
 
-        elif args.approach == 'randneurallincbpside':
-            lbd_reg = 1
-            lbd_neural = 0
-            alg = rand_neural_lin_cbpside_disjoint.CBPside( game,  1.01, lbd_neural, lbd_reg, sigma, K, epsilon, 5, 'cuda:{}'.format(gpu_id) )
+        elif args.approach == 'margin':
+            threshold = 0.1
+            m = 20
+            alg = margin_based.MarginBased(game, m, threshold,  'cuda:0')
             algos.append( alg )
+
+        elif args.approach == 'ineural':
+            budget = evaluator.horizon
+            nclasses = 2 
+            alg = ineural_multi.INeurALmulti('cuda:0', budget, nclasses)
+
 
         seeds.append(seed)
 
