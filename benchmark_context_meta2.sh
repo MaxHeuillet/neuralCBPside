@@ -12,7 +12,7 @@ for context_type in  'MNISTbinary' #'linear' 'quadratic' 'sinusoid'
 
         do
 
-            for approach in  'ineural' 'randneuralcbpside1' 'randneuralcbpside2' #'random' 'neuralcbpside' 'randneuralcbpside' 'margin' 'cesa'
+            for approach in  'randneuralcbpside1' 'randneuralcbpside2' #'ineural'  'random' 'neuralcbpside' 'randneuralcbpside' 'margin' 'cesa'
                     
                 do
 

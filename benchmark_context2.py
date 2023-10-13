@@ -98,7 +98,7 @@ def evaluate_parallel(evaluator, game, nfolds):
         elif args.approach == 'neuralcbpside':
             lbd_neural = 0
             lbd_reg = 1
-            m = 20
+            m = 100
             H = None
             alg = neuralcbp_LE.CBPside( game, 1.01, lbd_neural, lbd_reg, m, H,  'cuda:0')
             algos.append( alg )
@@ -109,7 +109,7 @@ def evaluate_parallel(evaluator, game, nfolds):
             sigma = 1
             K = 10
             epsilon = 10e-7
-            m = 20
+            m = 100
             H = None
             alg = randneuralcbp_LE.CBPside( game, 1.01, lbd_neural, lbd_reg, sigma, K, epsilon, m, H,  'cuda:0')
             algos.append( alg )
@@ -120,7 +120,7 @@ def evaluate_parallel(evaluator, game, nfolds):
             sigma = 10
             K = 10
             epsilon = 10e-7
-            m = 20
+            m = 100
             H = None
             alg = randneuralcbp_LE.CBPside( game, 1.01, lbd_neural, lbd_reg, sigma, K, epsilon, m, H,  'cuda:0')
             algos.append( alg )
