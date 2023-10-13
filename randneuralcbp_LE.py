@@ -109,6 +109,7 @@ class CBPside():
 
     def reset(self, d):
         self.d = d
+        self.H = 50
         
         self.memory_pareto = {}
         self.memory_neighbors = {}
@@ -254,6 +255,9 @@ class CBPside():
         self.contexts['weights'] = weights
 
     def update(self, action, feedback, outcome, t, X):
+
+        if t>1000:
+            self.H = 500 
 
         if action == 0:
             self.hist.append(X, feedback)
