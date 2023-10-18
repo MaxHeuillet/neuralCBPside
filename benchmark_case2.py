@@ -18,7 +18,7 @@ import synthetic_data
 
 import cbpside
 import rand_cbpside
-import randneuralcbp_LE
+import randneuralcbp
 import neuralcbp_LE
 import margin_based
 # import rand_neural_lin_cbpside_disjoint
@@ -101,13 +101,13 @@ def evaluate_parallel(evaluator, game, nfolds):
             alg = rand_cbpside.CBPside(game, 1.01, lbd_reg,  sigma, K , epsilon)
             algos.append( alg )
 
-        elif args.approach == 'neuralcbpside':
-            lbd_neural = 0
-            lbd_reg = 1
-            m = 100
-            H = None
-            alg = neuralcbp_LE.CBPside( game, 1.01, lbd_neural, lbd_reg, m, H,  'cuda:0')
-            algos.append( alg )
+        # elif args.approach == 'neuralcbpside':
+        #     lbd_neural = 0
+        #     lbd_reg = 1
+        #     m = 100
+        #     H = None
+        #     alg = neuralcbp.CBPside( game, 1.01, lbd_neural, lbd_reg, m, H,  'cuda:0')
+        #     algos.append( alg )
 
         elif args.approach == 'randneuralcbpside':
             lbd_neural = 0
@@ -117,7 +117,7 @@ def evaluate_parallel(evaluator, game, nfolds):
             epsilon = 10e-7
             m = 100
             H = None
-            alg = randneuralcbp_LE.CBPside( game, 1.01, lbd_neural, lbd_reg, sigma, K, epsilon, m, H,  'cuda:0')
+            alg = randneuralcbp.CBPside( game, 1.01, lbd_neural, lbd_reg, sigma, K, epsilon, m, H,  'cuda:0')
             algos.append( alg )
 
         elif args.approach == 'ineural':
