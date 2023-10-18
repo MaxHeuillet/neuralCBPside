@@ -70,15 +70,18 @@ def evaluate_parallel(evaluator, game, nfolds):
             w = np.array([1/size]*size)
             contexts = synthetic_data.SinusoidContexts( w , evaluator.task )
             context_generators.append( contexts )
-        else: 
+        elif evaluator.context_type == 'MNISTbinary': 
             contexts = synthetic_data.MNISTcontexts_binary()
             context_generators.append( contexts )
-
-
+        elif evaluator.context_type == 'MNIST': 
+            contexts = synthetic_data.MNISTcontexts()
+            context_generators.append( contexts )
+        else:
+            print('error')
 
 
         if args.approach == 'random':
-            m = 20
+            m = 100
             alg = random_algo.Egreedy(game, m, 'cuda:0')
             algos.append( alg )
 
@@ -103,7 +106,7 @@ def evaluate_parallel(evaluator, game, nfolds):
             alg = neuralcbp_LE.CBPside( game, 1.01, lbd_neural, lbd_reg, m, H,  'cuda:0')
             algos.append( alg )
 
-        elif args.approach == 'randneuralcbpside1':
+        elif args.approach == 'randneuralcbpside':
             lbd_neural = 0
             lbd_reg = 1
             sigma = 1/32

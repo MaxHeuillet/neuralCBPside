@@ -70,15 +70,19 @@ def evaluate_parallel(evaluator, game, nfolds):
             w = np.array([1/size]*size)
             contexts = synthetic_data.SinusoidContexts( w , evaluator.task )
             context_generators.append( contexts )
-        else: 
+        elif evaluator.context_type == 'MNISTbinary': 
             contexts = synthetic_data.MNISTcontexts_binary()
             context_generators.append( contexts )
-
+        elif evaluator.context_type == 'MNIST': 
+            contexts = synthetic_data.MNISTcontexts()
+            context_generators.append( contexts )
+        else:
+            print('error')
 
 
 
         if args.approach == 'random':
-            m = 20
+            m = 100
             alg = random_algo.Egreedy(game, m, 'cuda:0')
             algos.append( alg )
 
@@ -103,22 +107,11 @@ def evaluate_parallel(evaluator, game, nfolds):
             alg = neuralcbp_LE.CBPside( game, 1.01, lbd_neural, lbd_reg, m, H,  'cuda:0')
             algos.append( alg )
 
-        elif args.approach == 'randneuralcbpside1':
+        elif args.approach == 'randneuralcbpside':
             lbd_neural = 0
             lbd_reg = 1
-            sigma = 1/2
+            sigma = 1/32
             K = 100
-            epsilon = 10e-7
-            m = 100
-            H = None
-            alg = randneuralcbp_LE.CBPside( game, 1.01, lbd_neural, lbd_reg, sigma, K, epsilon, m, H,  'cuda:0')
-            algos.append( alg )
-
-        elif args.approach == 'randneuralcbpside2':
-            lbd_neural = 0
-            lbd_reg = 1
-            sigma = 10
-            K = 10
             epsilon = 10e-7
             m = 100
             H = None
@@ -127,18 +120,18 @@ def evaluate_parallel(evaluator, game, nfolds):
 
         elif args.approach == 'margin':
             threshold = 0.1
-            m = 20
+            m = 100
             alg = margin_based.MarginBased(game, m, threshold,  'cuda:0')
             algos.append( alg )
 
         elif args.approach == 'ineural':
             budget = evaluator.horizon
-            nclasses = 2 
+            nclasses = 10
             alg = ineural_multi.INeurALmulti(budget, nclasses, 'cuda:0')
             algos.append( alg )
 
         elif args.approach == 'cesa':
-            m = 20
+            m = 100
             alg = cesa_bianchi.CesaBianchi(game, m, 'cuda:0')
             algos.append( alg )
 
@@ -215,7 +208,7 @@ class Evaluation:
         result = np.cumsum(cumRegret)
         print(result)
         print('finished', jobid)
-        with gzip.open( './results/{}/benchmark_{}_{}_{}_{}.pkl.gz'.format(self.game_name, self.context_type, self.horizon, self.n_folds, self.label) ,'ab') as f:
+        with gzip.open( './results/case2_{}_{}_{}_{}.pkl.gz'.format(self.game_name, self.context_type, self.horizon, self.n_folds, self.label) ,'ab') as f:
             pkl.dump(result,f)
         print('saved', jobid)
 
