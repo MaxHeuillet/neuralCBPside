@@ -139,8 +139,11 @@ class Egreedy():
 
         for X, y in loader:
             X = X.to(self.device).float()
-            #y = one_hot(y, num_classes=10).to(self.device).float()
-            y = y.to(self.device).long()
+            if self.nclasses == 2:
+                y = y.to(self.device).float()
+            else:
+                y = one_hot(y, num_classes=10).to(self.device).float()
+            
             #print(y)
             loss = 0
             losses = []
