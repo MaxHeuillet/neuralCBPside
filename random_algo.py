@@ -19,11 +19,11 @@ import random
 
 
 class DeployedNetwork(nn.Module):
-    def __init__(self,  d, m):
+    def __init__(self,  d, m, output):
         super(DeployedNetwork, self).__init__()
         self.fc1 = nn.Linear(d, m)
         self.activate1 = nn.ReLU()
-        self.fc2 = nn.Linear(m, 1)
+        self.fc2 = nn.Linear(m, output)
         nn.init.normal_(self.fc1.weight, mean=0, std=0.1)
         nn.init.normal_(self.fc2.weight, mean=0, std=0.1)
         nn.init.zeros_(self.fc1.bias)
@@ -51,13 +51,14 @@ class CustomDataset(Dataset):
 
 class Egreedy():
 
-    def __init__(self, game, m, device):
+    def __init__(self, game, nclasses, m, device):
+
 
         self.name = 'egreedy'
         self.device = device
 
         self.game = game
-
+        self.nclasses = nclasses
         self.N = game.n_actions
         self.M = game.n_outcomes
         self.A = geometry_v3.alphabet_size(game.FeedbackMatrix, self.N, self.M)
@@ -69,8 +70,11 @@ class Egreedy():
 
     def reset(self, d):
         self.d = d
+        if self.nclasses == 2:
+            self.func = DeployedNetwork( self.d , self.m, 1).to(self.device)
+        else:
+            self.func = DeployedNetwork( self.d , self.m, 10).to(self.device)
 
-        self.func = DeployedNetwork( self.d , self.m).to(self.device)
         self.func0 = copy.deepcopy(self.func)
         self.hist = CustomDataset()
 
@@ -108,10 +112,14 @@ class Egreedy():
                 optimizer = optim.Adam(self.func.parameters(), lr=0.1, weight_decay = 0 )
                 dataloader = DataLoader(self.hist, batch_size=len(self.hist), shuffle=True) 
                 scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, 0.99)
+                if self.nclasses == 2:
+                    loss = nn.BCEWithLogitsLoss()
+                else:
+                    loss = nn.CrossEntropyLoss()
 
                 for _ in range(1000): 
                         
-                    train_loss, losses = self.step(dataloader, optimizer)
+                    train_loss, losses = self.step(dataloader, loss, optimizer)
                     current_lr = optimizer.param_groups[0]['lr']
                     global_loss.append(train_loss)
                     global_losses.append(losses)
@@ -124,7 +132,7 @@ class Egreedy():
         return global_loss, global_losses
                 
 
-    def step(self, loader, opt):
+    def step(self, loader, loss, opt):
         #""Standard training/evaluation epoch over the dataset"""
 
         for X, y in loader:
@@ -136,7 +144,9 @@ class Egreedy():
 
             pred = self.func(X).squeeze(1)
             # print(pred.shape, y.shape)
-            l = nn.BCEWithLogitsLoss()(pred, y)
+
+
+            l = loss(pred, y)
             loss += l
             losses.append( l )
             losses_vec.append(l.item())
