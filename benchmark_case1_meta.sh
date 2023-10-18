@@ -16,7 +16,7 @@ for context_type in  'MNISTbinary' #'linear' 'quadratic' 'sinusoid'
                     
                 do
 
-                python3 ./create_storage.py --horizon $horizon --n_folds $nfolds --game $game --approach $approach --context_type $context_type 
+                python3 ./create_storage.py  --case 'case1' --horizon $horizon --n_folds $nfolds --game $game --approach $approach --context_type $context_type 
   
 		        echo 'horizon' $horizon 'nfolds' $nfolds 'CONTEXT_TYPE' $context_type 'GAME' $game 'TASK' $task 'APR' $approach 
 
