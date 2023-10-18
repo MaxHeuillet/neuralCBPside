@@ -120,21 +120,10 @@ def evaluate_parallel(evaluator, game, nfolds):
             alg = randneuralcbp_LE.CBPside( game, 1.01, lbd_neural, lbd_reg, sigma, K, epsilon, m, H,  'cuda:0')
             algos.append( alg )
 
-        # elif args.approach == 'margin':
-        #     threshold = 0.1
-        #     m = 100
-        #     alg = margin_based.MarginBased(game, m, threshold,  'cuda:0')
-        #     algos.append( alg )
-
         elif args.approach == 'ineural':
             budget = evaluator.horizon
             nclasses = 10
             alg = ineural_multi.INeurALmulti(budget, nclasses, 'cuda:0')
-            algos.append( alg )
-
-        elif args.approach == 'cesa':
-            m = 100
-            alg = cesa_bianchi.CesaBianchi(game, m, 'cuda:0')
             algos.append( alg )
 
 
@@ -186,10 +175,7 @@ class Evaluation:
                 print(t)
 
             context, distribution = context_generator.get_context()
-
-            #outcome = 0 if distribution[0]>0.5 else 1  
-            outcome = 0 if distribution[0]<0.5 else 1
-            # outcome = np.random.choice( 2 , p = distribution )
+            outcome = np.argmax(distribution) 
 
             context = np.expand_dims(context, axis=0)
             print('context shape', context.shape)

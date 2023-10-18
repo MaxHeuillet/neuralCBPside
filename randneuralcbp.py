@@ -15,6 +15,8 @@ import copy
 import pickle
 from torch.utils.data import Dataset
 from torch.optim.lr_scheduler import StepLR
+import multiprocessing
+
 
 
 class DeployedNetwork(nn.Module):
@@ -64,6 +66,7 @@ class CBPside():
 
         self.name = 'randneuralcbp'
         self.device = device
+        self.num_workers = multiprocessing.cpu_count()
 
         self.game = game
 
@@ -73,7 +76,7 @@ class CBPside():
 
         self.SignalMatrices = game.SignalMatrices
 
-        self.pareto_actions = geometry_v3.getParetoOptimalActions(game.LossMatrix, self.N, self.M, [])
+        self.pareto_actions = geometry_v3.getParetoOptimalActions(game.LossMatrix, self.N, self.M, [], self.num_workers)
         self.mathcal_N = game.mathcal_N
 
         self.N_plus =  game.N_plus
@@ -368,7 +371,7 @@ class CBPside():
         if known:
             result = self.memory_pareto[ code ]
         else:
-            result =  geometry_v3.getParetoOptimalActions(self.game.LossMatrix, self.N, self.M, halfspace)
+            result =  geometry_v3.getParetoOptimalActions(self.game.LossMatrix, self.N, self.M, halfspace, self.num_workers)
             self.memory_pareto[code ] =result
  
         return result
@@ -385,7 +388,7 @@ class CBPside():
             result = self.memory_neighbors[ code ]
         else:
             print('step 3 b')
-            result =  geometry_v3.getNeighborhoodActions(self.game.LossMatrix, self.N, self.M, halfspace,  self.mathcal_N )
+            result =  geometry_v3.getNeighborhoodActions(self.game.LossMatrix, self.N, self.M, halfspace,  self.mathcal_N , self.num_workers)
             self.memory_neighbors[code ] =result
  
         return result
