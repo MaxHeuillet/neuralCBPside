@@ -110,7 +110,7 @@ def evaluate_parallel(evaluator, game, nfolds):
         elif args.approach == 'randneuralcbpside':
             lbd_neural = 0
             lbd_reg = 1
-            sigma = 1/32
+            sigma = 1/2
             K = 100
             epsilon = 10e-7
             m = 100
