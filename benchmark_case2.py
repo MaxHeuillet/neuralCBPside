@@ -210,7 +210,7 @@ class Evaluation:
         result = np.cumsum(cumRegret)
         print(result)
         print('finished', jobid)
-        with gzip.open( './results/case2_{}_{}_{}_{}.pkl.gz'.format(self.game_name, self.context_type, self.horizon, self.n_folds, self.label) ,'ab') as f:
+        with gzip.open( './results/case2_{}_{}_{}_{}.pkl.gz'.format(self.context_type, self.horizon, self.n_folds, self.label) ,'ab') as f:
             pkl.dump(result,f)
         print('saved', jobid)
 

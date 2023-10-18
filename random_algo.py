@@ -82,7 +82,12 @@ class Egreedy():
     def get_action(self, t, X):
 
         prediction = self.func( torch.from_numpy( X ).float().to(self.device) ).cpu().detach()
-        self.pred_action = torch.argmax(prediction, dim=1).item() + 1
+
+        if self.nclasses == 2:
+            probability = expit(prediction)
+            self.pred_action = 1 if probability < 0.5 else 2
+        else:
+            self.pred_action = torch.argmax(prediction, dim=1).item() + 1
 
         if random.random() < 0.1:
             action = 0

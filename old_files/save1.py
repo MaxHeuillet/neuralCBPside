@@ -269,3 +269,164 @@ class NeuralCBPside():
             self.memory_neighbors[code ] =result
  
         return result
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Define the range of x and y values for the grid
+x_min, x_max = -1, 1
+y_min, y_max = -1, 1
+
+# Generate a grid of points
+num_points = 1000
+x_values = np.linspace(x_min, x_max, num_points)  
+y_values = np.linspace(y_min, y_max, num_points)  
+x_grid, y_grid = np.meshgrid(x_values, y_values)
+
+# Compute the decision boundary for the grid of points
+b = 0.15
+
+plt.figure(figsize=(4, 4))
+
+decision_boundary_grid = context_generator.decision_boundary_function(x_grid, y_grid, b)
+plt.contourf(x_grid, y_grid, decision_boundary_grid, levels=1, alpha=0.6, cmap=plt.cm.coolwarm)
+
+contexts = np.array( [ context_generator.denormalize(i[4]) for i in train_hist ] ).squeeze(1) 
+
+action0 = [ i[0] if i[0]==2 else np.nan for i in train_hist ]
+indices_action0 = np.where(~np.isnan(action0))[0]
+contexts0 = contexts[indices_action0]
+
+action1 = [ i[0] if i[0]==1 else np.nan for i in train_hist ]
+indices_action1 = np.where(~np.isnan(action1))[0]
+contexts1 = contexts[indices_action1]
+
+action2 = [ i[0] if i[0]==0 else np.nan for i in train_hist ]
+indices_action2 = np.where(~np.isnan(action2))[0]
+contexts2 = contexts[indices_action2]
+
+# plt.plot(contexts0[:,0], contexts0[:,1], '.', color = 'orange', markersize = 2, label = 'predicted as class 1')
+# plt.plot(contexts1[:,0], contexts1[:,1], '.', color = 'blue', markersize = 2, label = 'predicted as class 2')
+plt.plot(contexts2[:,0], contexts2[:,1], '.', color = 'green', markersize = 2, label = 'explored')
+
+plt.xlabel('X')
+plt.ylabel('Y')
+
+plt.tight_layout()
+plt.ylim((-1,1))
+plt.xlim((-1,1))
+# plt.title('Training decision boundary (shift = {})'.format(b))
+plt.title('Deployment decision boundary (shift = {})'.format(b))
+plt.legend(loc = (-0.4,-0.25),ncol = 3)
+# Save the figure to a file with tight layout and 380 DPI
+# plt.savefig('./figures/CBP_DB_{}.png'.format(b), dpi=380, bbox_inches='tight')
+plt.savefig('./figures/ETC_exploration3_{}.png'.format(b), dpi=380, bbox_inches='tight')
+# plt.savefig('./figures/CBP_exploration3_{}.png'.format(b), dpi=380, bbox_inches='tight')
+
+
+
+
+
+
+
+
+
+
+
+
+# Define the range of x and y values for the grid
+x_min, x_max = -1, 1
+y_min, y_max = -1, 1
+
+# Generate a grid of points
+num_points = 1000
+x_values = np.linspace(x_min, x_max, num_points)  
+y_values = np.linspace(y_min, y_max, num_points)  
+x_grid, y_grid = np.meshgrid(x_values, y_values)
+
+# Compute the decision boundary for the grid of points
+for b in [0.15]: #[0, 0.15]
+
+    plt.figure(figsize=(4, 4))
+
+    decision_boundary_grid = context_generator.decision_boundary_function(x_grid, y_grid, b)
+
+    plt.contourf(x_grid, y_grid, decision_boundary_grid, levels=1, alpha=0.6, cmap=plt.cm.coolwarm)
+
+    contexts = np.array( [ context_generator.denormalize(i[4]) for i in depl_hist ] ).squeeze(1) 
+
+    action0 = [ i[0] if i[0]==2 else np.nan for i in depl_hist ]
+    indices_action0 = np.where(~np.isnan(action0))[0]
+    contexts0 = contexts[indices_action0]
+    action1 = [ i[0] if i[0]==1 else np.nan for i in depl_hist ]
+    indices_action1 = np.where(~np.isnan(action1))[0]
+    contexts1 = contexts[indices_action1]
+
+    plt.plot(contexts0[:,0], contexts0[:,1], '.', markersize = 1, color = 'red')
+    plt.plot(contexts1[:,0], contexts1[:,1], '.', markersize = 1, color = 'blue')
+
+    # plt.scatter(contexts[indices_predaction0][:,0], contexts[indices_predaction0][:,1], s = 1, color='blue', label='Predicted Points')
+    # plt.scatter(contexts[indices_predaction1][:,0], contexts[indices_predaction1][:,1], s = 1, color='red', label='Predicted Points')
+
+    # Add labels and title to the plot
+    plt.xlabel('X')
+    plt.ylabel('Y')
+    # plt.title(' Decision Boundary')
+    # Adjust the layout for better spacing
+    plt.tight_layout()
+    plt.ylim((-1,1))
+    plt.xlim((-1,1))
+    plt.title('Deployment decision boundary (shift = {})'.format(b))
+
+    # Save the figure to a file with tight layout and 380 DPI
+    plt.savefig('./figures/ETC_exploitation3_{}.png'.format(b), dpi=380, bbox_inches='tight')
+    # plt.savefig('./figures/CBP_exploitation3_{}.png'.format(b), dpi=380, bbox_inches='tight')
+
+
+from matplotlib.ticker import ScalarFormatter
+
+new_global_loss = np.vstack( [ i for i in global_losses if len(i)>0 ] )
+
+plt.figure(figsize=(8, 4))
+
+plt.yscale('log')
+plt.grid(color='gray', linestyle='-')
+plt.xlim( (-10, 19000) )
+
+plt.xticks(custom_ticks, custom_tick_labels, rotation=45)
+
+# Set tick locations and labels for the y-axis
+tick_locations = [0.01, 0.1, 1, 10,]  # Define your desired tick locations
+tick_labels = ['0.01', '0.1', '1', '10', ]  # Corresponding labels
+ax = plt.gca()
+ax.yaxis.set_major_locator(plt.FixedLocator(tick_locations))
+ax.yaxis.set_major_formatter(ScalarFormatter())
+ax.set_yticklabels(tick_labels)
+
+plt.plot( new_global_loss[:,0], label = 'symbole 0' )
+plt.plot( new_global_loss[:,1], label = 'symbole 1' )
+plt.plot( new_global_loss[:,2], label = 'symbole 2' )
+plt.plot( new_global_loss[:,3], label = 'symbole 3' )
+
+plt.xlabel('Step + 1000 epochs')
+plt.ylabel('Loss')
+plt.legend()
+
+# plt.savefig('./figures/loss_evolution_{}.png'.format(idx), dpi=380, bbox_inches='tight')

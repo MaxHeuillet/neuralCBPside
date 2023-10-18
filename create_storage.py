@@ -17,5 +17,5 @@ args = parser.parse_args()
 horizon = int(args.horizon)
 n_folds = int(args.n_folds)
 
-with gzip.open( './results/{}_{}_{}_{}_{}.pkl.gz'.format(args.case, args.game,  args.context_type, horizon, n_folds, args.approach) ,'wb') as g:
+with gzip.open( './results/{}_{}_{}_{}_{}.pkl.gz'.format(args.case, args.context_type, horizon, n_folds, args.approach) ,'wb') as g:
     pkl.dump( [None]*horizon, g)

@@ -19,11 +19,11 @@ from scipy.special import logit, expit
 
 
 class DeployedNetwork(nn.Module):
-    def __init__(self,  d, m):
+    def __init__(self,  d, m, output):
         super(DeployedNetwork, self).__init__()
         self.fc1 = nn.Linear(d, m)
         self.activate1 = nn.ReLU()
-        self.fc2 = nn.Linear(m, 1)
+        self.fc2 = nn.Linear(m, output)
         nn.init.normal_(self.fc1.weight, mean=0, std=0.1)
         nn.init.normal_(self.fc2.weight, mean=0, std=0.1)
         nn.init.zeros_(self.fc1.bias)
@@ -72,7 +72,8 @@ class CesaBianchi():
         self.memory_pareto = {}
         self.memory_neighbors = {}
 
-        self.func = DeployedNetwork( self.d , self.m).to(self.device)
+        self.func = DeployedNetwork( self.d , self.m, 1).to(self.device)
+
         self.func0 = copy.deepcopy(self.func)
         self.hist = CustomDataset()
         self.feedbacks = []
@@ -83,10 +84,11 @@ class CesaBianchi():
     def get_action(self, t, X):
 
         prediction = self.func( torch.from_numpy( X ).float().to(self.device) ).cpu().detach()
+
         probability = expit(prediction)
         self.pred_action = 1 if probability < 0.5 else 2
 
-        print('prediction', prediction, probability, self.pred_action)
+        print('prediction', prediction, self.pred_action)
 
 
         b = self.beta * np.sqrt(1+self.K) 
@@ -124,9 +126,12 @@ class CesaBianchi():
                 dataloader = DataLoader(self.hist, batch_size=len(self.hist), shuffle=True) 
                 scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, 0.99)
 
+                loss = nn.BCEWithLogitsLoss()
+ 
+
                 for _ in range(1000): 
                         
-                    train_loss, losses = self.step(dataloader, optimizer)
+                    train_loss, losses = self.step(dataloader, loss, optimizer)
                     current_lr = optimizer.param_groups[0]['lr']
                     global_loss.append(train_loss)
                     global_losses.append(losses)
@@ -139,11 +144,12 @@ class CesaBianchi():
         return global_loss, global_losses
                 
 
-    def step(self, loader, opt):
+    def step(self, loader, loss_func, opt):
         #""Standard training/evaluation epoch over the dataset"""
 
         for X, y in loader:
             X, y  = X.to(self.device).float(), y.to(self.device).float()
+
             loss = 0
             losses = []
             losses_vec =[]
@@ -151,7 +157,8 @@ class CesaBianchi():
 
             pred = self.func(X).squeeze(1)
             # print(pred.shape, y.shape)
-            l = nn.BCEWithLogitsLoss()(pred, y)
+            l = loss_func(pred, y)
+
             loss += l
             losses.append( l )
             losses_vec.append(l.item())
