@@ -5,6 +5,7 @@ import argparse
 
 parser = argparse.ArgumentParser()
 
+parser.add_argument("--case", required=True, help="case")
 parser.add_argument("--horizon", required=True, help="horizon of each realization of the experiment")
 parser.add_argument("--n_folds", required=True, help="number of folds")
 parser.add_argument("--game", required=True, help="game")
@@ -16,5 +17,5 @@ args = parser.parse_args()
 horizon = int(args.horizon)
 n_folds = int(args.n_folds)
 
-with gzip.open( './results/{}/benchmark_{}_{}_{}_{}.pkl.gz'.format(args.game,  args.context_type, horizon, n_folds, args.approach) ,'wb') as g:
+with gzip.open( './results/{}_{}_{}_{}_{}.pkl.gz'.format(args.case, args.game,  args.context_type, horizon, n_folds, args.approach) ,'wb') as g:
     pkl.dump( [None]*horizon, g)
