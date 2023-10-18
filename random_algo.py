@@ -16,7 +16,7 @@ from torch.utils.data import Dataset
 from torch.optim.lr_scheduler import StepLR
 from scipy.special import logit, expit
 import random
-
+from torch.nn.functional import one_hot
 
 class DeployedNetwork(nn.Module):
     def __init__(self,  d, m, output):
@@ -82,10 +82,7 @@ class Egreedy():
     def get_action(self, t, X):
 
         prediction = self.func( torch.from_numpy( X ).float().to(self.device) ).cpu().detach()
-        probability = expit(prediction)
-        self.pred_action = 1 if probability < 0.5 else 2
-
-        print('prediction', prediction, probability, self.pred_action)
+        self.pred_action = torch.argmax(prediction, dim=1).item() + 1
 
         if random.random() < 0.1:
             action = 0
@@ -132,21 +129,22 @@ class Egreedy():
         return global_loss, global_losses
                 
 
-    def step(self, loader, loss, opt):
+    def step(self, loader, loss_func, opt):
         #""Standard training/evaluation epoch over the dataset"""
 
         for X, y in loader:
-            X, y  = X.to(self.device).float(), y.to(self.device).float()
+            X = X.to(self.device).float()
+            #y = one_hot(y, num_classes=10).to(self.device).float()
+            y = y.to(self.device).long()
+            #print(y)
             loss = 0
             losses = []
             losses_vec =[]
  
 
             pred = self.func(X).squeeze(1)
-            # print(pred.shape, y.shape)
 
-
-            l = loss(pred, y)
+            l = loss_func(pred, y)
             loss += l
             losses.append( l )
             losses_vec.append(l.item())

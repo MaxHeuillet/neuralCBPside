@@ -81,9 +81,11 @@ def evaluate_parallel(evaluator, game, nfolds):
 
 
 
+
         if args.approach == 'random':
             m = 100
-            alg = random_algo.Egreedy(game, m, 'cuda:0')
+            nclasses = 10
+            alg = random_algo.Egreedy(game, nclasses, m, 'cuda:0')
             algos.append( alg )
 
         if args.approach == 'cbpside':
@@ -118,11 +120,11 @@ def evaluate_parallel(evaluator, game, nfolds):
             alg = randneuralcbp_LE.CBPside( game, 1.01, lbd_neural, lbd_reg, sigma, K, epsilon, m, H,  'cuda:0')
             algos.append( alg )
 
-        elif args.approach == 'margin':
-            threshold = 0.1
-            m = 100
-            alg = margin_based.MarginBased(game, m, threshold,  'cuda:0')
-            algos.append( alg )
+        # elif args.approach == 'margin':
+        #     threshold = 0.1
+        #     m = 100
+        #     alg = margin_based.MarginBased(game, m, threshold,  'cuda:0')
+        #     algos.append( alg )
 
         elif args.approach == 'ineural':
             budget = evaluator.horizon
