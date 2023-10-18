@@ -236,7 +236,7 @@ horizon = int(args.horizon)
 n_folds = int(args.n_folds)
 print(args.context_type, args.approach)
 
-games = { 'AT':games.apple_tasting(), 'LE': games.label_efficient(  ) }
+games = {  'LE': games.label_efficient(  ) } #'AT':games.apple_tasting(),
 game = games[args.game]
 
 # factor_type = args.approach.split('_')[1]
