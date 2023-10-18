@@ -61,6 +61,7 @@ class CBPside():
 
     def __init__(self, game, alpha, lbd_neural, lbd_reg, sigma, K, epsilon, m, H, device):
 
+        self.num_pools = 1
         self.name = 'randneuralcbp'
         self.device = device
 
@@ -72,7 +73,7 @@ class CBPside():
 
         self.SignalMatrices = game.SignalMatrices
 
-        self.pareto_actions = geometry_v3.getParetoOptimalActions(game.LossMatrix, self.N, self.M, [])
+        self.pareto_actions = geometry_v3.getParetoOptimalActions(game.LossMatrix, self.N, self.M, [], self.num_pools )
         self.mathcal_N = game.mathcal_N
 
         self.N_plus =  game.N_plus
@@ -345,7 +346,7 @@ class CBPside():
         if known:
             result = self.memory_pareto[ code ]
         else:
-            result =  geometry_v3.getParetoOptimalActions(self.game.LossMatrix, self.N, self.M, halfspace)
+            result =  geometry_v3.getParetoOptimalActions(self.game.LossMatrix, self.N, self.M, halfspace, self.num_pools)
             self.memory_pareto[code ] =result
  
         return result
@@ -361,7 +362,7 @@ class CBPside():
         if known:
             result = self.memory_neighbors[ code ]
         else:
-            result =  geometry_v3.getNeighborhoodActions(self.game.LossMatrix, self.N, self.M, halfspace,  self.mathcal_N )
+            result =  geometry_v3.getNeighborhoodActions(self.game.LossMatrix, self.N, self.M, halfspace,  self.mathcal_N, self.num_pools )
             self.memory_neighbors[code ] =result
  
         return result
