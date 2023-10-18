@@ -21,18 +21,19 @@ class DeployedNetwork(nn.Module):
         super(DeployedNetwork, self).__init__()
         self.fc1 = nn.Linear(d, m)
         self.activate1 = nn.Tanh() #nn.ReLU()
-        self.fc2 = nn.Linear(m, m)
-        self.activate2 = nn.Tanh() #nn.ReLU()
-        self.fc3 = nn.Linear(m, 20)
-        self.activate3 = nn.Tanh() #nn.ReLU()
+        # self.fc2 = nn.Linear(m, 20)
+        # self.activate2 = nn.Tanh() #nn.ReLU()
+        # self.fc3 = nn.Linear(m, 20)
+        # self.activate3 = nn.Tanh() #nn.ReLU()
         nn.init.normal_(self.fc1.weight, mean=0, std=0.1)
-        nn.init.normal_(self.fc2.weight, mean=0, std=0.1)
-        nn.init.normal_(self.fc3.weight, mean=0, std=0.1)
+        #nn.init.normal_(self.fc2.weight, mean=0, std=0.1)
+        # nn.init.normal_(self.fc3.weight, mean=0, std=0.1)
         nn.init.zeros_(self.fc1.bias)
-        nn.init.zeros_(self.fc2.bias)
-        nn.init.zeros_(self.fc3.bias)
+        #nn.init.zeros_(self.fc2.bias)
+        # nn.init.zeros_(self.fc3.bias)
     def forward(self, x):
-        x = self.activate3( self.fc3( self.activate2( self.fc2( self.activate1( self.fc1( x ) ) ) ) ) )
+        # x = self.activate3( self.fc3( self.activate2( self.fc2( self.activate1( self.fc1( x ) ) ) ) ) )
+        x = self.activate1( self.fc1( x ) ) 
         # x = self.fc3( self.activate2( self.fc2( self.activate1( self.fc1( x ) ) ) ) ) 
         # x = self.fc2( self.activate1( self.fc1(x) ) ) 
 
@@ -67,7 +68,7 @@ class CBPside():
 
         self.N = game.n_actions
         self.M = game.n_outcomes
-        self.A = geometry_v3.alphabet_size(game.FeedbackMatrix, self.N, self.M)
+        self.A = None #geometry_v3.alphabet_size(game.FeedbackMatrix, self.N, self.M)
 
         self.SignalMatrices = game.SignalMatrices
 
@@ -118,8 +119,8 @@ class CBPside():
         self.hist = CustomDataset()
 
         self.contexts = {'feats':None, 'r_feats':None, 'labels':None, 'weights': None,
-                                    'V_it_inv': self.lbd_reg * np.identity(20+1),
-                                    'V_i0_inv': self.lbd_reg * np.identity(20+1) } 
+                                    'V_it_inv': self.lbd_reg * np.identity(self.m+1),
+                                    'V_i0_inv': self.lbd_reg * np.identity(self.m+1) } 
             
     def obtain_probability(self,  t , factor):
 
@@ -282,9 +283,9 @@ class CBPside():
 
                 self.weights = self.contexts['weights'] 
                 self.func = copy.deepcopy(self.func0)
-                optimizer = optim.Adam(self.func.parameters(), lr=0.1, weight_decay = self.lbd_neural )
+                optimizer = optim.Adam(self.func.parameters(), lr=0.001, weight_decay = self.lbd_neural )
                 dataloader = DataLoader(self.hist, batch_size=1000, shuffle=True) 
-                scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, 0.99)
+                #scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, 0.99)
                 # scheduler = StepLR(optimizer, step_size=250, last_epoch=-1, gamma=0.1)
                 for _ in range(1000): 
                     
@@ -293,8 +294,8 @@ class CBPside():
                     global_loss.append(train_loss)
                     global_losses.append(losses)
 
-                    if _ % 10 == 0 :
-                        scheduler.step()
+                    # if _ % 10 == 0 :
+                    #     scheduler.step()
                     if _ % 25 == 0:
                         print('train loss', train_loss, 'losses', losses )
 

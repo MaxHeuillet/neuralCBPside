@@ -26,64 +26,9 @@ class Game():
         self.N = len(self.LossMatrix)
         self.M = len(self.LossMatrix[0])
 
+def game_case1(  ):
 
-# def apple_tasting(  ):
-
-#     name = 'AT'
-#     LossMatrix = np.array( [ [1, 0], [0, 1] ] )
-#     FeedbackMatrix =  np.array([ [0, 0], [1, 2] ])
-#     signal_matrices =  [ np.array( [ [1,1] ] ), np.array( [ [1,0], [0,1] ] ) ]
-
-#     FeedbackMatrix_PMDMED =  np.array([ [0, 0],[1, 2] ])
-#     A = geometry_v3.alphabet_size(FeedbackMatrix_PMDMED,  len(FeedbackMatrix_PMDMED),len(FeedbackMatrix_PMDMED[0]) )
-#     signal_matrices_Adim =  [ np.array( [ [1,1],[0,0],[0,0] ] ), np.array( [ [0,0],[1,0],[0,1] ] ) ]
-
-#     mathcal_N = [ [0, 1] ] 
-
-#     v = { 0: {1: [np.array([0]), np.array([1.,  -1.])]} } 
-
-#     N_plus =  collections.defaultdict(dict)
-#     N_plus[0][1] = [ 0, 1 ]
-
-#     V = collections.defaultdict(dict)
-#     V[0][1] = [ 0,1 ]
-
-#     game = Game( name, LossMatrix, FeedbackMatrix, FeedbackMatrix_PMDMED,signal_matrices, signal_matrices_Adim, mathcal_N, v, N_plus, V )
-
-#     return game
-
-
-def apple_tasting(  ):
-
-    name = 'AT'
-    LossMatrix = np.array( [ [1, 0], [0, 1] ] )
-    FeedbackMatrix =  np.array([ [0, 1], [2, 2] ])
-    signal_matrices =  [ np.array( [ [1,0], [0,1] ] ), np.array( [ [1,1] ] ) ]
-
-    FeedbackMatrix_PMDMED =  np.array([ [0, 1],[2, 2] ])
-    A = geometry_v3.alphabet_size(FeedbackMatrix_PMDMED,  len(FeedbackMatrix_PMDMED),len(FeedbackMatrix_PMDMED[0]) )
-    signal_matrices_Adim =  [ np.array( [ [0,0],[0,0],[1,1] ] ), np.array( [ [1,0],[0,1],[0,0] ] ) ]
-
-    mathcal_N = [ [0, 1] ] 
-
-    v = { 0: {1: [ np.array([-1.,  1.]), np.array([0])]} } 
-
-    N_plus =  collections.defaultdict(dict)
-    N_plus[0][1] = [ 0, 1 ]
-
-    V = collections.defaultdict(dict)
-    V[0][1] = [ 0,1 ]
-
-    game = Game( name, LossMatrix, FeedbackMatrix, FeedbackMatrix_PMDMED,signal_matrices, signal_matrices_Adim, mathcal_N, v, N_plus, V )
-
-    return game
-
-
-
-
-def label_efficient(  ):
-
-    name = 'LE'
+    name = 'case1'
     LossMatrix = np.array( [ [1, 1],[1, 0],[0, 1] ] )
     FeedbackMatrix = np.array(  [ [0, 1], [2, 2], [3, 3] ] )
 
@@ -93,9 +38,9 @@ def label_efficient(  ):
     A = geometry_v3.alphabet_size(FeedbackMatrix_PMDMED,  len(FeedbackMatrix_PMDMED),len(FeedbackMatrix_PMDMED[0]) )
     signal_matrices_Adim =  [ np.array( [ [1,0],[0,1],[0,0] ] ), np.array( [ [0,0],[0,0],[1,1] ] ), np.array( [ [0,0],[0,0],[1,1] ] ) ]
     
-    mathcal_N = [  [1,2] ] #,  [2,1] 
+    mathcal_N = [  [1,2] ] 
 
-    v = {1: {2: [ np.array([-1.,  1.]), np.array([0]), np.array([0])]}, } #2: {1: [np.array([ 1., -1.]), np.array([0.]), np.array([0.])]}
+    v = {1: {2: [ np.array([-1.,  1.]), np.array([0]), np.array([0])]}, } 
     
     N_plus =  collections.defaultdict(dict)
     N_plus[1][2] = [ 1, 2 ]
@@ -108,85 +53,238 @@ def label_efficient(  ):
 
 
 
+def game_case2(  ):
 
-def detection_game( threshold ):
+    name = 'case2'
+    LossMatrix = np.array( [ [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                             [0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                             [1, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+                             [1, 1, 0, 1, 1, 1, 1, 1, 1, 1],
+                             [1, 1, 1, 0, 1, 1, 1, 1, 1, 1],
+                             [1, 1, 1, 1, 0, 1, 1, 1, 1, 1],
+                             [1, 1, 1, 1, 1, 0, 1, 1, 1, 1],
+                             [1, 1, 1, 1, 1, 1, 0, 1, 1, 1],
+                             [1, 1, 1, 1, 1, 1, 1, 0, 1, 1],
+                             [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+                             [1, 1, 1, 1, 1, 1, 1, 1, 1, 0] ] )
+    
+    FeedbackMatrix = np.array(  [ [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 
+                                  [-1] * 10, 
+                                  [-1] * 10,
+                                  [-1] * 10,
+                                  [-1] * 10,
+                                  [-1] * 10,
+                                  [-1] * 10,
+                                  [-1] * 10,
+                                  [-1] * 10,
+                                  [-1] * 10,
+                                  [-1] * 10 ] )
 
-    tho = 1/threshold -1
+    signal_matrices = [ np.array( [ [1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                    [0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+                                    [0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+                                    [0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+                                    [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+                                    [0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+                                    [0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+                                    [0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+                                    [0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+                                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 1] ] ), 
 
-    name = 'DG'
-    LossMatrix = np.array( [ [0, 1], [tho, 0] ] ) / np.max( game.LossMatrix )
-    FeedbackMatrix =  np.array([ [0, 1], [2, 2] ])
-    signal_matrices =  [ np.array( [ [1, 0], [0, 1] ] ), np.array( [ [1, 1] ] ) ]
+                                    np.array( [ [1]*10 ] ), 
+                                    np.array( [ [1]*10 ] ),
+                                    np.array( [ [1]*10 ] ),
+                                    np.array( [ [1]*10 ] ),
+                                    np.array( [ [1]*10 ] ),
+                                    np.array( [ [1]*10 ] ),
+                                    np.array( [ [1]*10 ] ),
+                                    np.array( [ [1]*10 ] ),
+                                    np.array( [ [1]*10 ] ),
+                                    np.array( [ [1]*10 ] )  ] 
 
-    FeedbackMatrix_PMDMED =  np.array([ [0, 1],[2, 2] ])
-    A = geometry_v3.alphabet_size(FeedbackMatrix_PMDMED,  len(FeedbackMatrix_PMDMED),len(FeedbackMatrix_PMDMED[0]) )
-    signal_matrices_Adim =  [ np.array( [ [0,0],[1,0],[0,1] ] ), np.array( [ [1,1],[0,0],[0,0] ] ) ]
-
-    mathcal_N = [ [0, 1] ] 
-
-    v = { 0: {1: [np.array([-tho,  1.]), np.array([0]) ]} } 
-
-    N_plus =  collections.defaultdict(dict)
-    N_plus[0][1] = [ 0, 1 ]
-
-    V = collections.defaultdict(dict)
-    V[0][1] = [ 0,1 ]
-
-    game = Game( name, LossMatrix, FeedbackMatrix, FeedbackMatrix_PMDMED,signal_matrices, signal_matrices_Adim, mathcal_N, v, N_plus, V )
-
-    return game
-
-
-
-
-
-
-
-
-from scipy.optimize import fsolve
-def objective_fn(b, a, T):
-    return a/b - T
-
-def solve_system(a, T):
-    def objective(b):
-        return objective_fn(b, a, T)
-
-    b_opt = fsolve(objective, x0=1.0)
-    return b_opt
-
-def tho_detection( threshold ):
-
-    name = 'tho_detection'
-    a = 1
-    b_opt = int( np.round( solve_system(a, threshold)[0] ) )
-    LossMatrix = np.array( [ [a,a], [b_opt, 0] ] ) 
-    LossMatrix = LossMatrix / np.max( LossMatrix )
-    FeedbackMatrix = np.array(  [ [0, 1], [2, 2]  ] )
-    signal_matrices = [ np.array( [ [1, 0], [0, 1] ]), np.array( [ [1,1] ] )  ] 
-
-
-    FeedbackMatrix_PMDMED =  None
-    A = None
+    FeedbackMatrix_PMDMED =  FeedbackMatrix.copy()
+    A = None #geometry_v3.alphabet_size(FeedbackMatrix_PMDMED,  len(FeedbackMatrix_PMDMED),len(FeedbackMatrix_PMDMED[0]) )
     signal_matrices_Adim =  None
+    
+    mathcal_N = [  [1,2], [1,3], [1,4], [1,5], [1,6], [1,7], [1,8], [1,9], [1,10],
+                   [2,3], [2,4], [2,5], [2,6], [2,7], [2,8], [2,9], [2,10],
+                   [3,4], [3,5], [3,6], [3,7], [3,8], [3,9], [3,10],
+                   [4,5], [4,6], [4,7], [4,8], [4,9], [4,10],
+                   [5,6], [5,7], [5,8], [5,9], [5,10],
+                   [6,7], [6,8], [6,9], [6,10],
+                   [7,8], [7,9], [7,10],
+                   [8,9], [8,10],
+                   [9,10],  ]   
 
-    mathcal_N = [  [0, 1], ] 
+    v = {1: {2: [ np.array([-1,  1, 0, 0, 0, 0, 0, 0, 0, 0]) ],
+             3: [ np.array([-1,  0, 1, 0, 0, 0, 0, 0, 0, 0]) ],
+             4: [ np.array([-1,  0, 0, 1, 0, 0, 0, 0, 0, 0]) ],
+             5: [ np.array([-1,  0, 0, 0, 1, 0, 0, 0, 0, 0]) ],
+             6: [ np.array([-1,  0, 0, 0, 0, 1, 0, 0, 0, 0]) ],
+             7: [ np.array([-1,  0, 0, 0, 0, 0, 1, 0, 0, 0]) ],
+             8: [ np.array([-1,  0, 0, 0, 0, 0, 0, 1, 0, 0]) ],
+             9: [ np.array([-1,  0, 0, 0, 0, 0, 0, 0, 1, 0]) ],
+             10:[ np.array([-1,  0, 0, 0, 0, 0, 0, 0, 0, 1]) ] },
+
+        2: { 3: [ np.array([0,  -1, 1, 0, 0, 0, 0, 0, 0, 0]) ],
+             4: [ np.array([0,  -1, 0, 1, 0, 0, 0, 0, 0, 0]) ],
+             5: [ np.array([0,  -1, 0, 0, 1, 0, 0, 0, 0, 0]) ],
+             6: [ np.array([0,  -1, 0, 0, 0, 1, 0, 0, 0, 0]) ],
+             7: [ np.array([0,  -1, 0, 0, 0, 0, 1, 0, 0, 0]) ],
+             8: [ np.array([0,  -1, 0, 0, 0, 0, 0, 1, 0, 0]) ],
+             9: [ np.array([0,  -1, 0, 0, 0, 0, 0, 0, 1, 0]) ],
+             10:[ np.array([0,  -1, 0, 0, 0, 0, 0, 0, 0, 1]) ] },
+
+        3: { 4: [ np.array([0,  0, -1, 1, 0, 0, 0, 0, 0, 0]) ],
+             5: [ np.array([0,  0, -1, 0, 1, 0, 0, 0, 0, 0]) ],
+             6: [ np.array([0,  0, -1, 0, 0, 1, 0, 0, 0, 0]) ],
+             7: [ np.array([0,  0, -1, 0, 0, 0, 1, 0, 0, 0]) ],
+             8: [ np.array([0,  0, -1, 0, 0, 0, 0, 1, 0, 0]) ],
+             9: [ np.array([0,  0, -1, 0, 0, 0, 0, 0, 1, 0]) ],
+             10:[ np.array([0,  0, -1, 0, 0, 0, 0, 0, 0, 1]) ] },
+
+        4: { 5: [ np.array([0,  0, 0, -1, 1, 0, 0, 0, 0, 0]) ],
+             6: [ np.array([0,  0, 0, -1, 0, 1, 0, 0, 0, 0]) ],
+             7: [ np.array([0,  0, 0, -1, 0, 0, 1, 0, 0, 0]) ],
+             8: [ np.array([0,  0, 0, -1, 0, 0, 0, 1,  0, 0]) ],
+             9: [ np.array([0,  0, 0, -1, 0, 0, 0, 0, 1, 0]) ],
+             10:[ np.array([0,  0, 0, -1, 0, 0, 0, 0, 0, 1]) ] },
+
+        5: { 6: [ np.array([0,  0, 0, 0, -1, 1, 0, 0, 0, 0]) ],
+             7: [ np.array([0,  0, 0, 0, -1, 0, 1, 0, 0, 0]) ],
+             8: [ np.array([0,  0, 0, 0, -1, 0, 0, 1, 0, 0]) ],
+             9: [ np.array([0,  0, 0, 0, -1, 0, 0, 0, 1, 0]) ],
+             10:[ np.array([0,  0, 0, 0, -1, 0, 0, 0, 0, 1]) ] },
+
+        6: { 7: [ np.array([0,  0, 0, 0, 0, -1, 1, 0, 0, 0]) ],
+             8: [ np.array([0,  0, 0, 0, 0, -1, 0, 1, 0, 0]) ],
+             9: [ np.array([0,  0, 0, 0, 0, -1, 0, 0, 1, 0]) ],
+             10:[ np.array([0,  0, 0, 0, 0, -1, 0, 0, 0, 1]) ] },
+
+        7: { 8: [ np.array([0,  0, 0, 0, 0, 0, -1, 1, 0, 0]) ],
+             9: [ np.array([0,  0, 0, 0, 0, 0, -1, 0, 1, 0]) ],
+             10:[ np.array([0, 0, 0, 0, 0, 0,  -1, 0, 0, 1]) ] },
+
+        8: { 9: [ np.array([0,  0, 0, 0, 0, 0, 0, -1, 1, 0]) ],
+             10:[ np.array([0, 0, 0, 0, 0, 0, 0,  -1,  0, 1]) ] },
+
+        9: { 10:[ np.array([0, 0, 0, 0, 0, 0, 0, 0, -1, 1]) ] },  } 
+    
+    N_plus =  collections.defaultdict(dict)
+    N_plus[1][2] = [ 1, 2 ]
+    N_plus[1][3] = [ 1, 3 ]
+    N_plus[1][4] = [ 1, 4 ]
+    N_plus[1][5] = [ 1, 5 ]
+    N_plus[1][6] = [ 1, 6 ]
+    N_plus[1][7] = [ 1, 7 ]
+    N_plus[1][8] = [ 1, 8 ]
+    N_plus[1][9] = [ 1, 9 ]
+    N_plus[1][10] = [1, 10 ]
+
+    N_plus[2][3] = [ 2, 3 ]
+    N_plus[2][4] = [ 2, 4 ]
+    N_plus[2][5] = [ 2, 5 ]
+    N_plus[2][6] = [ 2, 6 ]
+    N_plus[2][7] = [ 2, 7 ]
+    N_plus[2][8] = [ 2, 8 ]
+    N_plus[2][9] = [ 2, 9 ]
+    N_plus[2][10] = [2, 10 ]
+
+    N_plus[3][4] = [ 3, 4 ]
+    N_plus[3][5] = [ 3, 5 ]
+    N_plus[3][6] = [ 3, 6 ]
+    N_plus[3][7] = [ 3, 7 ]
+    N_plus[3][8] = [ 3, 8 ]
+    N_plus[3][9] = [ 3, 9 ]
+    N_plus[3][10] = [3, 10]
+
+    N_plus[4][5] = [ 4, 5 ]
+    N_plus[4][6] = [ 4, 6 ]
+    N_plus[4][7] = [ 4, 7 ]
+    N_plus[4][8] = [ 4, 8 ]
+    N_plus[4][9] = [ 4, 9 ]
+    N_plus[4][10] = [4, 10 ]
+
+    N_plus[5][6] = [ 5, 6 ]
+    N_plus[5][7] = [ 5, 7 ]
+    N_plus[5][8] = [ 5, 8 ]
+    N_plus[5][9] = [ 5, 9 ]
+    N_plus[5][10] = [5, 10 ]
+
+    N_plus[6][7] = [ 6, 7 ]
+    N_plus[6][8] = [ 6, 8 ]
+    N_plus[6][9] = [ 6, 9 ]
+    N_plus[6][10] = [6, 10 ]
+
+    N_plus[7][8] = [ 7, 8 ]
+    N_plus[7][9] = [ 7, 9 ]
+    N_plus[7][10] = [7, 10 ]
+
+    N_plus[8][9] = [ 8, 9 ]
+    N_plus[8][10] = [8, 10 ]
+
+    N_plus[9][10] = [ 9, 10 ]
 
     V = collections.defaultdict(dict)
-    V[1][0] = [ 0, 1 ]
-    V[0][1] = [ 0, 1 ]
+    V[1][2] = [ 0,  ] 
+    V[1][3] = [ 0, ]  
+    V[1][4] = [ 0, ]  
+    V[1][5] = [ 0, ]  
+    V[1][6] = [ 0, ]  
+    V[1][7] = [ 0, ] 
+    V[1][8] = [ 0, ]  
+    V[1][9] = [ 0, ]  
+    V[1][10] = [0, ]  
 
-    N_plus =  collections.defaultdict(dict)
-    N_plus[1][0] = [ 0, 1 ]
-    N_plus[0][1] = [ 1, 0 ]
+    V[2][3] = [ 0, ]
+    V[2][4] = [ 0, ]
+    V[2][5] = [ 0, ]
+    V[2][6] = [ 0, ]
+    V[2][7] = [ 0, ]
+    V[2][8] = [ 0, ]
+    V[2][9] = [ 0, ]
+    V[2][10] = [0,  ]
 
-    # v = geometry_v3.getV(LossMatrix, 2, 2, FeedbackMatrix, signal_matrices, mathcal_N, V)
+    V[3][4] = [ 0, ]
+    V[3][5] = [ 0, ]
+    V[3][6] = [ 0, ]
+    V[3][7] = [ 0, ]
+    V[3][8] = [ 0, ]
+    V[3][9] = [ 0, ]
+    V[3][10] = [0,  ]
 
-    t1 = LossMatrix[0][0] - LossMatrix[1][0]
-    t2 = LossMatrix[0][1] - LossMatrix[1][1]
+    V[4][5] = [ 0, ]
+    V[4][6] = [ 0, ]
+    V[4][7] = [ 0, ]
+    V[4][8] = [ 0, ]
+    V[4][9] = [ 0, ]
+    V[4][10] = [0,  ]
 
-    v = {0: {1: [ np.array([t1,  t2]), np.array([0]) ]}, } #1: {0: [ np.array([-1,  (b_opt - 1) ]), np.array([0]) ]}
+    V[5][6] = [ 0, ]
+    V[5][7] = [ 0, ]
+    V[5][8] = [ 0, ]
+    V[5][9] = [ 0, ]
+    V[5][10] = [0,  ]
+
+    V[6][7] = [ 0, ]
+    V[6][8] = [ 0, ]
+    V[6][9] = [ 0, ]
+    V[6][10] = [0,  ]
+
+    V[7][8] = [ 0, ]
+    V[7][9] = [ 0, ]
+    V[7][10] = [0,  ]
+
+    V[8][9] = [ 0, ]
+    V[8][10] = [0,  ]
+
+    V[9][10] = [ 0,  ]
 
     return Game( name, LossMatrix, FeedbackMatrix, FeedbackMatrix_PMDMED, signal_matrices, signal_matrices_Adim, mathcal_N, v, N_plus, V )
+
+
+
+
 
 
 

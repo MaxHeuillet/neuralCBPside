@@ -22,21 +22,13 @@ class DeployedNetwork(nn.Module):
         super(DeployedNetwork, self).__init__()
         self.fc1 = nn.Linear(d, m)
         self.activate1 = nn.ReLU()
-        self.fc2 = nn.Linear(m, m)
-        self.activate2 = nn.ReLU()
-        self.fc3 = nn.Linear(m, m)
-        self.activate3 = nn.ReLU()
-        self.fc4 = nn.Linear(m, 1)
+        self.fc2 = nn.Linear(m, 1)
         nn.init.normal_(self.fc1.weight, mean=0, std=0.1)
         nn.init.normal_(self.fc2.weight, mean=0, std=0.1)
-        nn.init.normal_(self.fc3.weight, mean=0, std=0.1)
-        nn.init.normal_(self.fc4.weight, mean=0, std=0.1)
         nn.init.zeros_(self.fc1.bias)
         nn.init.zeros_(self.fc2.bias)
-        nn.init.zeros_(self.fc3.bias)
-        nn.init.zeros_(self.fc4.bias)
     def forward(self, x):
-        x = self.fc4( self.activate3( self.fc3( self.activate2( self.fc2( self.activate1( self.fc1( x ) ) ) ) ) ) )
+        x = self.fc2( self.activate1( self.fc1( x ) ) ) 
         return x
     
 class CustomDataset(Dataset):

@@ -1,0 +1,224 @@
+
+import numpy as np
+from multiprocess import Pool
+# import multiprocessing as mp
+import os
+
+from functools import partial
+import pickle as pkl
+import gzip
+
+import games
+
+import cbpside
+# import randcbpside2
+
+import synthetic_data
+
+
+import cbpside
+import rand_cbpside
+import neural_lin_cbpside_disjoint
+import rand_neural_lin_cbpside_disjoint
+
+import argparse
+import os
+import torch
+import random
+
+import random_algo
+
+######################
+######################
+
+
+def evaluate_parallel(evaluator, game, nfolds, id):
+    
+    print('numbers of processes to be launched', nfolds)
+    pool = Pool(processes=nfolds)
+
+    np.random.seed(1)
+    torch.manual_seed(1)
+    random.seed(1)
+
+    context_generators = []
+    alg_ids =[]
+    seeds = []
+    algos = []
+
+    for alg_id, seed in enumerate(range(id, id+nfolds,1)):
+        
+        if evaluator.context_type == 'linear':
+            size = 5
+            w = np.array([1/size]*size)
+            contexts = synthetic_data.LinearContexts( w , evaluator.task) 
+            context_generators.append( contexts )
+
+        elif evaluator.context_type == 'quadratic':
+            size = 5
+            w = np.array([1/size]*size)
+            contexts = synthetic_data.QuadraticContexts( w , evaluator.task )
+            context_generators.append( contexts )
+
+        elif evaluator.context_type == 'sinusoid':
+            size = 5
+            w = np.array([1/size]*size)
+            contexts = synthetic_data.SinusoidContexts( w , evaluator.task )
+            context_generators.append( contexts )
+        else: 
+            contexts = synthetic_data.MNISTcontexts_binary()
+            context_generators.append( contexts )
+
+
+
+        if args.approach == 'random':
+            alg = random_algo.Egreedy(game,)
+            algos.append( alg )
+
+        if args.approach == 'cbpside':
+            lbd_reg = 1
+            alg = cbpside.CBPside(game, 1.01, lbd_reg  )
+            algos.append( alg )
+
+        elif args.approach == 'randcbpside':
+            lbd_reg = 1
+            sigma = 1
+            K = 10
+            epsilon = 10e-7
+            alg = rand_cbpside.CBPside(game, 1.01, lbd_reg,  sigma, K , epsilon)
+            algos.append( alg )
+
+        elif args.approach == 'neurallincbpside':
+            lbd_reg = 1
+            lbd_neural = 0
+            sigma = 1
+            K = 10
+            epsilon = 10e-7
+            alg = neural_lin_cbpside_disjoint.CBPside( game,  1.01, lbd_neural, lbd_reg, 5,  'cuda:0'  )
+            algos.append( alg )
+
+        elif args.approach == 'randneurallincbpside':
+            lbd_reg = 1
+            lbd_neural = 0
+            alg = rand_neural_lin_cbpside_disjoint.CBPside( game,  1.01, lbd_neural, lbd_reg, sigma, K, epsilon, 5, 'cuda:0')
+            algos.append( alg )
+
+        seeds.append(seed)
+        alg_ids.append(alg_id)
+
+    print('send jobs')
+    print('seeds', context_generators, seeds, algos)
+        
+    pool.map( partial( evaluator.eval_policy_once, game ), zip(context_generators, seeds, algos ) ) 
+
+    return True
+
+class Evaluation:
+
+    def __init__(self, game_name, n_folds, horizon, game, label, context_type):
+
+        self.game_name = game_name
+        self.n_folds = n_folds
+        self.horizon = horizon
+        self.game = game
+        self.label =  label
+        self.context_type = context_type
+
+    def get_outcomes(self, game, ):
+        outcomes = np.random.choice( game.n_outcomes , p= list( game.outcome_dist.values() ), size= self.horizon) 
+        return outcomes
+
+    def get_feedback(self, game, action, outcome):
+        return game.FeedbackMatrix[ action ][ outcome ]
+
+    def eval_policy_once(self, game, job):
+
+        print('start 1')
+        context_generator, jobid, alg = job
+
+        #print('start 2', alg.device)
+        np.random.seed(jobid)
+        torch.manual_seed(jobid)
+        random.seed(jobid)
+
+        alg.reset( context_generator.d )
+
+        cumRegret =  np.zeros(self.horizon, dtype =float)
+        print('start 3')
+
+        for t in range(self.horizon):
+
+            if t % 1000 == 0 :
+                print(t)
+
+            context, distribution = context_generator.get_context()
+
+            outcome = 0 if distribution[0]>0.5 else 1  
+            # outcome = np.random.choice( 2 , p = distribution )
+
+            context = np.expand_dims(context, axis=0)
+            print('context shape', context.shape)
+            
+            action, _ = alg.get_action(t, context)
+
+            feedback =  self.get_feedback( game, action, outcome )
+
+            alg.update(action, feedback, outcome, t, context )
+
+            print('t', t, 'action', action, 'outcome', outcome, 'gaps', ( game.LossMatrix[0,...] - game.LossMatrix[1,...])  @ distribution  )
+
+            i_star = np.argmin(  [ game.LossMatrix[i,...] @ np.array( distribution ) for i in range(alg.N) ]  )
+            loss_diff = game.LossMatrix[action,...] - game.LossMatrix[i_star,...]
+            val = loss_diff @ np.array( distribution )
+            cumRegret[t] =  val
+
+        result = np.cumsum(cumRegret)
+        print(result)
+        print('finished', jobid)
+        with gzip.open( './results/{}/benchmark_{}_{}_{}_{}.pkl.gz'.format(self.game_name, self.context_type, self.horizon, self.n_folds, self.label) ,'ab') as f:
+            pkl.dump(result,f)
+        print('saved', jobid)
+
+        return True
+
+
+###################################
+# Synthetic Contextual experiments
+###################################
+
+os.environ["MKL_NUM_THREADS"] = "1" 
+os.environ["NUMEXPR_NUM_THREADS"] = "1" 
+os.environ["OMP_NUM_THREADS"] = "1" 
+
+parser = argparse.ArgumentParser()
+
+parser.add_argument("--horizon", required=True, help="horizon of each realization of the experiment")
+parser.add_argument("--n_folds", required=True, help="number of folds")
+parser.add_argument("--game", required=True, help="game")
+parser.add_argument("--context_type", required=True, help="context type")
+parser.add_argument("--approach", required=True, help="algorithme")
+parser.add_argument("--id", required=True, help="algorithme")
+
+args = parser.parse_args()
+
+horizon = int(args.horizon)
+n_folds = int(args.n_folds)
+id = int(args.id)
+print(id, args.context_type, args.approach)
+
+games = { 'AT':games.apple_tasting(), 'LE': games.label_efficient(  ) }
+game = games[args.game]
+
+# factor_type = args.approach.split('_')[1]
+# print('factor_type', factor_type)
+
+ncpus = int ( os.environ.get('SLURM_CPUS_PER_TASK', default=1) )
+ngpus = int( torch.cuda.device_count() )
+nfolds = 4 #min([ncpus,ngpus]) 
+
+print('nfolds', nfolds)
+
+evaluator = Evaluation(args.game, n_folds, horizon, game, args.approach, args.context_type)
+
+evaluate_parallel(evaluator, game, nfolds, id)
+        

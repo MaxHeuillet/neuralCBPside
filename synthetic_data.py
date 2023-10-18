@@ -13,6 +13,34 @@ import torch
 from torchvision import datasets, transforms
 
 
+
+class MNISTcontexts():
+
+    def __init__(self, ):
+
+        transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,)) ])
+        #train_dataset = datasets.MNIST(root='./data', train=True, transform=transform, download=True)
+        test_dataset = datasets.MNIST(root='./data', train=False, transform=transform, download=True)
+        test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=1, shuffle=True)
+        self.test_loader = list(test_loader)
+        self.index = 0
+        x, y = self.test_loader[self.index]
+        x = x.flatten()
+        self.d = x.shape[0]
+
+    def get_context(self,):
+        
+        x, y = self.test_loader[self.index]
+        x = x.flatten()
+        sample = x.numpy() #.reshape(1, -1)
+
+        val = [0] * 10
+        val[ y.item() ] = 1
+        
+        self.index += 1
+
+        return sample , val 
+
 class MNISTcontexts_binary():
 
     def __init__(self, ):

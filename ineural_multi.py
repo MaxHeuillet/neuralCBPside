@@ -55,8 +55,7 @@ class INeurALmulti():
         self.budget = budget
         self.query_num = 0
         self.margin = 3 #according to their parameter search
-        self.N = 3
-
+        self.N = num_cls+1
         self.ber = 1.1
 
         self.X1_train, self.X2_train, self.y1, self.y2 = [], [], [], []
@@ -109,6 +108,7 @@ class INeurALmulti():
 
         self.pred = self.u_list[0][0] + 1
         print('pred',self.pred)
+        
         diff = self.u_list[0][1] - self.u_list[1][1]
         if diff < self.margin * 0.1:
             explored = 1
