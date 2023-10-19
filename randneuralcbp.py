@@ -162,13 +162,13 @@ class CBPside():
             q = []
             w = []
 
-            print('########################### obtain probability predictions and conf intervals')
+            #print('########################### obtain probability predictions and conf intervals')
 
             for i in range(self.N):
 
                 if i == 0:
                     pred = self.latent_X @ self.contexts['weights'].T
-                    print('pred', pred)
+                    #print('pred', pred)
                     pred = pred[0]
                 else:
                     pred = np.array([[1]])
@@ -187,7 +187,7 @@ class CBPside():
             # print( 'estimate', q )
             # print('conf   ', w )
 
-            print('########################### eliminate actions')
+            #print('########################### eliminate actions')
 
             for pair in self.mathcal_N:
                 tdelta, c = 0, 0
@@ -205,22 +205,22 @@ class CBPside():
                     halfspace.append( ( pair, np.sign(tdelta) ) ) 
             
 
-            print('########################### compute halfspace')
+            #print('########################### compute halfspace')
             # print('halfspace', halfspace)
 
-            print('##### step1')
+            #print('##### step1')
             code = self.halfspace_code(  sorted( halfspace) )
-            print('##### step2')
+            #print('##### step2')
             P_t = self.pareto_halfspace_memory(code,halfspace)
-            print('##### step3')
+            #print('##### step3')
             if len(P_t)>1:
                 N_t = self.neighborhood_halfspace_memory(code,halfspace)
             else:
                 N_t = []
 
-            print('P_t', len(P_t), P_t, 'N_t', N_t)
+            #print('P_t', len(P_t), P_t, 'N_t', N_t)
 
-            print('########################### rarely sampled actions')
+            #print('########################### rarely sampled actions')
             Nplus_t = []
             for pair in N_t:
                 Nplus_t.extend( self.N_plus[ pair[0] ][ pair[1] ] )
@@ -239,20 +239,20 @@ class CBPside():
                     t_prime = t
                     with np.errstate(divide='ignore'): 
                         rate = self.eta[k] * t_prime**(2/3)  * ( self.alpha * np.log(t_prime) )**(1/3)  #* self.N**2 * 4 *  self.d**2
-                        print(k, val[0][0], 1/rate)
+                        #print(k, val[0][0], 1/rate)
                         if val[0][0] > 1/rate : 
                             # print('append action ', k)
                             # print('action', k, 'threshold', self.eta[k] * geometry_v3.f(t, self.alpha), 'constant', self.eta[k], 'value', geometry_v3.f(t, self.alpha)  )
                             R_t.append(k)
 
-            print('########################### play action')
+            #print('########################### play action')
             union1= np.union1d(  P_t, Nplus_t )
             union1 = np.array(union1, dtype=int)
             
             explored = 1 if len(union1)>=2 else 0
 
         
-            print('union1', union1, 'R', R_t)
+            #print('union1', union1, 'R', R_t)
             S =  np.union1d(  union1  , R_t )
             S = np.array( S, dtype = int)
             # print('S', S)
@@ -297,7 +297,7 @@ class CBPside():
             V_it_inv = self.contexts['V_it_inv']
             V_it_inv = V_it_inv - ( V_it_inv @ self.latent_X.T @ self.latent_X @ V_it_inv ) / ( 1 + self.latent_X @ V_it_inv @ self.latent_X.T ) 
             self.contexts['V_it_inv'] = V_it_inv
-            print( self.contexts['labels'].shape, self.contexts['feats'].shape, self.contexts['V_it_inv'].shape )
+            #print( self.contexts['labels'].shape, self.contexts['feats'].shape, self.contexts['V_it_inv'].shape )
             weights = self.contexts['labels'].T @ self.contexts['feats'] @ self.contexts['V_it_inv']
             self.contexts['weights'] = weights
             
@@ -325,7 +325,7 @@ class CBPside():
 
                     # if _ % 10 == 0 :
                     #     scheduler.step()
-                    if _ % 25 == 0:
+                    if _ % 100 == 0:
                         print('train loss', train_loss, 'losses', losses )
 
         return global_loss, global_losses
@@ -364,33 +364,37 @@ class CBPside():
         return string 
 
 
-    def pareto_halfspace_memory(self,code,halfspace):        
-        known = False
-        # for mem in self.memory_pareto.keys():
-        #     if code  == mem:
-        #         known = True
+    def pareto_halfspace_memory(self, code, halfspace):
+        # Try fetching the result from memory
+        result = self.memory_pareto.get(code)
+        
+        # If not in memory, compute and store
+        if result is None:
+            result = geometry_v3.getParetoOptimalActions(
+                self.game.LossMatrix, 
+                self.N, 
+                self.M, 
+                halfspace, 
+                self.num_workers     )
+            self.memory_pareto[code] = result
 
-        if known:
-            result = self.memory_pareto[ code ]
-        else:
-            result =  geometry_v3.getParetoOptimalActions(self.game.LossMatrix, self.N, self.M, halfspace, self.num_workers)
-            self.memory_pareto[code ] =result
- 
         return result
 
-    def neighborhood_halfspace_memory(self, code,halfspace):
-
-        known = False
-        # for mem in self.memory_neighbors.keys():
-        #     if code  == mem:
-        #         known = True
-
-        if known:
-            print('step 3 a')
-            result = self.memory_neighbors[ code ]
-        else:
+    def neighborhood_halfspace_memory(self, code, halfspace):
+        # Try fetching the result from memory
+        result = self.memory_neighbors.get(code)
+        
+        # If not in memory, compute and store
+        if result is None:
             print('step 3 b')
-            result =  geometry_v3.getNeighborhoodActions(self.game.LossMatrix, self.N, self.M, halfspace,  self.mathcal_N , self.num_workers)
-            self.memory_neighbors[code ] =result
- 
+            result = geometry_v3.getNeighborhoodActions(
+                self.game.LossMatrix, 
+                self.N, 
+                self.M, 
+                halfspace, 
+                self.mathcal_N, 
+                self.num_workers
+            )
+            self.memory_neighbors[code] = result
+
         return result

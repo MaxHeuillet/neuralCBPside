@@ -111,12 +111,13 @@ def solve_LP(args):
     z, M, LossMatrix, halfspace = args
 
     # Create a new model
-    m = gp.Model(name="Pareto_Optimization_{}".format(z))
+    m = gp.Model() #name="Pareto_Optimization_{}".format(z)
     m.Params.LogToConsole = 0
+    
     m.setParam("OutputFlag", 0)  # turn off Gurobi's output
-    print('n threads', m.Params.Threads)
-    m.setParam("Threads", 2)
-    print('n threads', m.Params.Threads)
+    #print('n threads', m.Params.Threads)
+    #m.setParam("Threads", 1)
+    #print('n threads', m.Params.Threads)
 
     # Add variables
     vars = m.addVars(M, lb=0.00001, ub=1.0, vtype=gp.GRB.CONTINUOUS, name='p')
@@ -172,13 +173,13 @@ def getNeighborhoodActions(LossMatrix, N, M, halfspace, mathcal_N, num_pools=Non
     return actions
 
 def isNeighbor(LossMatrix, N, M, i1, i2, halfspace):
-    m = gp.Model(name="Neighbor_Check")
+    m = gp.Model() #name="Neighbor_Check"
     m.Params.LogToConsole = 0
     lp.LpSolverDefault.msg = 0
     m.setParam("OutputFlag", 0)  # Turn off Gurobi's output
-    print('n threads', m.Params.Threads)
-    m.setParam("Threads", 1)
-    print('n threads', m.Params.Threads)
+    #print('n threads', m.Params.Threads)
+    #m.setParam("Threads", 1)
+    #print('n threads', m.Params.Threads)
 
     # Define variables
     vars = m.addVars(M, lb=0.00001, ub=1.0, vtype=gp.GRB.CONTINUOUS, name='p')

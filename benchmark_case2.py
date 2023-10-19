@@ -185,7 +185,7 @@ class Evaluation:
             outcome = np.argmax(distribution) 
 
             context = np.expand_dims(context, axis=0)
-            print('context shape', context.shape)
+            #print('context shape', context.shape)
             
             action, _ = alg.get_action(t, context)
 

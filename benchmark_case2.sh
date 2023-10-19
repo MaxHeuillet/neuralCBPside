@@ -3,7 +3,7 @@
 #SBATCH --account=def-adurand
 
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=25
+#SBATCH --cpus-per-task=24
 #SBATCH --gpus-per-node=1
 
 #SBATCH --mem-per-cpu=6000M
