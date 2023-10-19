@@ -16,7 +16,7 @@ import pickle
 from torch.utils.data import Dataset
 from torch.optim.lr_scheduler import StepLR
 import multiprocessing
-
+import os
 
 
 class DeployedNetwork(nn.Module):
@@ -66,7 +66,8 @@ class CBPside():
 
         self.name = 'randneuralcbp'
         self.device = device
-        self.num_workers = multiprocessing.cpu_count()
+        
+        self.num_workers = int ( os.environ.get('SLURM_CPUS_PER_TASK', default=1) )
         print('num workers', self.num_workers  )
 
         self.game = game
