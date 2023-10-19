@@ -52,7 +52,7 @@ def evaluate_parallel(evaluator, game, nfolds):
 
     gpu_id = 0
 
-    for seed in range(nfolds): 
+    for seed in range(1): #nfolds 
         
         if evaluator.context_type == 'linear':
             size = 5
