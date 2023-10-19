@@ -53,7 +53,6 @@ class Egreedy():
 
     def __init__(self, game, nclasses, m, device):
 
-
         self.name = 'egreedy'
         self.device = device
 
@@ -66,33 +65,52 @@ class Egreedy():
         self.m = m
         self.H = 50
 
-
-
     def reset(self, d):
         self.d = d
         if self.nclasses == 2:
             self.func = DeployedNetwork( self.d , self.m, 1).to(self.device)
         else:
-            self.func = DeployedNetwork( self.d , self.m, 10).to(self.device)
+            input_dim = self.d + (self.nclasses-1) * self.d
+            self.func = DeployedNetwork( input_dim , self.m, 1).to(self.device)
 
         self.func0 = copy.deepcopy(self.func)
         self.hist = CustomDataset()
-
+    
+    def encode_context(self, X):
+        X = torch.from_numpy(X).float().to(self.device)
+        ci = torch.zeros(1, self.d).to(self.device)
+        x_list = []
+        for k in range(self.nclasses):
+            inputs = []
+            for l in range(k):
+                inputs.append(ci)
+            inputs.append(X)
+            for l in range(k+1, self.nclasses):
+                inputs.append(ci)
+            inputs = torch.cat(inputs, dim=1).to(torch.float32)
+            x_list.append(inputs)
+        return x_list
 
     def get_action(self, t, X):
 
-        prediction = self.func( torch.from_numpy( X ).float().to(self.device) ).cpu().detach()
-
         if self.nclasses == 2:
+            prediction = self.func( torch.from_numpy( X ).float().to(self.device) ).cpu().detach()
             probability = expit(prediction)
             self.pred_action = 1 if probability < 0.5 else 2
         else:
-            self.pred_action = torch.argmax(prediction, dim=1).item() + 1
+            self.u_list = []
+            self.x_list = self.encode_context(X)
+            for k in range(self.nclasses):
+                prediction = self.func( self.x_list[k] ).cpu().detach()
+                #print(k, prediction)
+                self.u_list.append((k, prediction.item() ))
+                
+            self.u_list = sorted(self.u_list, key=lambda x: x[1], reverse=True)
+            #print(self.u_list)
+            self.pred_action = self.u_list[0][0] + 1
 
-        if random.random() < 0.1:
-            action = 0
-        else:
-            action = self.pred_action
+        
+        action = 0 if random.random() < 0.1 else self.pred_action
 
         explored = 1 if action ==0 else 0
 
@@ -103,7 +121,15 @@ class Egreedy():
     def update(self, action, feedback, outcome, t, X):
 
         if action == 0:
-            self.hist.append( X , [outcome] )
+            if self.nclasses == 2:
+                self.hist.append( X , [outcome] )
+            else:
+                for k in range(self.nclasses):
+                    if k == outcome:
+                        self.hist.append( self.x_list[k].detach().cpu(), [1] )
+                    else: 
+                        self.hist.append( self.x_list[k].detach().cpu(), [0] )
+
             
         global_loss = []
         global_losses = []
@@ -112,12 +138,12 @@ class Egreedy():
 
                 self.func = copy.deepcopy(self.func0)
                 optimizer = optim.Adam(self.func.parameters(), lr=0.001, weight_decay = 0 )
-                dataloader = DataLoader(self.hist, batch_size=len(self.hist), shuffle=True) 
+                dataloader = DataLoader(self.hist, batch_size=1000, shuffle=True) 
                 #scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, 0.99)
                 if self.nclasses == 2:
                     loss = nn.BCEWithLogitsLoss()
                 else:
-                    loss = nn.CrossEntropyLoss()
+                    loss = nn.MSELoss()
 
                 for _ in range(1000): 
                         
@@ -139,10 +165,10 @@ class Egreedy():
 
         for X, y in loader:
             X = X.to(self.device).float()
-            if self.nclasses == 2:
-                y = y.to(self.device).float()
-            else:
-                y = one_hot(y, num_classes=10).to(self.device).float()
+            #if self.nclasses == 2:
+            y = y.to(self.device).float()
+            #else:
+            #    y = one_hot(y, num_classes=10).to(self.device).float()
             
             #print(y)
             loss = 0
@@ -151,6 +177,8 @@ class Egreedy():
  
 
             pred = self.func(X).squeeze(1)
+            #print('pred shape',pred.shape, y.shape)
+
 
             l = loss_func(pred, y)
             loss += l

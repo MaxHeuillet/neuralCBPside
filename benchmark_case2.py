@@ -31,6 +31,7 @@ import torch
 import random
 
 import random_algo
+import random_algo2
 
 ######################
 ######################
@@ -51,7 +52,7 @@ def evaluate_parallel(evaluator, game, nfolds):
 
     gpu_id = 0
 
-    for seed in range(1): #nfolds
+    for seed in range(nfolds): 
         
         if evaluator.context_type == 'linear':
             size = 5
@@ -86,6 +87,12 @@ def evaluate_parallel(evaluator, game, nfolds):
             m = 100
             nclasses = 10
             alg = random_algo.Egreedy(game, nclasses, m, 'cuda:0')
+            algos.append( alg )
+
+        if args.approach == 'random2':
+            m = 100
+            nclasses = 10
+            alg = random_algo2.Egreedy(game, nclasses, m, 'cuda:0')
             algos.append( alg )
 
         if args.approach == 'cbpside':

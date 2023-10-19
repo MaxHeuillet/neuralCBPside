@@ -71,15 +71,10 @@ class INeurALmulti():
         self.net1 = Network_exploitation(input_dim).to(self.device)
         self.net2 = Network_exploration(input_dim * 2).to(self.device)
 
-    def get_action(self, t, X):
-
-        print('X shape', X.shape)
+    def encode_context(self, X):
         X = torch.from_numpy(X).to(self.device)
-        # x = x.view(1, -1).to(device)
-
         ci = torch.zeros(1, self.d).to(self.device)
-        
-        self.x_list = []
+        x_list = []
         for k in range(self.num_cls):
             inputs = []
             for l in range(k):
@@ -88,8 +83,14 @@ class INeurALmulti():
             for l in range(k+1, self.num_cls):
                 inputs.append(ci)
             inputs = torch.cat(inputs, dim=1).to(torch.float32)
-            self.x_list.append(inputs)
+            x_list.append(inputs)
+        return x_list
 
+    def get_action(self, t, X):
+
+        print('X shape', X.shape)
+
+        self.x_list = self.encode_context(X)
         # print('xlist[0] shape', x_list[0].shape)
         self.f1_list, self.f2_list, self.dc_list, self.u_list = [], [], [], []
         prob = -1
@@ -141,8 +142,8 @@ class INeurALmulti():
                 k_prime = k+1
                 if k_prime != self.pred and k_prime != lbl:
                     continue
-                self.X1_train.append( self.x_list[k].detach().cpu())
-                self.X2_train.append( self.dc_list[k].detach().cpu())
+                self.X1_train.append( self.x_list[k].detach().cpu() )
+                self.X2_train.append( self.dc_list[k].detach().cpu() )
                 if k_prime == self.pred:
                     self.y1.append(torch.Tensor([reward]))
                     self.y2.append(torch.Tensor([reward - self.f1_list[k] - self.f2_list[k]]))

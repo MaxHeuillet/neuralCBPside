@@ -112,9 +112,10 @@ class MarginBased():
             if (t % 50 == 0 and t<1000) or (t % 500 == 0 and t>=1000):
 
                 self.func = copy.deepcopy(self.func0)
-                optimizer = optim.Adam(self.func.parameters(), lr=0.1, weight_decay = 0 )
                 dataloader = DataLoader(self.hist, batch_size=len(self.hist), shuffle=True) 
-                scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, 0.99)
+                
+                optimizer = optim.Adam(self.func.parameters(), lr=0.001, weight_decay = 0 )
+                #scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, 0.99)
 
                 for _ in range(1000): 
                         
@@ -122,8 +123,8 @@ class MarginBased():
                     current_lr = optimizer.param_groups[0]['lr']
                     global_loss.append(train_loss)
                     global_losses.append(losses)
-                    if _ % 10 == 0 :
-                        scheduler.step()
+                    # if _ % 10 == 0 :
+                    #     scheduler.step()
                     # scheduler.step()
                     if _ % 25 == 0:
                         print('train loss', train_loss, 'losses', losses )
