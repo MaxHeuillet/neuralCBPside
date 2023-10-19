@@ -67,6 +67,7 @@ class CBPside():
         self.name = 'randneuralcbp'
         self.device = device
         self.num_workers = multiprocessing.cpu_count()
+        print('num workers', self.num_workers  )
 
         self.game = game
 
