@@ -366,9 +366,9 @@ class CBPside():
 
     def pareto_halfspace_memory(self,code,halfspace):        
         known = False
-        for mem in self.memory_pareto.keys():
-            if code  == mem:
-                known = True
+        # for mem in self.memory_pareto.keys():
+        #     if code  == mem:
+        #         known = True
 
         if known:
             result = self.memory_pareto[ code ]
@@ -381,9 +381,9 @@ class CBPside():
     def neighborhood_halfspace_memory(self, code,halfspace):
 
         known = False
-        for mem in self.memory_neighbors.keys():
-            if code  == mem:
-                known = True
+        # for mem in self.memory_neighbors.keys():
+        #     if code  == mem:
+        #         known = True
 
         if known:
             print('step 3 a')
