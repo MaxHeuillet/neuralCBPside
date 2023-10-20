@@ -118,16 +118,16 @@ def evaluate_parallel(evaluator, game, nfolds):
         #     alg = neuralcbp.CBPside( game, 1.01, lbd_neural, lbd_reg, m, H,  'cuda:0')
         #     algos.append( alg )
 
-        elif args.approach == 'randneuralcbpside':
-            lbd_neural = 0
-            lbd_reg = 1
-            sigma = 1/8
-            K = 100
-            epsilon = 10e-7
-            m = 100
-            H = None
-            alg = randneuralcbp.CBPside( game, 1.01, lbd_neural, lbd_reg, sigma, K, epsilon, m, H,  'cuda:0')
-            algos.append( alg )
+        # elif args.approach == 'randneuralcbpside':
+        #     lbd_neural = 0
+        #     lbd_reg = 1
+        #     sigma = 1/8
+        #     K = 100
+        #     epsilon = 10e-7
+        #     m = 100
+        #     H = None
+        #     alg = randneuralcbp.CBPside( game, 1.01, lbd_neural, lbd_reg, sigma, K, epsilon, m, H,  'cuda:0')
+        #     algos.append( alg )
 
         elif args.approach == 'ineural':
             budget = evaluator.horizon
@@ -195,7 +195,7 @@ class Evaluation:
 
             alg.update(action, feedback, outcome, t, context )
 
-            print('t', t, 'action', action, 'outcome', outcome, 'gaps', ( game.LossMatrix[0,...] - game.LossMatrix[1,...])  @ distribution  )
+            print('t', t, 'action', action, 'outcome', outcome,  )
 
             i_star = np.argmin(  [ game.LossMatrix[i,...] @ np.array( distribution ) for i in range(alg.N) ]  )
             loss_diff = game.LossMatrix[action,...] - game.LossMatrix[i_star,...]
