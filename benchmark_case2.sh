@@ -3,10 +3,10 @@
 #SBATCH --account=def-adurand
 
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=12
+#SBATCH --cpus-per-task=1
 #SBATCH --gpus-per-node=1
 
-#SBATCH --mem-per-cpu=7000M
+#SBATCH --mem-per-cpu=6000M
 #SBATCH --time=01:30:00
 
 #SBATCH --mail-user=maxime.heuillet.1@ulaval.ca

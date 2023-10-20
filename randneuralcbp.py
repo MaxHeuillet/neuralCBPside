@@ -209,12 +209,14 @@ class CBPside():
             # print('halfspace', halfspace)
 
             #print('##### step1')
-            code = self.halfspace_code(  sorted( halfspace) )
+            code = self.halfspace_code(  sorted(halfspace) )
             #print('##### step2')
             P_t = self.pareto_halfspace_memory(code,halfspace)
             #print('##### step3')
             if len(P_t)>1:
-                N_t = self.neighborhood_halfspace_memory(code,halfspace)
+                N_t = [ [1, 2], [1, 3], [1, 4], [1, 5], [1, 6], [1, 7], [1, 8], [1, 9], [1, 10], [2, 3], [2, 4], [2, 5], [2, 6], [2, 7], [2, 8], [2, 9], [2, 10], [3, 4], [3, 5], [3, 6], [3, 7], [3, 8], [3, 9], [3, 10], [4, 5], [4, 6], [4, 7], [4, 8], [4, 9], [4, 10], [5, 6], [5, 7], [5, 8], [5, 9], [5, 10], [6, 7], [6, 8], [6, 9], [6, 10], [7, 8], [7, 9], [7, 10], [8, 9], [8, 10], [9, 10] ]
+                #self.neighborhood_halfspace_memory(code,halfspace)
+                #print(N_t)
             else:
                 N_t = []
 
@@ -370,12 +372,13 @@ class CBPside():
         
         # If not in memory, compute and store
         if result is None:
+            #print('hey')
             result = geometry_v3.getParetoOptimalActions(
                 self.game.LossMatrix, 
                 self.N, 
                 self.M, 
                 halfspace, 
-                self.num_workers     )
+                self.num_workers  ) 
             self.memory_pareto[code] = result
 
         return result
