@@ -71,9 +71,11 @@ def evaluate_parallel(evaluator, game, nfolds):
             w = np.array([1/size]*size)
             contexts = synthetic_data.SinusoidContexts( w , evaluator.task )
             context_generators.append( contexts )
+
         elif evaluator.context_type == 'MNISTbinary': 
             contexts = synthetic_data.MNISTcontexts_binary()
             context_generators.append( contexts )
+            
         elif evaluator.context_type == 'MNIST': 
             contexts = synthetic_data.MNISTcontexts()
             context_generators.append( contexts )

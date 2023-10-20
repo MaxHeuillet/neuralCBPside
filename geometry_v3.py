@@ -113,11 +113,12 @@ def solve_LP(args):
         env.setParam('OutputFlag', 0)
         env.start()
         with gp.Model(env=env) as m:
-            print(f'Number of cores that will be used: {m.Params.Threads}')
-            print(f'Number of available cores: {m.Params.ConcurrentMIP}')
-
+            m.setParam('Threads', 1)
+            # print(f'Number of cores that will be used: {m.Params.Threads}')
+            # print(f'Number of available cores: {m.Params.ConcurrentMIP}')
             # Create a new model
             #m = gp.Model() #name="Pareto_Optimization_{}".format(z)
+
             m.Params.LogToConsole = 0
             
             m.setParam("OutputFlag", 0)  # turn off Gurobi's output
@@ -187,7 +188,8 @@ def isNeighbor(LossMatrix, N, M, i1, i2, halfspace):
 
             m.Params.LogToConsole = 0
             lp.LpSolverDefault.msg = 0
-            m.setParam("OutputFlag", 0)  # Turn off Gurobi's output
+            m.setParam("OutputFlag", 0)  
+            # Turn off Gurobi's output
             #print('n threads', m.Params.Threads)
             #m.setParam("Threads", 1)
             #print('n threads', m.Params.Threads)
