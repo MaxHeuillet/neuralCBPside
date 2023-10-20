@@ -1,5 +1,5 @@
 import numpy as np
-import geometry_v3
+# import geometry_v3
 
 
 import scipy as sp
@@ -58,7 +58,7 @@ class CesaBianchi():
 
         self.N = game.n_actions
         self.M = game.n_outcomes
-        self.A = geometry_v3.alphabet_size(game.FeedbackMatrix, self.N, self.M)
+        self.A = None #geometry_v3.alphabet_size(game.FeedbackMatrix, self.N, self.M)
 
         self.m = m
         self.H = 50
