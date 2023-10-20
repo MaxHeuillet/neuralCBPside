@@ -113,7 +113,7 @@ def solve_LP(args):
         env.setParam('OutputFlag', 0)
         env.start()
         with gp.Model(env=env) as m:
-            m.setParam('Threads', 1)
+            #m.setParam('Threads', 1)
             # print(f'Number of cores that will be used: {m.Params.Threads}')
             # print(f'Number of available cores: {m.Params.ConcurrentMIP}')
             # Create a new model

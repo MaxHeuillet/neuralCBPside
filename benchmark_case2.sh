@@ -3,7 +3,7 @@
 #SBATCH --account=def-adurand
 
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=1
+#SBATCH --cpus-per-task=15
 #SBATCH --gpus-per-node=1
 
 #SBATCH --mem-per-cpu=6000M
@@ -23,8 +23,8 @@ module load scipy-stack
 module load gurobi
 
 
-source /home/mheuill/projects/def-adurand/mheuill/ENV_nogurobi/bin/activate
-# source /home/mheuill/projects/def-adurand/mheuill/MYENV3/bin/activate
+#source /home/mheuill/projects/def-adurand/mheuill/ENV_nogurobi/bin/activate
+source /home/mheuill/projects/def-adurand/mheuill/Gurobi_Py310/bin/activate
 
 # virtualenv-clone /home/mheuill/projects/def-adurand/mheuill/MYENV3 $SLURM_TMPDIR/MYENV2
 # deactivate

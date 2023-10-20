@@ -67,7 +67,7 @@ class CBPside():
         self.name = 'randneuralcbp'
         self.device = device
         
-        self.num_workers = 1 #int ( os.environ.get('SLURM_CPUS_PER_TASK', default=1) )
+        self.num_workers = 10 #int ( os.environ.get('SLURM_CPUS_PER_TASK', default=1) )
         print('num workers', self.num_workers  )
 
         self.game = game

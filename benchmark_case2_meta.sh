@@ -20,8 +20,8 @@ for context_type in  'MNIST' #'linear' 'quadratic' 'sinusoid'
   
 		        echo 'horizon' $horizon 'nfolds' $nfolds 'CONTEXT_TYPE' $context_type 'GAME' $game 'TASK' $task 'APR' $approach 
 
-                #sbatch --export=ALL,HORIZON=$horizon,NFOLDS=$nfolds,CONTEXT_TYPE=$context_type,GAME=$game,TASK=$task,APR=$approach ./benchmark_case2.sh     
-                python3 ./benchmark_case2.py --horizon $horizon --n_folds $nfolds --game $game --approach $approach --context_type $context_type
+                sbatch --export=ALL,HORIZON=$horizon,NFOLDS=$nfolds,CONTEXT_TYPE=$context_type,GAME=$game,TASK=$task,APR=$approach ./benchmark_case2.sh     
+                #python3 ./benchmark_case2.py --horizon $horizon --n_folds $nfolds --game $game --approach $approach --context_type $context_type
 
                 done
                 
