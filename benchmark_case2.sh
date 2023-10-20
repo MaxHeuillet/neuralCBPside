@@ -24,7 +24,7 @@ module load gurobi
 
 
 #source /home/mheuill/projects/def-adurand/mheuill/ENV_nogurobi/bin/activate
-source /home/mheuill/projects/def-adurand/mheuill/MYENV3/bin/activate
+source /home/mheuill/projects/def-adurand/mheuill/Gurobi_Py310/bin/activate
 
 # virtualenv-clone /home/mheuill/projects/def-adurand/mheuill/MYENV3 $SLURM_TMPDIR/MYENV2
 # deactivate

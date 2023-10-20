@@ -12,3 +12,4 @@ multiprocess
 #functools
 pickle5
 scipy
+PuLP
