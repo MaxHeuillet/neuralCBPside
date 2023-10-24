@@ -10,16 +10,16 @@ import gzip
 
 import games
 
-import cbpside
+# import cbpside
 # import randcbpside2
 
 import synthetic_data
 
 
-import cbpside
-import rand_cbpside
-import randneuralcbp
-import neuralcbp_LE
+# import cbpside
+# import rand_cbpside
+# import randneuralcbp
+# import neuralcbp_LE
 import margin_based
 # import rand_neural_lin_cbpside_disjoint
 import ineural_multi
@@ -97,18 +97,18 @@ def evaluate_parallel(evaluator, game, nfolds):
             alg = random_algo2.Egreedy(game, nclasses, m, 'cuda:0')
             algos.append( alg )
 
-        if args.approach == 'cbpside':
-            lbd_reg = 1
-            alg = cbpside.CBPside(game, 1.01, lbd_reg  )
-            algos.append( alg )
+        # if args.approach == 'cbpside':
+        #     lbd_reg = 1
+        #     alg = cbpside.CBPside(game, 1.01, lbd_reg  )
+        #     algos.append( alg )
 
-        elif args.approach == 'randcbpside':
-            lbd_reg = 1
-            sigma = 1
-            K = 10
-            epsilon = 10e-7
-            alg = rand_cbpside.CBPside(game, 1.01, lbd_reg,  sigma, K , epsilon)
-            algos.append( alg )
+        # elif args.approach == 'randcbpside':
+        #     lbd_reg = 1
+        #     sigma = 1
+        #     K = 10
+        #     epsilon = 10e-7
+        #     alg = rand_cbpside.CBPside(game, 1.01, lbd_reg,  sigma, K , epsilon)
+        #     algos.append( alg )
 
         # elif args.approach == 'neuralcbpside':
         #     lbd_neural = 0
@@ -118,16 +118,16 @@ def evaluate_parallel(evaluator, game, nfolds):
         #     alg = neuralcbp.CBPside( game, 1.01, lbd_neural, lbd_reg, m, H,  'cuda:0')
         #     algos.append( alg )
 
-        elif args.approach == 'randneuralcbpside':
-            lbd_neural = 0
-            lbd_reg = 1
-            sigma = 1/8
-            K = 100
-            epsilon = 10e-7
-            m = 100
-            H = None
-            alg = randneuralcbp.CBPside( game, 1.01, lbd_neural, lbd_reg, sigma, K, epsilon, m, H,  'cuda:0')
-            algos.append( alg )
+        # elif args.approach == 'randneuralcbpside':
+        #     lbd_neural = 0
+        #     lbd_reg = 1
+        #     sigma = 1/8
+        #     K = 100
+        #     epsilon = 10e-7
+        #     m = 100
+        #     H = None
+        #     alg = randneuralcbp.CBPside( game, 1.01, lbd_neural, lbd_reg, sigma, K, epsilon, m, H,  'cuda:0')
+        #     algos.append( alg )
 
         elif args.approach == 'ineural':
             budget = evaluator.horizon
@@ -195,7 +195,7 @@ class Evaluation:
 
             alg.update(action, feedback, outcome, t, context )
 
-            print('t', t, 'action', action, 'outcome', outcome, 'gaps', ( game.LossMatrix[0,...] - game.LossMatrix[1,...])  @ distribution  )
+            print('t', t, 'action', action, 'outcome', outcome,  )
 
             i_star = np.argmin(  [ game.LossMatrix[i,...] @ np.array( distribution ) for i in range(alg.N) ]  )
             loss_diff = game.LossMatrix[action,...] - game.LossMatrix[i_star,...]
@@ -234,7 +234,7 @@ horizon = int(args.horizon)
 n_folds = int(args.n_folds)
 print(args.context_type, args.approach)
 
-game = game = games.game_case2(  )
+game = game = games.game_case3(  )
 
 # factor_type = args.approach.split('_')[1]
 # print('factor_type', factor_type)

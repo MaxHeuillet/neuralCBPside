@@ -2,7 +2,7 @@ from math import log, exp, pow
 import numpy as np
 # import geometry
 import collections
-import geometry_v3
+# import geometry_v3
 from itertools import combinations, permutations
 
 class Game():
@@ -35,7 +35,7 @@ def game_case1(  ):
     signal_matrices = [ np.array( [ [0,1],[1,0] ]), np.array( [ [1,1] ] ), np.array( [ [1,1] ] ) ] 
 
     FeedbackMatrix_PMDMED =  np.array([ [0, 1],[2, 2],[2,2] ])
-    A = geometry_v3.alphabet_size(FeedbackMatrix_PMDMED,  len(FeedbackMatrix_PMDMED),len(FeedbackMatrix_PMDMED[0]) )
+    A = None #geometry_v3.alphabet_size(FeedbackMatrix_PMDMED,  len(FeedbackMatrix_PMDMED),len(FeedbackMatrix_PMDMED[0]) )
     signal_matrices_Adim =  [ np.array( [ [1,0],[0,1],[0,0] ] ), np.array( [ [0,0],[0,0],[1,1] ] ), np.array( [ [0,0],[0,0],[1,1] ] ) ]
     
     mathcal_N = [  [1,2] ] 
@@ -794,31 +794,31 @@ def game_case3(  ):
 
 
 
-def tho_detection2( threshold ):
+# def tho_detection2( threshold ):
 
-    name = 'tho_detection2'
+#     name = 'tho_detection2'
 
-    b = 1
-    a_opt = threshold
-    LossMatrix = np.array( [ [a_opt,a_opt], [b, 0] ] ) 
-    FeedbackMatrix = np.array(  [ [0, 1], [2, 2]  ] )
-    signal_matrices = [ np.array( [ [0,1], [1,0] ]), np.array( [ [1,1] ] )  ] 
+#     b = 1
+#     a_opt = threshold
+#     LossMatrix = np.array( [ [a_opt,a_opt], [b, 0] ] ) 
+#     FeedbackMatrix = np.array(  [ [0, 1], [2, 2]  ] )
+#     signal_matrices = [ np.array( [ [0,1], [1,0] ]), np.array( [ [1,1] ] )  ] 
 
 
-    FeedbackMatrix_PMDMED =  None
-    A = None
-    signal_matrices_Adim =  None
+#     FeedbackMatrix_PMDMED =  None
+#     A = None
+#     signal_matrices_Adim =  None
 
-    mathcal_N = [  [0, 1], ] #  [1, 0] 
+#     mathcal_N = [  [0, 1], ] #  [1, 0] 
 
-    V = collections.defaultdict(dict)
-    V[0][1] = [ 0, 1 ]
+#     V = collections.defaultdict(dict)
+#     V[0][1] = [ 0, 1 ]
 
-    N_plus =  collections.defaultdict(dict)
-    N_plus[0][1] = [ 1, 0 ]
+#     N_plus =  collections.defaultdict(dict)
+#     N_plus[0][1] = [ 1, 0 ]
 
-    # v = geometry_v3.getV(LossMatrix, 2, 2, FeedbackMatrix, signal_matrices, mathcal_N, V)
+#     # v = geometry_v3.getV(LossMatrix, 2, 2, FeedbackMatrix, signal_matrices, mathcal_N, V)
 
-    v = {0: {1: [ np.array([1.,  -(b - 1)]), np.array([0]) ]}, }
+#     v = {0: {1: [ np.array([1.,  -(b - 1)]), np.array([0]) ]}, }
 
-    return Game( name, LossMatrix, FeedbackMatrix, FeedbackMatrix_PMDMED, signal_matrices, signal_matrices_Adim, mathcal_N, v, N_plus, V )
+#     return Game( name, LossMatrix, FeedbackMatrix, FeedbackMatrix_PMDMED, signal_matrices, signal_matrices_Adim, mathcal_N, v, N_plus, V )
