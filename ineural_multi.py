@@ -94,6 +94,7 @@ class INeurALmulti():
         # print('xlist[0] shape', x_list[0].shape)
         self.f1_list, self.f2_list, self.dc_list, self.u_list = [], [], [], []
         prob = -1
+        
         for k in range(self.num_cls):
             f1_k, f2_k, dc_k = EE_forward(self.net1, self.net2, self.x_list[k])
             u_k = f1_k + 1 / (t+1) * f2_k

@@ -30,7 +30,7 @@ def game_case1(  ):
 
     name = 'case1'
     LossMatrix = np.array( [ [1, 1],[1, 0],[0, 1] ] )
-    FeedbackMatrix = np.array(  [ [0, 1], [2, 2], [3, 3] ] )
+    FeedbackMatrix = np.array(  [ [0, 1], [2, 2], [2, 2] ] )
 
     signal_matrices = [ np.array( [ [0,1],[1,0] ]), np.array( [ [1,1] ] ), np.array( [ [1,1] ] ) ] 
 

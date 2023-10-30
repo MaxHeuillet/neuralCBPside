@@ -31,6 +31,7 @@ import torch
 import random
 
 import random_algo
+import randneuralcbp_EE
 
 ######################
 ######################
@@ -86,7 +87,7 @@ def evaluate_parallel(evaluator, game, nfolds):
             alg = random_algo.Egreedy(game, nclasses, m, 'cuda:0')
             algos.append( alg )
 
-        if args.approach == 'cbpside':
+        elif args.approach == 'cbpside':
             lbd_reg = 1
             alg = cbpside.CBPside(game, 1.01, lbd_reg  )
             algos.append( alg )
@@ -97,6 +98,13 @@ def evaluate_parallel(evaluator, game, nfolds):
             K = 10
             epsilon = 10e-7
             alg = rand_cbpside.CBPside(game, 1.01, lbd_reg,  sigma, K , epsilon)
+            algos.append( alg )
+
+        elif args.approach == 'EEneuralcbpside':
+            lbd_neural = 0
+            lbd_reg = 1
+            nclasses = 2
+            alg = randneuralcbp_EE.CBPside( game, 1.01, lbd_neural, lbd_reg, m, H, nclasses,  'cuda:0')
             algos.append( alg )
 
         elif args.approach == 'neuralcbpside':
@@ -186,8 +194,10 @@ class Evaluation:
             context, distribution = context_generator.get_context()
 
             #outcome = 0 if distribution[0]>0.5 else 1  
-            outcome = 0 if distribution[0]<0.5 else 1
             # outcome = np.random.choice( 2 , p = distribution )
+
+            outcome = 0 if distribution[0]<0.5 else 1
+            
 
             context = np.expand_dims(context, axis=0)
             print('context shape', context.shape)
@@ -242,10 +252,11 @@ game = games.game_case1(  )
 
 # factor_type = args.approach.split('_')[1]
 # print('factor_type', factor_type)
+# nfolds = 5 #min([ncpus,ngpus]) 
 
 ncpus = int ( os.environ.get('SLURM_CPUS_PER_TASK', default=1) )
 ngpus = int( torch.cuda.device_count() )
-# nfolds = 5 #min([ncpus,ngpus]) 
+
 print('ncpus', ncpus,'ngpus', ngpus)
 
 

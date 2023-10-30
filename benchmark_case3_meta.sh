@@ -1,7 +1,7 @@
 #!/bin/bash
 
 horizon=9999
-nfolds=10
+nfolds=1
 
 
 for context_type in  'MNISTbinary' #'linear' 'quadratic' 'sinusoid'
@@ -12,7 +12,7 @@ for context_type in  'MNISTbinary' #'linear' 'quadratic' 'sinusoid'
 
         do
 
-            for approach in 'random' 'random2' 'ineural' #  'ineural' 'margin' 'cesa'
+            for approach in 'random' #'random2' 'ineural' #  'ineural' 'margin' 'cesa'
                     
                 do
 
@@ -20,7 +20,8 @@ for context_type in  'MNISTbinary' #'linear' 'quadratic' 'sinusoid'
   
 		        echo 'horizon' $horizon 'nfolds' $nfolds 'CONTEXT_TYPE' $context_type 'GAME' $game 'TASK' $task 'APR' $approach 
 
-                sbatch --export=ALL,HORIZON=$horizon,NFOLDS=$nfolds,CONTEXT_TYPE=$context_type,GAME=$game,TASK=$task,APR=$approach ./benchmark_case3.sh     
+                #sbatch --export=ALL,HORIZON=$horizon,NFOLDS=$nfolds,CONTEXT_TYPE=$context_type,GAME=$game,TASK=$task,APR=$approach ./benchmark_case3.sh     
+                python3 ./benchmark_case3.py --horizon $horizon --n_folds $nfolds --game $game --approach $approach --context_type $context_type
 
                 done
                 

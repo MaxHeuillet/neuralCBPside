@@ -128,10 +128,11 @@ class CBPside():
         def divide_interval(start, end, k):
             intervals = np.linspace(start, end, k).tolist()
             return intervals
-    
+
+        sigma = self.K/(t+1)**(2/3)
         U =  factor
         rhos = divide_interval(0, U, self.K)
-        p_m_hat =  np.array([ np.exp( -(rhos[i]**2) / 2*(self.sigma**2)  )  for i in range(len(rhos)-1) ] )
+        p_m_hat =  np.array([ np.exp( -(rhos[i]**2) / (2 * sigma**2 )  )  for i in range(len(rhos)-1) ] )
 
         p_m = (1 - self.epsilon) * p_m_hat / p_m_hat.sum()
         p_m = p_m.tolist()
@@ -177,8 +178,8 @@ class CBPside():
                 w.append( formule )
 
             # print()    
-            # print( 'estimate', q )
-            # print('conf   ', w )
+            print( 'estimate', q )
+            print('conf   ', w  )
 
             for pair in self.mathcal_N:
                 tdelta, c = 0, 0
