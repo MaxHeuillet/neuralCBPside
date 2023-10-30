@@ -197,6 +197,7 @@ class Evaluation:
 
             print('t', t, 'action', action, 'outcome', outcome,  )
 
+            print( game.LossMatrix[0,...].shape, np.array( distribution ).shape )
             i_star = np.argmin(  [ game.LossMatrix[i,...] @ np.array( distribution ) for i in range(alg.N) ]  )
             loss_diff = game.LossMatrix[action,...] - game.LossMatrix[i_star,...]
             val = loss_diff @ np.array( distribution )
