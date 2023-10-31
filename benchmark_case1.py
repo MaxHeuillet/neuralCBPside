@@ -87,18 +87,18 @@ def evaluate_parallel(evaluator, game, nfolds):
             alg = random_algo.Egreedy(game, nclasses, m, 'cuda:0')
             algos.append( alg )
 
-        elif args.approach == 'cbpside':
-            lbd_reg = 1
-            alg = cbpside.CBPside(game, 1.01, lbd_reg  )
-            algos.append( alg )
+        # elif args.approach == 'cbpside':
+        #     lbd_reg = 1
+        #     alg = cbpside.CBPside(game, 1.01, lbd_reg  )
+        #     algos.append( alg )
 
-        elif args.approach == 'randcbpside':
-            lbd_reg = 1
-            sigma = 1
-            K = 10
-            epsilon = 10e-7
-            alg = rand_cbpside.CBPside(game, 1.01, lbd_reg,  sigma, K , epsilon)
-            algos.append( alg )
+        # elif args.approach == 'randcbpside':
+        #     lbd_reg = 1
+        #     sigma = 1
+        #     K = 10
+        #     epsilon = 10e-7
+        #     alg = rand_cbpside.CBPside(game, 1.01, lbd_reg,  sigma, K , epsilon)
+        #     algos.append( alg )
 
         elif args.approach == 'EEneuralcbpside':
             lbd_neural = 0
@@ -107,24 +107,24 @@ def evaluate_parallel(evaluator, game, nfolds):
             alg = neuralcbp_EE.CBPside( game, 1.01, lbd_neural, lbd_reg, m, H, nclasses,  'cuda:0')
             algos.append( alg )
 
-        elif args.approach == 'neuralcbpside':
-            lbd_neural = 0
-            lbd_reg = 1
-            m = 100
-            H = None
-            alg = neuralcbp_LE.CBPside( game, 1.01, lbd_neural, lbd_reg, m, H,  'cuda:0')
-            algos.append( alg )
+        # elif args.approach == 'neuralcbpside':
+        #     lbd_neural = 0
+        #     lbd_reg = 1
+        #     m = 100
+        #     H = None
+        #     alg = neuralcbp_LE.CBPside( game, 1.01, lbd_neural, lbd_reg, m, H,  'cuda:0')
+        #     algos.append( alg )
 
-        elif args.approach == 'randneuralcbpside':
-            lbd_neural = 0
-            lbd_reg = 1
-            sigma = 1/2
-            K = 100
-            epsilon = 10e-7
-            m = 100
-            H = None
-            alg = randneuralcbp_LE.CBPside( game, 1.01, lbd_neural, lbd_reg, sigma, K, epsilon, m, H,  'cuda:0')
-            algos.append( alg )
+        # elif args.approach == 'randneuralcbpside':
+        #     lbd_neural = 0
+        #     lbd_reg = 1
+        #     sigma = 1/2
+        #     K = 100
+        #     epsilon = 10e-7
+        #     m = 100
+        #     H = None
+        #     alg = randneuralcbp_LE.CBPside( game, 1.01, lbd_neural, lbd_reg, sigma, K, epsilon, m, H,  'cuda:0')
+        #     algos.append( alg )
 
         elif args.approach == 'margin':
             threshold = 0.1
