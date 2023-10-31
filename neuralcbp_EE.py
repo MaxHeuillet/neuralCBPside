@@ -222,9 +222,9 @@ class CBPside():
         
         q = [ np.array(value) for value in self.f1_list.values()]
         w = [ np.array( max(value) ) for value in self.f2_list.values()]
-        print( 'estimate', q )
-        print('conf   ', w )
-        print('index', self.index)
+        # print( 'estimate', q )
+        # print('conf   ', w )
+        # print('index', self.index)
 
         #print('########################### eliminate actions')
         for pair in self.mathcal_N:
@@ -242,7 +242,7 @@ class CBPside():
                 halfspace.append( ( pair, np.sign(tdelta) ) ) 
             
         
-        print('########################### compute halfspace')
+        # print('########################### compute halfspace')
         # print('halfspace', halfspace)
         #print('##### step1')
         code = self.halfspace_code(  sorted(halfspace) )
@@ -258,7 +258,7 @@ class CBPside():
         #     N_t = []
         #print('P_t', len(P_t), P_t, 'N_t', N_t)
         
-        print('########################### rarely sampled actions')
+        # print('########################### rarely sampled actions')
         Nplus_t = []
         for pair in N_t:
             Nplus_t.extend( self.N_plus[ pair[0] ][ pair[1] ] )
@@ -282,7 +282,7 @@ class CBPside():
                 if val > 1/rate : 
                     R_t.append(k)
 
-        print('########################### play action')
+        # print('########################### play action')
         union1= np.union1d(  P_t, Nplus_t )
         union1 = np.array(union1, dtype=int)
         
@@ -306,7 +306,7 @@ class CBPside():
     def update(self, action, feedback, outcome, t, X):
         
 
-        print('### Update the Gram matrix:')
+        # print('### Update the Gram matrix:')
         #print('convert to numpy')
         if len( np.unique(self.game.FeedbackMatrix[action]) ) > 1:
             indx = self.index[action]
@@ -322,7 +322,7 @@ class CBPside():
         # V_it_inv = self.contexts[action]['V_it_inv']
         # self.contexts[action]['V_it_inv'] = V_it_inv - ( V_it_inv @ feature.T @ feature @ V_it_inv ) / ( 1 + feature @ V_it_inv @ feature.T ) 
         
-        print('### Update the parameters of the model:')
+        # print('### Update the parameters of the model:')
         sigma_k = len(np.unique(self.game.FeedbackMatrix[action]))
         if sigma_k > 1:
             feedbacks = np.zeros( sigma_k )
@@ -361,7 +361,7 @@ class CBPside():
         num = X.size(0)
 
         for i in range(num_epochs):
-            print('epoch {}'.format(i))
+            # print('epoch {}'.format(i))
             batch_loss = 0.0
             
             for x, y in dataloader:
