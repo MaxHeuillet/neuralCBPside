@@ -24,6 +24,7 @@ import margin_based
 # import rand_neural_lin_cbpside_disjoint
 import ineural_multi
 import cesa_bianchi
+import neuralcbp_EE_gurobi
 
 import argparse
 import os
@@ -82,37 +83,13 @@ def evaluate_parallel(evaluator, game, nfolds, id):
         else:
             print('error')
 
-
-        if args.approach == 'cbpside':
-            lbd_reg = 1
-            alg = cbpside.CBPside(game, 1.01, lbd_reg  )
-            algos.append( alg )
-
-        elif args.approach == 'randcbpside':
-            lbd_reg = 1
-            sigma = 1
-            K = 10
-            epsilon = 10e-7
-            alg = rand_cbpside.CBPside(game, 1.01, lbd_reg,  sigma, K , epsilon)
-            algos.append( alg )
-
-        # elif args.approach == 'neuralcbpside':
-        #     lbd_neural = 0
-        #     lbd_reg = 1
-        #     m = 100
-        #     H = None
-        #     alg = neuralcbp.CBPside( game, 1.01, lbd_neural, lbd_reg, m, H,  'cuda:0')
-        #     algos.append( alg )
-
-        elif args.approach == 'randneuralcbpside':
+        if args.approach == 'EEneuralcbpside':
             lbd_neural = 0
-            lbd_reg = 1
-            sigma = 1/8
-            K = 100
-            epsilon = 10e-7
             m = 100
-            H = None
-            alg = randneuralcbp.CBPside( game, 1.01, lbd_neural, lbd_reg, sigma, K, epsilon, m, H,  'cuda:0')
+            H = 50
+            lbd_reg = 1
+            nclasses = 10
+            alg = neuralcbp_EE.CBPside( game, 1.01, lbd_neural, lbd_reg, m, H, nclasses,  'cuda:0')
             algos.append( alg )
 
 
