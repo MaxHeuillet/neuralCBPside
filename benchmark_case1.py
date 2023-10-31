@@ -31,7 +31,7 @@ import torch
 import random
 
 import random_algo
-import neuralcbp_EE
+import neuralcbp_EE_binary
 
 
 # elif args.approach == 'cbpside':
@@ -124,7 +124,7 @@ def evaluate_parallel(evaluator, game, nfolds):
             H = 50
             lbd_reg = 1
             nclasses = 2
-            alg = neuralcbp_EE.CBPside( game, 1.01, lbd_neural, lbd_reg, m, H, nclasses,  'cuda:0')
+            alg = neuralcbp_EE_binary.CBPside( game, 1.01, lbd_neural, lbd_reg, m, H, nclasses,  'cuda:0')
             algos.append( alg )
 
         elif args.approach == 'margin':
