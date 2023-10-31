@@ -324,6 +324,7 @@ class CBPside():
         
         # print('### Update the parameters of the model:')
         sigma_k = len(np.unique(self.game.FeedbackMatrix[action]))
+        #print('sigma_k', sigma_k)
         if sigma_k > 1:
             feedbacks = np.zeros( sigma_k )
             feedbacks[feedback] = 1
