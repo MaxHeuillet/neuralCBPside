@@ -121,6 +121,7 @@ def evaluate_parallel(evaluator, game, nfolds):
         elif args.approach == 'EEneuralcbpside':
             lbd_neural = 0
             m = 100
+            H = 50
             lbd_reg = 1
             nclasses = 2
             alg = neuralcbp_EE.CBPside( game, 1.01, lbd_neural, lbd_reg, m, H, nclasses,  'cuda:0')
