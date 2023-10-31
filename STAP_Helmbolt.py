@@ -1,5 +1,5 @@
 import numpy as np
-import geometry_v3
+import geometry_gurobi
 
 
 import scipy as sp
@@ -81,7 +81,7 @@ class STAP_Helmbolt():
 
         self.N = game.n_actions
         self.M = game.n_outcomes
-        self.A = geometry_v3.alphabet_size(game.FeedbackMatrix, self.N, self.M)
+        self.A = geometry_gurobi.alphabet_size(game.FeedbackMatrix, self.N, self.M)
 
         self.budget = budget
         self.counter = 0

@@ -1,5 +1,5 @@
 import numpy as np
-import geometry_v3
+import geometry_gurobi
 
 
 import scipy as sp
@@ -78,7 +78,7 @@ class CBPside():
 
         self.SignalMatrices = game.SignalMatrices
 
-        self.pareto_actions = geometry_v3.getParetoOptimalActions(game.LossMatrix, self.N, self.M, [], self.num_workers)
+        self.pareto_actions = geometry_gurobi.getParetoOptimalActions(game.LossMatrix, self.N, self.M, [], self.num_workers)
         self.mathcal_N = game.mathcal_N
 
         self.N_plus =  game.N_plus
@@ -373,7 +373,7 @@ class CBPside():
         # If not in memory, compute and store
         if result is None:
             #print('hey')
-            result = geometry_v3.getParetoOptimalActions(
+            result = geometry_gurobi.getParetoOptimalActions(
                 self.game.LossMatrix, 
                 self.N, 
                 self.M, 
@@ -390,7 +390,7 @@ class CBPside():
         # If not in memory, compute and store
         if result is None:
             print('step 3 b')
-            result = geometry_v3.getNeighborhoodActions(
+            result = geometry_gurobi.getNeighborhoodActions(
                 self.game.LossMatrix, 
                 self.N, 
                 self.M, 

@@ -1,6 +1,4 @@
 import numpy as np
-import geometry_v3
-
 
 import scipy as sp
 import torch
@@ -18,18 +16,15 @@ from torch.optim.lr_scheduler import StepLR
 import multiprocessing
 import os
 
-
+# import geometry_gurobi
+import geometry_pulp
 
 
 def sherman_morrison_update(V_it_inv, feature):
-    # Precompute products
+    
     V_feature = torch.matmul(V_it_inv, feature.t())
     feature_V = torch.matmul(feature, V_it_inv)
-    
-    # Compute the denominator
     denom = 1 + torch.matmul(feature_V, feature.t())
-    
-    # Update in-place
     V_it_inv -= torch.matmul(V_feature, feature_V) / denom
 
     return V_it_inv
@@ -99,7 +94,7 @@ class CBPside():
 
         self.SignalMatrices = game.SignalMatrices
 
-        self.pareto_actions = geometry_v3.getParetoOptimalActions(game.LossMatrix, self.N, self.M, [], self.num_workers)
+        self.pareto_actions = geometry_pulp.getParetoOptimalActions(game.LossMatrix, self.N, self.M, [], self.num_workers)
         self.mathcal_N = game.mathcal_N
 
         self.N_plus =  game.N_plus
@@ -171,8 +166,8 @@ class CBPside():
         input_dim = self.d + (self.A-1) * self.d
         output_dim = 1
         print('input dim', input_dim)
-        self.net1 = Network_exploitation(input_dim, output_dim).to(self.device)
-        self.net2 = Network_exploration(input_dim * 2, output_dim).to(self.device)
+        self.net1 = Network_exploitation(input_dim, output_dim, self.m).to(self.device)
+        self.net2 = Network_exploration(input_dim * 2, output_dim, self.m).to(self.device)
 
         self.contexts = []
         for i in range(self.N):
@@ -282,14 +277,9 @@ class CBPside():
                 V_feature = torch.matmul(V_it_inv, feature.t() )
                 feature_V = torch.matmul(feature, V_it_inv)
                 val =  torch.matmul(feature_V, V_feature).item()
-                print('oprations shape', feature.shape, V_it_inv.shape, V_feature.shape, feature_V.shape, val)
-
                 t_prime = t+2
-                rate = self.eta[k] * t_prime**(2/3)  * ( self.alpha * np.log(t_prime) )**(1/3)  #* self.N**2 * 4 *  self.d**2
-                print('forced exploration', k, val, 1/rate)
+                rate = self.eta[k] * t_prime**(2/3)  * ( self.alpha * np.log(t_prime) )**(1/3)  
                 if val > 1/rate : 
-                    # print('append action ', k)
-                    # print('action', k, 'threshold', self.eta[k] * geometry_v3.f(t, self.alpha), 'constant', self.eta[k], 'value', geometry_v3.f(t, self.alpha)  )
                     R_t.append(k)
 
         print('########################### play action')
@@ -402,13 +392,12 @@ class CBPside():
 
 
     def pareto_halfspace_memory(self, code, halfspace):
-        # Try fetching the result from memory
+
         result = self.memory_pareto.get(code)
         
-        # If not in memory, compute and store
         if result is None:
-            #print('hey')
-            result = geometry_v3.getParetoOptimalActions(
+
+            result = geometry_pulp.getParetoOptimalActions(
                 self.game.LossMatrix, 
                 self.N, 
                 self.M, 
@@ -419,13 +408,13 @@ class CBPside():
         return result
 
     def neighborhood_halfspace_memory(self, code, halfspace):
-        # Try fetching the result from memory
+
         result = self.memory_neighbors.get(code)
         
-        # If not in memory, compute and store
+
         if result is None:
             print('step 3 b')
-            result = geometry_v3.getNeighborhoodActions(
+            result = geometry_pulp.getNeighborhoodActions(
                 self.game.LossMatrix, 
                 self.N, 
                 self.M, 
