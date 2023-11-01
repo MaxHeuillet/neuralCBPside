@@ -12,7 +12,7 @@ for context_type in  'MNIST' #'linear' 'quadratic' 'sinusoid'
 
         do
 
-            for approach in 'EEneuralcbpside' # 'random' 'random2' 'ineural' 
+            for approach in 'EEneuralcbpside' 'random' 'random2' 'ineural' 
                     
                 do
 
