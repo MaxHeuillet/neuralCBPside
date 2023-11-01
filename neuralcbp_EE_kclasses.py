@@ -16,8 +16,8 @@ from torch.optim.lr_scheduler import StepLR
 import multiprocessing
 import os
 
-import geometry_gurobi
-# import geometry_pulp
+# import geometry_gurobi
+import geometry_pulp
 
 
 
@@ -82,7 +82,7 @@ class CBPside():
 
         self.SignalMatrices = game.SignalMatrices
 
-        self.pareto_actions = geometry_gurobi.getParetoOptimalActions(game.LossMatrix, self.N, self.M, [], self.num_workers)
+        self.pareto_actions = geometry_pulp.getParetoOptimalActions(game.LossMatrix, self.N, self.M, [], self.num_workers)
         self.mathcal_N = game.mathcal_N
 
         self.N_plus =  game.N_plus
@@ -391,7 +391,7 @@ class CBPside():
         
         if result is None:
 
-            result = geometry_gurobi.getParetoOptimalActions(
+            result = geometry_pulp.getParetoOptimalActions(
                 self.game.LossMatrix, 
                 self.N, 
                 self.M, 
@@ -408,7 +408,7 @@ class CBPside():
 
         if result is None:
             print('step 3 b')
-            result = geometry_gurobi.getNeighborhoodActions(
+            result = geometry_pulp.getNeighborhoodActions(
                 self.game.LossMatrix, 
                 self.N, 
                 self.M, 
