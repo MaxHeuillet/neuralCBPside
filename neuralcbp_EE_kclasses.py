@@ -205,7 +205,7 @@ class CBPside():
         
         q = [ np.array(value) for value in self.f1_list.values()]
         w = [ np.array( max(value) ) for value in self.f2_list.values()]
-        # print( 'estimate', q )
+        print( 'estimate', q )
         # print('conf   ', w )
         # print('index', self.index)
 
@@ -337,7 +337,7 @@ class CBPside():
 
         if (t>self.N):
 
-            if (t % 50 == 0 and t<1000) or (t % 500 == 0 and t>=1000):
+            if (t<=50) or (t % 50 == 0 and t<1000 and t>50) or (t % 500 == 0 and t>=1000):
 
                 self.train_NN_batch(self.net1, self.X1_train, self.y1)
                 self.train_NN_batch(self.net2, self.X2_train, self.y2)
