@@ -1,7 +1,7 @@
 #!/bin/bash
 
 horizon=9999
-nfolds=5
+nfolds=3
 
 
 for context_type in  'MNIST' #'linear' 'quadratic' 'sinusoid'
