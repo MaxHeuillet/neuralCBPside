@@ -10,20 +10,21 @@ import gzip
 
 import games
 
-# import cbpside
+import cbpside
 # import randcbpside2
 
 import synthetic_data
 
 
-# import cbpside
-# import rand_cbpside
-# import randneuralcbp
-# import neuralcbp_LE
+import cbpside
+import rand_cbpside
+import randneuralcbp
+import neuralcbp_LE
 import margin_based
 # import rand_neural_lin_cbpside_disjoint
 import ineural_multi
 import cesa_bianchi
+import neuralcbp_EE_kclasses
 
 import argparse
 import os
@@ -36,6 +37,34 @@ import random_algo2
 ######################
 ######################
 
+# if args.approach == 'cbpside':
+#     lbd_reg = 1
+#     alg = cbpside.CBPside(game, 1.01, lbd_reg  )
+#     algos.append( alg )
+# elif args.approach == 'randcbpside':
+#     lbd_reg = 1
+#     sigma = 1
+#     K = 10
+#     epsilon = 10e-7
+#     alg = rand_cbpside.CBPside(game, 1.01, lbd_reg,  sigma, K , epsilon)
+#     algos.append( alg )
+# elif args.approach == 'neuralcbpside':
+#     lbd_neural = 0
+#     lbd_reg = 1
+#     m = 100
+#     H = None
+#     alg = neuralcbp.CBPside( game, 1.01, lbd_neural, lbd_reg, m, H,  'cuda:0')
+#     algos.append( alg )
+# elif args.approach == 'randneuralcbpside':
+#     lbd_neural = 0
+#     lbd_reg = 1
+#     sigma = 1/8
+#     K = 100
+#     epsilon = 10e-7
+#     m = 100
+#     H = None
+#     alg = randneuralcbp.CBPside( game, 1.01, lbd_neural, lbd_reg, sigma, K, epsilon, m, H,  'cuda:0')
+#     algos.append( alg )
 
 def evaluate_parallel(evaluator, game, nfolds):
     
@@ -84,50 +113,26 @@ def evaluate_parallel(evaluator, game, nfolds):
 
 
 
-
         if args.approach == 'random':
             m = 100
             nclasses = 10
             alg = random_algo.Egreedy(game, nclasses, m, 'cuda:0')
             algos.append( alg )
 
-        if args.approach == 'random2':
+        elif args.approach == 'random2':
             m = 100
             nclasses = 10
             alg = random_algo2.Egreedy(game, nclasses, m, 'cuda:0')
             algos.append( alg )
 
-        # if args.approach == 'cbpside':
-        #     lbd_reg = 1
-        #     alg = cbpside.CBPside(game, 1.01, lbd_reg  )
-        #     algos.append( alg )
-
-        # elif args.approach == 'randcbpside':
-        #     lbd_reg = 1
-        #     sigma = 1
-        #     K = 10
-        #     epsilon = 10e-7
-        #     alg = rand_cbpside.CBPside(game, 1.01, lbd_reg,  sigma, K , epsilon)
-        #     algos.append( alg )
-
-        # elif args.approach == 'neuralcbpside':
-        #     lbd_neural = 0
-        #     lbd_reg = 1
-        #     m = 100
-        #     H = None
-        #     alg = neuralcbp.CBPside( game, 1.01, lbd_neural, lbd_reg, m, H,  'cuda:0')
-        #     algos.append( alg )
-
-        # elif args.approach == 'randneuralcbpside':
-        #     lbd_neural = 0
-        #     lbd_reg = 1
-        #     sigma = 1/8
-        #     K = 100
-        #     epsilon = 10e-7
-        #     m = 100
-        #     H = None
-        #     alg = randneuralcbp.CBPside( game, 1.01, lbd_neural, lbd_reg, sigma, K, epsilon, m, H,  'cuda:0')
-        #     algos.append( alg )
+        elif args.approach == 'EEneuralcbpside':
+            lbd_neural = 0
+            m = 100
+            H = 50
+            lbd_reg = 1
+            nclasses = 10
+            alg = neuralcbp_EE_kclasses.CBPside( game, 1.01, lbd_neural, lbd_reg, m, H, nclasses,  'cuda:0')
+            algos.append( alg )
 
         elif args.approach == 'ineural':
             budget = evaluator.horizon
@@ -195,18 +200,19 @@ class Evaluation:
 
             alg.update(action, feedback, outcome, t, context )
 
-            print('t', t, 'action', action, 'outcome', outcome,  )
+            
 
-            print( game.LossMatrix[0,...].shape, np.array( distribution ).shape )
             i_star = np.argmin(  [ game.LossMatrix[i,...] @ np.array( distribution ) for i in range(alg.N) ]  )
             loss_diff = game.LossMatrix[action,...] - game.LossMatrix[i_star,...]
             val = loss_diff @ np.array( distribution )
             cumRegret[t] =  val
 
+            print('t', t, 'action', action, 'outcome', outcome, 'regret', val  )
+
         result = np.cumsum(cumRegret)
         print(result)
         print('finished', jobid)
-        with gzip.open( './results/case2_{}_{}_{}_{}.pkl.gz'.format(self.context_type, self.horizon, self.n_folds, self.label) ,'ab') as f:
+        with gzip.open( './results/case3_{}_{}_{}_{}.pkl.gz'.format(self.context_type, self.horizon, self.n_folds, self.label) ,'ab') as f:
             pkl.dump(result,f)
         print('saved', jobid)
 
@@ -235,7 +241,7 @@ horizon = int(args.horizon)
 n_folds = int(args.n_folds)
 print(args.context_type, args.approach)
 
-game = game = games.game_case3(  )
+game = game = games.game_case2(  )
 
 # factor_type = args.approach.split('_')[1]
 # print('factor_type', factor_type)
