@@ -20,6 +20,7 @@ import os
 import geometry_pulp
 
 
+
 def sherman_morrison_update(V_it_inv, feature):
     
     V_feature = torch.matmul(V_it_inv, feature.t())
@@ -30,21 +31,21 @@ def sherman_morrison_update(V_it_inv, feature):
     return V_it_inv
 
 class Network_exploitation(nn.Module):
-    def __init__(self, input_dim, output_dim, hidden_size=100):
+    def __init__(self, input_dim, hidden_size=100):
         super(Network_exploitation, self).__init__()
         self.fc1 = nn.Linear(input_dim, hidden_size)
         self.activate = nn.ReLU()
-        self.fc2 = nn.Linear(hidden_size, output_dim)
+        self.fc2 = nn.Linear(hidden_size, 1)
 
     def forward(self, x):
         return self.fc2(self.activate(self.fc1(x)))
         
 class Network_exploration(nn.Module):
-    def __init__(self, input_dim, output_dim, hidden_size=100):
+    def __init__(self, input_dim, hidden_size=100):
         super(Network_exploration, self).__init__()
         self.fc1 = nn.Linear(input_dim, hidden_size)
         self.activate = nn.ReLU()
-        self.fc2 = nn.Linear(hidden_size, output_dim)
+        self.fc2 = nn.Linear(hidden_size, 1)
 
     def forward(self, x):
         return self.fc2(self.activate(self.fc1(x)))
@@ -56,10 +57,8 @@ def EE_forward(net1, net2, x):
     f1.backward()
     dc = torch.cat([x.grad.data.detach(), x.detach()], dim=1)
     dc = dc / torch.linalg.norm(dc)
-    #print('gradient shape', x.grad.data.detach().shape)
-    #print('dc shape', dc.shape, x.grad.data.detach().shape, x.detach().shape )
     f2 = net2(dc)
-    return f1.item(), f2.item(), dc
+    return f1.item(), f2.item(), dc.to(torch.float16)
     
 class CustomDataset(Dataset):
     def __init__(self, ):
@@ -76,11 +75,14 @@ class CustomDataset(Dataset):
         self.obs = X if self.obs is None else np.concatenate( (self.obs, X), axis=0) 
         self.feedbacks = np.array([[f]]) if self.feedbacks is None else np.concatenate( (self.feedbacks, [[f]] ), axis=0)
 
+def count_parameters(model):
+    return sum(p.numel() for p in model.parameters() if p.requires_grad)
+
 class CBPside():
 
     def __init__(self, game, alpha, lbd_neural, lbd_reg, m, H, num_cls, device):
 
-        self.name = 'randneuralcbp'
+        self.name = 'neuralCBPside'
         self.device = device
         
         self.num_workers = 1 #int ( os.environ.get('SLURM_CPUS_PER_TASK', default=1) )
@@ -104,7 +106,7 @@ class CBPside():
         self.v = game.v 
 
         self.W = self.getConfidenceWidth( )
-        #print('W', self.W)
+
         self.alpha = alpha
             
         self.lbd_neural = lbd_neural
@@ -130,33 +132,26 @@ class CBPside():
 
     def convert_conf_format(self,conf, dc_list):
         final = []
-        # final_dc_list = []
         for k in range(self.game.N):
             per_action = []
             for s in np.unique(self.game.FeedbackMatrix[k]):
                 if np.unique(self.game.FeedbackMatrix[k]).shape[0] > 1:
                     per_action.append( conf[s] )
-                    # indice = np.argmax( per_action ) 
                 else:
                     per_action.append( conf[s] )
-                    # indice = s
-            # final_dc_list.append( dc_list[indice].cpu().numpy() )
             final.append( np.array([max(per_action)]) )
         return final, None
 
     def getConfidenceWidth(self, ):
         W = np.zeros(self.N)
         for pair in self.mathcal_N:
-            # print('pair', pair, 'N_plus', N_plus[ pair[0] ][ pair[1] ] )
             for k in self.V[ pair[0] ][ pair[1] ]:
-                # print('pair ', pair, 'v ', v[ pair[0] ][ pair[1] ], 'V ', V[ pair[0] ][ pair[1] ] )
                 vec = self.v[ pair[0] ][ pair[1] ][k]
                 W[k] = np.max( [ W[k], np.linalg.norm(vec , np.inf) ] )
         return W
 
     def reset(self, d):
         self.d = d
-        # self.H = 50
         
         self.memory_pareto = {}
         self.memory_neighbors = {}
@@ -164,14 +159,18 @@ class CBPside():
         self.X1_train, self.X2_train, self.y1, self.y2 = [], [], [], []
 
         input_dim = self.d + (self.A-1) * self.d
-        output_dim = 1
         print('input dim', input_dim)
-        self.net1 = Network_exploitation(input_dim, output_dim, self.m).to(self.device)
-        self.net2 = Network_exploration(input_dim * 2, output_dim, self.m).to(self.device)
 
-        self.contexts = []
+        self.net1 = Network_exploitation(input_dim, self.m).to(self.device)
+        print(f'Net1 has {count_parameters(self.net1):,} trainable parameters.')
+
+        self.net2 = Network_exploration(input_dim * 2, self.m).to(self.device)
+        print(f'Net2 has {count_parameters(self.net2):,} trainable parameters.')
+
+        self.contexts = {}
         for i in range(self.N):
-            self.contexts.append( {'V_it_inv': torch.eye(input_dim * 2).to(self.device) } )
+            if self.eta[i]>0:
+                self.contexts[i] =  {'V_it_inv': torch.eye(input_dim * 2).to(torch.float16).cpu() }
 
     def encode_context(self, X):
         X = torch.from_numpy(X).to(self.device)
@@ -234,7 +233,7 @@ class CBPside():
                 tdelta += self.v[ pair[0] ][ pair[1] ][k].T @ q[k]
                 c += np.linalg.norm( self.v[ pair[0] ][ pair[1] ][k], np.inf ) * w[k] #* np.sqrt( (self.d+1) * np.log(t) ) * self.d
             #print('pair', pair, 'tdelta', tdelta, 'confidence', c)
-            print('pair', pair,  'tdelta', tdelta, 'c', c, 'sign', np.sign(tdelta)  )
+            # print('pair', pair,  'tdelta', tdelta, 'c', c, 'sign', np.sign(tdelta)  )
             # print('sign', np.sign(tdelta) )
             #tdelta = tdelta[0]
             #c = np.inf
@@ -248,10 +247,10 @@ class CBPside():
         code = self.halfspace_code(  sorted(halfspace) )
         #print('##### step2')
         P_t = self.pareto_halfspace_memory(code, halfspace)
-        # N_t = self.neighborhood_halfspace_memory(code, halfspace)
         #print('##### step3')
         if len(P_t)>1:
-            N_t = [ [1, 2], [1, 3], [1, 4], [1, 5], [1, 6], [1, 7], [1, 8], [1, 9], [1, 10], [2, 3], [2, 4], [2, 5], [2, 6], [2, 7], [2, 8], [2, 9], [2, 10], [3, 4], [3, 5], [3, 6], [3, 7], [3, 8], [3, 9], [3, 10], [4, 5], [4, 6], [4, 7], [4, 8], [4, 9], [4, 10], [5, 6], [5, 7], [5, 8], [5, 9], [5, 10], [6, 7], [6, 8], [6, 9], [6, 10], [7, 8], [7, 9], [7, 10], [8, 9], [8, 10], [9, 10] ]
+            N_t = self.neighborhood_halfspace_memory(code, halfspace)
+            # N_t = [ [1, 2], [1, 3], [1, 4], [1, 5], [1, 6], [1, 7], [1, 8], [1, 9], [1, 10], [2, 3], [2, 4], [2, 5], [2, 6], [2, 7], [2, 8], [2, 9], [2, 10], [3, 4], [3, 5], [3, 6], [3, 7], [3, 8], [3, 9], [3, 10], [4, 5], [4, 6], [4, 7], [4, 8], [4, 9], [4, 10], [5, 6], [5, 7], [5, 8], [5, 9], [5, 10], [6, 7], [6, 8], [6, 9], [6, 10], [7, 8], [7, 9], [7, 10], [8, 9], [8, 10], [9, 10] ]
             #self.neighborhood_halfspace_memory(code,halfspace)
             #print(N_t)
         else:
@@ -274,6 +273,7 @@ class CBPside():
                 indx = self.index[k]
                 feature = self.dc_list[k][indx]
                 V_it_inv = self.contexts[k]['V_it_inv']
+                V_it_inv = V_it_inv.to(self.device)
                 V_feature = torch.matmul(V_it_inv, feature.t() )
                 feature_V = torch.matmul(feature, V_it_inv)
                 val =  torch.matmul(feature_V, V_feature).item()
@@ -281,6 +281,10 @@ class CBPside():
                 rate = self.eta[k] * t_prime**(2/3)  * ( self.alpha * np.log(t_prime) )**(1/3)  
                 if val > 1/rate : 
                     R_t.append(k)
+
+                V_it_inv = V_it_inv.cpu()
+                del V_it_inv
+                torch.cuda.empty_cache()
 
         # print('########################### play action')
         union1= np.union1d(  P_t, Nplus_t )
@@ -315,8 +319,13 @@ class CBPside():
             feature =  self.dc_list[action][0]
 
         # Usage
-        V_it_inv = self.contexts[action]['V_it_inv']
-        self.contexts[action]['V_it_inv'] = sherman_morrison_update(V_it_inv, feature)
+        if self.eta[action]>0:
+            V_it_inv = self.contexts[action]['V_it_inv']
+            V_it_inv = V_it_inv.to(self.device)
+            self.contexts[action]['V_it_inv'] = sherman_morrison_update(V_it_inv, feature)
+            V_it_inv = V_it_inv.cpu()
+            del V_it_inv
+            torch.cuda.empty_cache()
 
         # print('implement the formula')
         # V_it_inv = self.contexts[action]['V_it_inv']

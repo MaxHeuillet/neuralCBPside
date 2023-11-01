@@ -43,6 +43,10 @@ def EE_forward(net1, net2, x):
     f2 = net2(dc)
     return f1.item(), f2.item(), dc
 
+def count_parameters(model):
+    return sum(p.numel() for p in model.parameters() if p.requires_grad)
+
+
 class INeurALmulti():
 
     def __init__(self, budget, num_cls, device):
@@ -68,8 +72,13 @@ class INeurALmulti():
         self.X1_train, self.X2_train, self.y1, self.y2 = [], [], [], []
 
         input_dim = self.d + (self.num_cls-1) * self.d
+        print('input dim', input_dim)
+
         self.net1 = Network_exploitation(input_dim).to(self.device)
         self.net2 = Network_exploration(input_dim * 2).to(self.device)
+
+        print(f'Net1 has {count_parameters(self.net1):,} trainable parameters.')
+        print(f'Net2 has {count_parameters(self.net2):,} trainable parameters.')
 
     def encode_context(self, X):
         X = torch.from_numpy(X).to(self.device)
