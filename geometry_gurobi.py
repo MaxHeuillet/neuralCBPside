@@ -1,6 +1,6 @@
 import numpy as np
 import collections
-import pulp as lp
+import gurobipy as gp
 from multiprocessing import Pool
 
 def alphabet_size(FeedbackMatrix, N,M):
@@ -97,7 +97,7 @@ def isNeighbor(LossMatrix, N, M, i1, i2, halfspace):
         with gp.Model(env=env) as m:
 
             m.Params.LogToConsole = 0
-            lp.LpSolverDefault.msg = 0
+            #lp.LpSolverDefault.msg = 0
             m.setParam("OutputFlag", 0)  
             # Turn off Gurobi's output
             #print('n threads', m.Params.Threads)

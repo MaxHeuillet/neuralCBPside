@@ -16,8 +16,8 @@ from torch.optim.lr_scheduler import StepLR
 import multiprocessing
 import os
 
-# import geometry_gurobi
-import geometry_pulp
+import geometry_gurobi
+# import geometry_pulp
 
 
 
@@ -60,20 +60,6 @@ def EE_forward(net1, net2, x):
     f2 = net2(dc)
     return f1.item(), f2.item(), dc.to(torch.float16)
     
-class CustomDataset(Dataset):
-    def __init__(self, ):
-        self.obs = None
-        self.feedbacks = None
-
-    def __len__(self):
-        return len(self.obs)
-
-    def __getitem__(self, index):
-        return self.obs[index], self.feedbacks[index]
-    
-    def append(self, X , f):
-        self.obs = X if self.obs is None else np.concatenate( (self.obs, X), axis=0) 
-        self.feedbacks = np.array([[f]]) if self.feedbacks is None else np.concatenate( (self.feedbacks, [[f]] ), axis=0)
 
 def count_parameters(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
@@ -96,7 +82,7 @@ class CBPside():
 
         self.SignalMatrices = game.SignalMatrices
 
-        self.pareto_actions = geometry_pulp.getParetoOptimalActions(game.LossMatrix, self.N, self.M, [], self.num_workers)
+        self.pareto_actions = geometry_gurobi.getParetoOptimalActions(game.LossMatrix, self.N, self.M, [], self.num_workers)
         self.mathcal_N = game.mathcal_N
 
         self.N_plus =  game.N_plus
@@ -196,11 +182,9 @@ class CBPside():
 
 
     def get_action(self, t, X):
-        self.X = X
 
+        self.X = X
         halfspace = []
-        # q = {}
-        # w = {}
         self.x_list, self.x_list_action = self.encode_context(X)
 
         self.f1_list, self.f2_list, self.dc_list, self.index = {}, {}, {}, {}
@@ -341,12 +325,12 @@ class CBPside():
             feedbacks = np.ones(1)
         
         x_features = torch.cat( self.x_list_action[action] )
-        self.X1_train.append( x_features )
-        self.y1.append( torch.Tensor(feedbacks)  )
+        self.X1_train.append( x_features.cpu() )
+        self.y1.append( torch.Tensor(feedbacks).cpu()  )
 
         grad_features = torch.cat( self.dc_list[action] )
-        self.X2_train.append( grad_features )
-        self.y2.append( torch.Tensor(feedbacks - self.f1_list[action] ))
+        self.X2_train.append( grad_features.cpu() )
+        self.y2.append( torch.Tensor(feedbacks - self.f1_list[action] ).cpu() )
             
         global_loss = []
         global_losses = []
@@ -364,7 +348,7 @@ class CBPside():
     def train_NN_batch(self, model, X, y, num_epochs=10, lr=0.001, batch_size=64):
         model.train()
         X = torch.cat(X).float()
-        y = torch.cat(y).float() 
+        y = torch.cat(y).float()
         optimizer = optim.Adam(model.parameters(), lr=lr)
         dataset = TensorDataset(X, y)
         dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
@@ -407,7 +391,7 @@ class CBPside():
         
         if result is None:
 
-            result = geometry_pulp.getParetoOptimalActions(
+            result = geometry_gurobi.getParetoOptimalActions(
                 self.game.LossMatrix, 
                 self.N, 
                 self.M, 
@@ -424,7 +408,7 @@ class CBPside():
 
         if result is None:
             print('step 3 b')
-            result = geometry_pulp.getNeighborhoodActions(
+            result = geometry_gurobi.getNeighborhoodActions(
                 self.game.LossMatrix, 
                 self.N, 
                 self.M, 
