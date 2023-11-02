@@ -24,7 +24,7 @@ import margin_based
 # import rand_neural_lin_cbpside_disjoint
 import ineural_multi
 import cesa_bianchi
-import neuralcbp_EE_gurobi
+import neuralcbp_EE_kclasses
 
 import argparse
 import os
@@ -89,9 +89,8 @@ def evaluate_parallel(evaluator, game, nfolds, id):
             H = 50
             lbd_reg = 1
             nclasses = 10
-            alg = neuralcbp_EE.CBPside( game, 1.01, lbd_neural, lbd_reg, m, H, nclasses,  'cuda:0')
+            alg = neuralcbp_EE_kclasses.CBPside( game, 1.01, lbd_neural, lbd_reg, m, H, nclasses,  'cuda:0')
             algos.append( alg )
-
 
         seeds.append(seed)
 

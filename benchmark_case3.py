@@ -241,7 +241,7 @@ horizon = int(args.horizon)
 n_folds = int(args.n_folds)
 print(args.context_type, args.approach)
 
-game = game = games.game_case2(  )
+game = game = games.game_case3(  )
 
 # factor_type = args.approach.split('_')[1]
 # print('factor_type', factor_type)
