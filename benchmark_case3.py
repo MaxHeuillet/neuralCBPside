@@ -24,7 +24,7 @@ import margin_based
 # import rand_neural_lin_cbpside_disjoint
 import ineural_multi
 import cesa_bianchi
-import neuralcbp_EE_kclasses
+# import neuralcbp_EE_kclasses
 
 import argparse
 import os
@@ -125,14 +125,14 @@ def evaluate_parallel(evaluator, game, nfolds):
             alg = random_algo2.Egreedy(game, nclasses, m, 'cuda:0')
             algos.append( alg )
 
-        elif args.approach == 'EEneuralcbpside':
-            lbd_neural = 0
-            m = 100
-            H = 50
-            lbd_reg = 1
-            nclasses = 10
-            alg = neuralcbp_EE_kclasses.CBPside( game, 1.01, lbd_neural, lbd_reg, m, H, nclasses,  'cuda:0')
-            algos.append( alg )
+        # elif args.approach == 'EEneuralcbpside':
+        #     lbd_neural = 0
+        #     m = 100
+        #     H = 50
+        #     lbd_reg = 1
+        #     nclasses = 10
+        #     alg = neuralcbp_EE_kclasses.CBPside( game, 1.01, lbd_neural, lbd_reg, m, H, nclasses,  'cuda:0')
+        #     algos.append( alg )
 
         elif args.approach == 'ineural':
             budget = evaluator.horizon
