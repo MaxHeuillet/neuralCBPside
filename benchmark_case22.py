@@ -41,7 +41,7 @@ import random_algo2
 def evaluate_parallel(evaluator, game, nfolds, id):
     
     print('numbers of processes to be launched', nfolds)
-    pool = Pool(processes=nfolds)
+    pool = Pool(processes=4)
 
     np.random.seed(1)
     torch.manual_seed(1)
@@ -53,7 +53,8 @@ def evaluate_parallel(evaluator, game, nfolds, id):
 
     gpu_id = 0
 
-    for alg_id, seed in enumerate(range(id, id+nfolds,1)):
+    for alg_id, seed in enumerate(range(id, id+4,1)):
+        print(alg_id, seed)
         
         if evaluator.context_type == 'linear':
             size = 5
