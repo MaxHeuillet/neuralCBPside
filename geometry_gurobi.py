@@ -23,7 +23,7 @@ def solve_LP(args):
         env.setParam('OutputFlag', 0)
         env.start()
         with gp.Model(env=env) as m:
-            #m.setParam('Threads', 1)
+            m.setParam('Threads', 1)
             # print(f'Number of cores that will be used: {m.Params.Threads}')
             # print(f'Number of available cores: {m.Params.ConcurrentMIP}')
             # Create a new model
@@ -101,7 +101,7 @@ def isNeighbor(LossMatrix, N, M, i1, i2, halfspace):
             m.setParam("OutputFlag", 0)  
             # Turn off Gurobi's output
             #print('n threads', m.Params.Threads)
-            #m.setParam("Threads", 1)
+            m.setParam("Threads", 1)
             #print('n threads', m.Params.Threads)
 
             # Define variables
