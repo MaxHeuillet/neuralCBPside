@@ -532,6 +532,7 @@ def game_case4(  ):
                              [1, 1/2, 1/2, 1/2, 1/2, 1/2, 1/2, 0, 1/2, 1/2],
                              [1/2, 1/2, 1/2, 1, 1/2, 1/2, 1/2, 1/2, 0, 1/2],
                              [1/2, 1/2, 1/2, 1/2, 1, 1/2, 1/2, 1/2, 1/2, 0] ] )
+    
     FeedbackMatrix = np.array(  [ [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 
                                   [10] * 10, 
                                   [10] * 10,
@@ -568,8 +569,6 @@ def game_case4(  ):
     FeedbackMatrix_PMDMED =  FeedbackMatrix.copy()
     A = None #geometry_v3.alphabet_size(FeedbackMatrix_PMDMED,  len(FeedbackMatrix_PMDMED),len(FeedbackMatrix_PMDMED[0]) )
     signal_matrices_Adim =  None
-
-
     
     mathcal_N = [  [1,2], [1,3], [1,4], [1,5], [1,6], [1,7], [1,8], [1,9], [1,10],
                    [2,3], [2,4], [2,5], [2,6], [2,7], [2,8], [2,9], [2,10],
