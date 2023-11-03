@@ -347,8 +347,8 @@ class CBPside():
 
     def train_NN_batch(self, model, X, y, num_epochs=10, lr=0.001, batch_size=64):
         model.train()
-        X = torch.cat(X).float()
-        y = torch.cat(y).float()
+        X = torch.cat(X).float().to(self.device)
+        y = torch.cat(y).float().to(self.device)
         optimizer = optim.Adam(model.parameters(), lr=lr)
         dataset = TensorDataset(X, y)
         dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
@@ -359,7 +359,7 @@ class CBPside():
             batch_loss = 0.0
             
             for x, y in dataloader:
-                x, y = x.to(self.device), y.to(self.device)
+                # x, y = x.to(self.device), y.to(self.device)
                 pred = model(x).view(-1)
 
                 loss = torch.mean((pred - y) ** 2)
