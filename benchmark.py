@@ -212,11 +212,11 @@ print(args.context_type, args.approach)
 
 
 if args.case == 'case2':
-    game = games.game_case2(  )
+    game = games.game_case2( {} )
 elif args.case == 'case3':
-    game = games.game_case3(  )
+    game = games.game_case3( {} )
 elif args.case == 'case4':
-    game = games.game_case4(  )
+    game = games.game_case4( {} )
 
 
 
