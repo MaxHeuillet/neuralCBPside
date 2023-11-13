@@ -143,6 +143,7 @@ class Evaluation:
         #print('start 2', alg.device)
         np.random.seed(jobid)
         torch.manual_seed(jobid)
+        torch.cuda.manual_seed(jobid)
         random.seed(jobid)
 
         alg.reset( context_generator.d )

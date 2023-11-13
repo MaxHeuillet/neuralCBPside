@@ -4,18 +4,16 @@ import numpy as np
 import collections
 # import geometry_v3
 from itertools import combinations, permutations
+import random
 
 class Game():
     
-    def __init__(self, name, LossMatrix, FeedbackMatrix,FeedbackMatrix_PMDMED, SignalMatrices, signal_matrices_Adim, mathcal_N, v, N_plus, V ):
+     def __init__(self, name, noise, LossMatrix, FeedbackMatrix, SignalMatrices, mathcal_N, v, N_plus, V ):
         
         self.name = name
         self.LossMatrix = LossMatrix
         self.FeedbackMatrix = FeedbackMatrix
-        self.FeedbackMatrix_PMDMED = FeedbackMatrix_PMDMED
-
         self.SignalMatrices = SignalMatrices
-        self.SignalMatricesAdim = signal_matrices_Adim
         self.n_actions = len(self.LossMatrix)
         self.n_outcomes = len(self.LossMatrix[0])
         self.mathcal_N = mathcal_N 
@@ -25,8 +23,20 @@ class Game():
 
         self.N = len(self.LossMatrix)
         self.M = len(self.LossMatrix[0])
+        
+     def get_feedback(self, action, outcome ):
+          if self.noise == None:
+               feedback = self.FeedbackMatrix[ action ][ outcome ]
+          else:
+               noise = self.noise[action]
+               feedbacks = self.FeedbackMatrix[ action ]
+               size = len(feedbacks)
+               feedback = random.choices(feedbacks, weights=[noise/size]*size)[0]
+          return feedback
 
-def game_case1(  ):
+     
+
+def game_case1( noise ):
 
     name = 'case1'
     LossMatrix = np.array( [ [1, 1],[1, 0],[0, 1] ] )
@@ -34,10 +44,6 @@ def game_case1(  ):
 
     signal_matrices = [ np.array( [ [0,1],[1,0] ]), np.array( [ [1,1] ] ), np.array( [ [1,1] ] ) ] 
 
-    FeedbackMatrix_PMDMED =  np.array([ [0, 1],[2, 2],[2,2] ])
-    A = None #geometry_v3.alphabet_size(FeedbackMatrix_PMDMED,  len(FeedbackMatrix_PMDMED),len(FeedbackMatrix_PMDMED[0]) )
-    signal_matrices_Adim =  [ np.array( [ [1,0],[0,1],[0,0] ] ), np.array( [ [0,0],[0,0],[1,1] ] ), np.array( [ [0,0],[0,0],[1,1] ] ) ]
-    
     mathcal_N = [  [1,2] ] 
 
     v = {1: {2: [ np.array([-1.,  1.]), np.array([0]), np.array([0])]}, } 
@@ -48,12 +54,12 @@ def game_case1(  ):
     V = collections.defaultdict(dict)
     V[1][2] = [ 0, 1, 2 ]
 
-    return Game( name, LossMatrix, FeedbackMatrix, FeedbackMatrix_PMDMED, signal_matrices, signal_matrices_Adim, mathcal_N, v, N_plus, V )
+    return Game( name, noise, LossMatrix, FeedbackMatrix, signal_matrices, mathcal_N, v, N_plus, V )
 
 
 
 
-def game_case2(  ):
+def game_case2( noise ):
 
     name = 'case2'
     LossMatrix = np.array( [ [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -102,9 +108,6 @@ def game_case2(  ):
                                     np.array( [ [1]*10 ] ),
                                     np.array( [ [1]*10 ] )  ] 
 
-    FeedbackMatrix_PMDMED =  FeedbackMatrix.copy()
-    A = None #geometry_v3.alphabet_size(FeedbackMatrix_PMDMED,  len(FeedbackMatrix_PMDMED),len(FeedbackMatrix_PMDMED[0]) )
-    signal_matrices_Adim =  None
     
     mathcal_N = [  [1,2], [1,3], [1,4], [1,5], [1,6], [1,7], [1,8], [1,9], [1,10],
                    [2,3], [2,4], [2,5], [2,6], [2,7], [2,8], [2,9], [2,10],
@@ -280,11 +283,10 @@ def game_case2(  ):
 
     V[9][10] = [ 0,  ]
 
-    return Game( name, LossMatrix, FeedbackMatrix, FeedbackMatrix_PMDMED, signal_matrices, signal_matrices_Adim, mathcal_N, v, N_plus, V )
+    return Game( name,  noise, LossMatrix, FeedbackMatrix, signal_matrices, mathcal_N, v, N_plus, V )
 
 
-
-def game_case3(  ):
+def game_case3(  noise ):
     
      name = 'case3'
      LossMatrix = np.array( [ [2, 1, 3, 1, 2, 1, 10, 1, 1, 1],
@@ -333,10 +335,7 @@ def game_case3(  ):
                                     np.array( [ [1]*10 ] ),
                                     np.array( [ [1]*10 ] )  ] 
      
-     FeedbackMatrix_PMDMED =  FeedbackMatrix.copy()
-     A = None #geometry_v3.alphabet_size(FeedbackMatrix_PMDMED,  len(FeedbackMatrix_PMDMED),len(FeedbackMatrix_PMDMED[0]) )
-     signal_matrices_Adim =  None
-     
+
      mathcal_N = [  [1,2], [1,3], [1,4], [1,5], [1,6], [1,7], [1,8], [1,9], [1,10],
                    [2,3], [2,4], [2,5], [2,6], [2,7], [2,8], [2,9], [2,10],
                    [3,4], [3,5], [3,6], [3,7], [3,8], [3,9], [3,10],
@@ -511,7 +510,7 @@ def game_case3(  ):
  
      V[9][10] = [ 0,  ]
 
-     return Game( name, LossMatrix, FeedbackMatrix, FeedbackMatrix_PMDMED, signal_matrices, signal_matrices_Adim, mathcal_N, v, N_plus, V )
+     return Game( name,  noise, LossMatrix, FeedbackMatrix, signal_matrices, mathcal_N, v, N_plus, V )
 
 
 
@@ -519,8 +518,8 @@ def game_case3(  ):
 
 
 
-def game_case4(  ):
-    name = 'case3'
+def game_case4(  noise ):
+    name = 'case4'
     LossMatrix = np.array( [ [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
                              [0, 1/2, 1/2, 1/2, 1/2, 1/2, 1/2, 1/2, 1/2, 1/2],
                              [1/2, 0, 1/2, 1/2, 1/2, 1/2, 1/2, 1, 1/2, 1/2],
@@ -566,9 +565,6 @@ def game_case4(  ):
                                     np.array( [ [1]*10 ] ),
                                     np.array( [ [1]*10 ] ),
                                     np.array( [ [1]*10 ] )  ] 
-    FeedbackMatrix_PMDMED =  FeedbackMatrix.copy()
-    A = None #geometry_v3.alphabet_size(FeedbackMatrix_PMDMED,  len(FeedbackMatrix_PMDMED),len(FeedbackMatrix_PMDMED[0]) )
-    signal_matrices_Adim =  None
     
     mathcal_N = [  [1,2], [1,3], [1,4], [1,5], [1,6], [1,7], [1,8], [1,9], [1,10],
                    [2,3], [2,4], [2,5], [2,6], [2,7], [2,8], [2,9], [2,10],
@@ -745,7 +741,7 @@ def game_case4(  ):
 
     V[9][10] = [ 0,  ]
 
-    return Game( name, LossMatrix, FeedbackMatrix, FeedbackMatrix_PMDMED, signal_matrices, signal_matrices_Adim, mathcal_N, v, N_plus, V )
+    return Game( name,  noise, LossMatrix, FeedbackMatrix, signal_matrices, mathcal_N, v, N_plus, V )
 
 
 
