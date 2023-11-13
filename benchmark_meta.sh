@@ -16,7 +16,7 @@ do
 
             for ((id=0; id<$nfolds; id+=1)) 
                 do
-                    echo 'horizon' $horizon 'nfolds' $nfolds 'CONTEXT_TYPE' $context_type 'GAME' $game 'TASK' $task 'APR' $approach 'ID' $id
+                    echo 'case' $case 'horizon' $horizon 'nfolds' $nfolds 'CONTEXT_TYPE' $context_type 'GAME' $game 'TASK' $task 'APR' $approach 'ID' $id
                     sbatch --export=ALL,CASE=$case,HORIZON=$horizon,NFOLDS=$nfolds,CONTEXT_TYPE=$context_type,GAME=$game,APR=$approach,ID=$id ./benchmark_launch.sh     
                 done
 
