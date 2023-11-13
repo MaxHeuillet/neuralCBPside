@@ -1,7 +1,7 @@
 #!/bin/bash
 
 horizon=9999
-nfolds=100
+nfolds=25
 case='case4'  # You can change this to 'case1', 'case2', 'case3', etc.
 
 for context_type in 'MNIST'  # Add other context types if needed
