@@ -138,6 +138,7 @@ class CBPside():
     def getConfidenceWidth(self, ):
         W = np.zeros(self.N)
         for pair in self.mathcal_N:
+            # print(pair)
             for k in self.V[ pair[0] ][ pair[1] ]:
                 vec = self.v[ pair[0] ][ pair[1] ][k]
                 W[k] = np.max( [ W[k], np.linalg.norm(vec , np.inf) ] )
@@ -253,6 +254,7 @@ class CBPside():
         for pair in N_t:
             Nplus_t.extend( self.N_plus[ pair[0] ][ pair[1] ] )
         Nplus_t = np.unique(Nplus_t)
+
         V_t = []
         for pair in N_t:
             V_t.extend( self.V[ pair[0] ][ pair[1] ] )
