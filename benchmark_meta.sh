@@ -8,11 +8,12 @@ for context_type in 'MNIST'  # Add other context types if needed
 do
     for game in 'LE' 
     do
-        for approach in 'ineural' 'EEneuralcbpside'  # Add other approaches if needed
+        for approach in 'ineural' 'EEneuralcbpside_v2' 'EEneuralcbpside_v4'  # Add other approaches if needed
         do
             python3 ./create_storage.py --case $case --horizon $horizon --n_folds $nfolds --game $game --approach $approach --context_type $context_type 
 
-            if [ "$approach" = "EEneuralcbpside" ]; then
+            if [ "$approach" == "EEneuralcbpside_v2" || "$approach" == "EEneuralcbpside_v4"  ]; then
+            
                 for ((id=0; id<$nfolds; id+=1)) 
                 do
                     echo 'horizon' $horizon 'nfolds' $nfolds 'CONTEXT_TYPE' $context_type 'GAME' $game 'TASK' $task 'APR' $approach 'ID' $id
