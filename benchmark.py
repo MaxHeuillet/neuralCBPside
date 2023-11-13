@@ -84,26 +84,20 @@ def evaluate_parallel(evaluator, game, nfolds, id):
             print('error')
 
         if args.approach == 'EEneuralcbpside_v2':
-            lbd_neural = 0
             m = 100
-            H = 50
-            lbd_reg = 1
-            nclasses = 10
-            alg = neuralcbp_EE_kclasses_v2.CBPside( game, 1.01, lbd_neural, lbd_reg, m, H, nclasses,  'cuda:0')
+            nclasses = game.M
+            alg = neuralcbp_EE_kclasses_v2.CBPside( game, 1.01, m, nclasses,  'cuda:0')
             algos.append( alg )
 
         if args.approach == 'EEneuralcbpside_v4':
-            lbd_neural = 0
             m = 100
-            H = 50
-            lbd_reg = 1
-            nclasses = 10
-            alg = neuralcbp_EE_kclasses_v4.CBPside( game, 1.01, lbd_neural, lbd_reg, m, H, nclasses,  'cuda:0')
+            nclasses = game.M
+            alg = neuralcbp_EE_kclasses_v4.CBPside( game, 1.01, m, nclasses,  'cuda:0')
             algos.append( alg )
 
         elif args.approach == 'ineural':
             budget = evaluator.horizon
-            nclasses = 10
+            nclasses = game.M
             alg = ineural_multi.INeurALmulti(budget, nclasses, 'cuda:0')
             algos.append( alg )
 
@@ -211,7 +205,10 @@ id = int(args.id)
 print(args.context_type, args.approach)
 
 
-if args.case == 'case2':
+
+if args.case == 'case1':
+    game = games.game_case1( {} )
+elif args.case == 'case2':
     game = games.game_case2( {} )
 elif args.case == 'case3':
     game = games.game_case3( {} )

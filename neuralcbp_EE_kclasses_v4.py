@@ -73,7 +73,7 @@ def count_parameters(model):
 
 class CBPside():
 
-    def __init__(self, game, alpha, lbd_neural, lbd_reg, m, H, num_cls, device):
+    def __init__(self, game, alpha, m, num_cls, device):
 
         self.name = 'neuralCBPside'
         self.device = device
@@ -102,12 +102,9 @@ class CBPside():
 
         self.alpha = alpha
             
-        self.lbd_neural = lbd_neural
-        self.lbd_reg = lbd_reg
 
         self.eta =  self.W**(2/3) 
         self.m = m
-        self.H = H
 
         self.num_cls = num_cls
 
