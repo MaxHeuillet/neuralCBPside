@@ -12,7 +12,7 @@ do
         do
             python3 ./create_storage.py --case $case --horizon $horizon --n_folds $nfolds --game $game --approach $approach --context_type $context_type 
 
-            if [ $approach == 'EEneuralcbpside_v2' || $approach == 'EEneuralcbpside_v4'  ]; then
+            if [[ $approach == 'EEneuralcbpside_v2' || $approach == 'EEneuralcbpside_v4' ]]; then
 
                 for ((id=0; id<$nfolds; id+=1)) 
                 do
