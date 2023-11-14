@@ -2,7 +2,7 @@
 
 horizon=9999
 nfolds=25
-case='case4'  # You can change this to 'case1', 'case2', 'case3', etc.
+case='case1'  # You can change this to 'case1', 'case2', 'case3', etc.
 
 
 if [ "$case" == "case1" ]; then
@@ -15,7 +15,7 @@ fi
 
 for game in 'LE' 
     do
-    for approach in 'EEneuralcbpside_v3' # 'ineural' 'EEneuralcbpside_v2' 'EEneuralcbpside_v4' 
+    for approach in 'EEneuralcbpside_v3' 'ineural' 'EEneuralcbpside_v2' 'EEneuralcbpside_v4' #  'margin' 'cesa'
         do
         python3 ./create_storage.py --case $case --horizon $horizon --n_folds $nfolds --game $game --approach $approach --context_type $context_type 
 
