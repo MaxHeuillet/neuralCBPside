@@ -15,7 +15,7 @@ fi
 
 for game in 'LE' 
     do
-    for approach in 'ineural' 'EEneuralcbpside_v2' 'EEneuralcbpside_v4'  # Add other approaches if needed
+    for approach in 'EEneuralcbpside_v3' # 'ineural' 'EEneuralcbpside_v2' 'EEneuralcbpside_v4' 
         do
         python3 ./create_storage.py --case $case --horizon $horizon --n_folds $nfolds --game $game --approach $approach --context_type $context_type 
 
