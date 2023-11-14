@@ -17,7 +17,9 @@ from torchvision import datasets, transforms
 class MNISTcontexts():
 
     def __init__(self, ):
+        pass
 
+    def initiate_loader(self,):
         transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,)) ])
         #train_dataset = datasets.MNIST(root='./data', train=True, transform=transform, download=True)
         test_dataset = datasets.MNIST(root='./data', train=False, transform=transform, download=True)
@@ -44,7 +46,9 @@ class MNISTcontexts():
 class MNISTcontexts_binary():
 
     def __init__(self, ):
+        pass
 
+    def initiate_loader(self,):
         transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,)) ])
         #train_dataset = datasets.MNIST(root='./data', train=True, transform=transform, download=True)
         test_dataset = datasets.MNIST(root='./data', train=False, transform=transform, download=True)

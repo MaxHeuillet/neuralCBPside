@@ -133,6 +133,11 @@ def evaluate_parallel(evaluator, game, nfolds):
             alg = margin_based.MarginBased(game, m, threshold,  'cuda:0')
             algos.append( alg )
 
+        elif args.approach == 'cesa':
+            m = 100
+            alg = cesa_bianchi.CesaBianchi(game, m, 'cuda:0')
+            algos.append( alg )
+
         elif args.approach == 'ineural':
             budget = evaluator.horizon
             nclasses = 2 

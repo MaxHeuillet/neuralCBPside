@@ -22,9 +22,9 @@ import synthetic_data
 # import rand_cbpside
 # import randneuralcbp
 # import neuralcbp_LE
-# import margin_based
+import margin_based
 # import rand_neural_lin_cbpside_disjoint
-# import cesa_bianchi
+import cesa_bianchi
 import neuralcbp_EE_kclasses_v2
 import neuralcbp_EE_kclasses_v3
 import neuralcbp_EE_kclasses_v4
@@ -108,6 +108,17 @@ def evaluate_parallel(evaluator, game, nfolds, id):
             alg = ineural_multi.INeurALmulti(budget, nclasses, 'cuda:0')
             algos.append( alg )
 
+        elif args.approach == 'margin':
+            threshold = 0.1
+            m = 100
+            alg = margin_based.MarginBased(game, m, threshold,  'cuda:0')
+            algos.append( alg )
+
+        elif args.approach == 'cesa':
+            m = 100
+            alg = cesa_bianchi.CesaBianchi(game, m, 'cuda:0')
+            algos.append( alg )
+
         seeds.append(seed)
 
     print('send jobs')
@@ -147,6 +158,7 @@ class Evaluation:
         torch.cuda.manual_seed(jobid)
         random.seed(jobid)
 
+        context_generator.initiate_loader()
         alg.reset( context_generator.d )
 
         cumRegret =  np.zeros(self.horizon, dtype =float)

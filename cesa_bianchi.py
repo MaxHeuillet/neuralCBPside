@@ -119,7 +119,7 @@ class CesaBianchi():
         global_loss = []
         global_losses = []
         if (t>self.N):
-            if (t % 50 == 0 and t<1000) or (t % 500 == 0 and t>=1000):
+            if (t<=50) or (t % 50 == 0 and t<1000 and t>50) or (t % 500 == 0 and t>=1000): #
 
                 self.func = copy.deepcopy(self.func0)
                 optimizer = optim.Adam(self.func.parameters(), lr=0.001, weight_decay = 0 )
