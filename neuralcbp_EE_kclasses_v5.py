@@ -30,7 +30,7 @@ class Network_exploitation(nn.Module):
 
         self.heads = nn.ModuleDict()
         for k in range(self.game.N):
-            sigma_i = len( np.unique(self.game.SignalMatrices[k]) )
+            sigma_i = len( np.unique(self.game.FeedbackMatrix[k]) )
             self.heads[str(k)] = nn.Linear(hidden_size, sigma_i)
 
     def forward(self, x):
@@ -53,7 +53,7 @@ class Network_exploration(nn.Module):
 
         self.heads = nn.ModuleDict()
         for k in range(game.N):
-            sigma_i = len( np.unique(self.game.SignalMatrices[k]) )
+            sigma_i = len( np.unique(self.game.FeedbackMatrix[k]) )
             self.heads[str(k)] = nn.Linear(hidden_size, sigma_i)
 
     def forward(self, x):
@@ -89,7 +89,7 @@ def EE_forward(game, net1, net2, x):
     # print(gradients)
 
     dc = torch.cat(gradients)
-    # print('dc', dc.shape)
+    print('dc', dc.shape)
 
     dc_normalized = dc / torch.linalg.norm(dc)
     f2, _ = net2(dc_normalized)
@@ -286,14 +286,6 @@ class CBPside():
 
 
         ### UPDATE PSEUDO-COUNTS:
-
-        # if len( np.unique(self.game.FeedbackMatrix[action]) ) > 1:
-        #     indx = self.index[action]
-        #     feature = self.dc_list[action][indx]
-        # else:
-        # if self.eta[action]>0:
-        #feature =  self.dc #[0]
-        # print(feature.shape)
         V_it_inv = self.contexts[action]['V_it_inv']
         V_it_inv = V_it_inv.to(self.device)
         self.contexts[action]['V_it_inv'] = sherman_morrison_update(V_it_inv, self.dc)
@@ -314,11 +306,7 @@ class CBPside():
         self.contexts[action]['X2_train'].append( self.dc )
         self.contexts[action]['y2_train'].append(  torch.Tensor(feedbacks - self.f1[action] ).unsqueeze(0) )
 
-        # x_features = torch.cat( self.x_list_action[action] )
-        # self.X1_train.append( x_features.cpu() )
-        # self.y1.append( torch.Tensor(feedbacks).cpu()  )
 
-        # grad_features = torch.cat( self.dc_list[action] )
         self.X2_train.append( self.dc )
         self.y2.append( torch.Tensor(feedbacks - self.f1[action] ).cpu() )
             
