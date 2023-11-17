@@ -28,6 +28,7 @@ import cesa_bianchi
 import neuralcbp_EE_kclasses_v2
 import neuralcbp_EE_kclasses_v3
 import neuralcbp_EE_kclasses_v4
+import neuralcbp_EE_kclasses_v5
 
 import ineural_multi
 import random_algo
@@ -100,6 +101,12 @@ def evaluate_parallel(evaluator, game, nfolds, id):
             m = 100
             nclasses = game.M
             alg = neuralcbp_EE_kclasses_v4.CBPside( game, 1.01, m, nclasses,  'cuda:0')
+            algos.append( alg )
+
+        elif args.approach == 'EEneuralcbpside_v5':
+            m = 100
+            nclasses = game.M
+            alg = neuralcbp_EE_kclasses_v5.CBPside( game, 1.01, m, nclasses,  'cuda:0')
             algos.append( alg )
 
         elif args.approach == 'ineural':
