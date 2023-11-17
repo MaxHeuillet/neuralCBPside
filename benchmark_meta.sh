@@ -2,7 +2,7 @@
 
 horizon=9999
 nfolds=25
-case='case2'  # You can change this to 'case1', 'case2', 'case3', etc.
+case='case4'  # You can change this to 'case1', 'case2', 'case3', etc.
 
 
 if [ "$case" == "case1" ]; then
