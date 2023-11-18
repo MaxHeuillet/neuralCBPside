@@ -145,6 +145,7 @@ class CBPside():
         self.m = m
 
         self.num_cls = num_cls
+        self.err_counter = 0
 
     def convert_pred_format(self,pred):
         for k in range(self.game.N):
