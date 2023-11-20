@@ -33,6 +33,7 @@ import neuralcbp_EE_kclasses_v5
 import ineural_multi
 import random_algo
 import random_algo2
+import neuronal
 
 
 ######################
@@ -113,6 +114,12 @@ def evaluate_parallel(evaluator, game, nfolds, id):
             budget = evaluator.horizon
             nclasses = game.M
             alg = ineural_multi.INeurALmulti(budget, nclasses, 'cuda:0')
+            algos.append( alg )
+
+        elif args.approach == 'neuronal':
+            budget = evaluator.horizon
+            nclasses = game.M
+            alg = neuronal.NeuronAL(budget, nclasses, 'cuda:0')
             algos.append( alg )
 
         elif args.approach == 'margin':

@@ -2,15 +2,15 @@
 
 horizon=9999
 nfolds=25
-case='case4'  # You can change this to 'case1', 'case2', 'case3', etc.
+case='case1'  # You can change this to 'case1', 'case2', 'case3', etc.
 
 
 if [ "$case" == "case1" ]; then
     context_type='MNISTbinary'
-    approaches=( 'EEneuralcbpside_v5' ) #'EEneuralcbpside_v3' 'ineural' 'EEneuralcbpside_v2' 'EEneuralcbpside_v4' 'margin' 'cesa'
+    approaches=( 'neuronal' ) #'EEneuralcbpside_v5'  'EEneuralcbpside_v3' 'ineural' 'EEneuralcbpside_v2' 'EEneuralcbpside_v4' 'margin' 'cesa'
 else
     context_type='MNIST'
-    approaches=( 'EEneuralcbpside_v5' ) #'EEneuralcbpside_v3' 'ineural' 'EEneuralcbpside_v2' 'EEneuralcbpside_v4'
+    approaches=( 'neuronal' ) #'EEneuralcbpside_v5'  'EEneuralcbpside_v3' 'ineural' 'EEneuralcbpside_v2' 'EEneuralcbpside_v4'
 fi
 
 for game in 'LE'; do
