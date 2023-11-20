@@ -130,7 +130,7 @@ class NeuronAL():
         return None, None
         
 
-    def train_NN_batch(self, model, X, Y, num_epochs=10, lr=0.0001, batch_size=64):
+    def train_NN_batch(self, model, X, Y, num_epochs=10, lr=0.001, batch_size=64):
         model.train()
 
         try:

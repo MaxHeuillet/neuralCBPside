@@ -23,6 +23,7 @@ class Game():
 
         self.N = len(self.LossMatrix)
         self.M = len(self.LossMatrix[0])
+        self.noise = noise
         
      def get_feedback(self, action, outcome ):
           if self.noise.get(action) == None:
@@ -30,8 +31,7 @@ class Game():
           else:
                noise = self.noise[action]
                feedbacks = self.FeedbackMatrix[ action ]
-               size = len(feedbacks)
-               feedback = random.choices(feedbacks, weights=[noise/size]*size)[0]
+               feedback = random.choices(feedbacks, weights=noise)[0]
           return feedback
 
      

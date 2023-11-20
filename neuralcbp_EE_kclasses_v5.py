@@ -272,7 +272,7 @@ class CBPside():
         S = np.unique(S)
         # print()
         values = { i:self.W[i]*w[i] for i in S}
-        # print('value', values)
+        print('value', values)
         action = max(values, key=values.get)
 
         if t<self.N:

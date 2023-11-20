@@ -58,7 +58,7 @@ class INeurALmulti():
 
         self.budget = budget
         self.query_num = 0
-        self.margin = 3 #according to their parameter search
+        self.margin = 6 #according to their parameter search
         self.N = num_cls+1
         self.ber = 1.1
 
