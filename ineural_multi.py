@@ -49,7 +49,7 @@ def count_parameters(model):
 
 class INeurALmulti():
 
-    def __init__(self, budget, num_cls, device):
+    def __init__(self, budget, num_cls, margin, device):
         self.name = 'ineuralmulti'
         
         self.device = device
@@ -58,7 +58,7 @@ class INeurALmulti():
 
         self.budget = budget
         self.query_num = 0
-        self.margin = 6 #according to their parameter search
+        self.margin = margin #according to their parameter search
         self.N = num_cls+1
         self.ber = 1.1
 

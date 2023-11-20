@@ -110,16 +110,31 @@ def evaluate_parallel(evaluator, game, nfolds, id):
             alg = neuralcbp_EE_kclasses_v5.CBPside( game, 1.01, m, nclasses,  'cuda:0')
             algos.append( alg )
 
-        elif args.approach == 'ineural':
+        elif args.approach == 'ineural3':
             budget = evaluator.horizon
             nclasses = game.M
-            alg = ineural_multi.INeurALmulti(budget, nclasses, 'cuda:0')
+            margin = 3
+            alg = ineural_multi.INeurALmulti(budget, nclasses, margin, 'cuda:0')
             algos.append( alg )
 
-        elif args.approach == 'neuronal':
+        elif args.approach == 'neuronal3':
             budget = evaluator.horizon
             nclasses = game.M
-            alg = neuronal.NeuronAL(budget, nclasses, 'cuda:0')
+            margin = 3
+            alg = neuronal.NeuronAL(budget, nclasses, margin, 'cuda:0')
+            algos.append( alg )
+
+        elif args.approach == 'ineural6':
+            budget = evaluator.horizon
+            nclasses = game.M
+            margin = 6
+            alg = ineural_multi.INeurALmulti(budget, nclasses, margin, 'cuda:0')
+            algos.append( alg )
+
+        elif args.approach == 'neuronal6':
+            budget = evaluator.horizon
+            nclasses = game.M
+            alg = neuronal.NeuronAL(budget, nclasses, margin, 'cuda:0')
             algos.append( alg )
 
         elif args.approach == 'margin':

@@ -55,7 +55,7 @@ def EE_forward(net1, net2, x):
 
 class NeuronAL():
 
-    def __init__(self, budget, num_cls, device):
+    def __init__(self, budget, num_cls, margin, device):
         self.name = 'neuronal'
         
         self.device = device
@@ -64,7 +64,7 @@ class NeuronAL():
 
         self.budget = budget
         self.query_num = 0
-        self.margin = 6 #according to their parameter search
+        self.margin = margin #according to their parameter search
         self.N = num_cls+1
         self.ber = 1.1
 
