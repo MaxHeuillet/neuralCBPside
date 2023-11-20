@@ -64,7 +64,7 @@ class NeuronAL():
 
         self.budget = budget
         self.query_num = 0
-        self.margin = 3 #according to their parameter search
+        self.margin = 6 #according to their parameter search
         self.N = num_cls+1
         self.ber = 1.1
 
@@ -130,31 +130,38 @@ class NeuronAL():
         return None, None
         
 
-    def train_NN_batch(self, model, X, Y, num_epochs=10, lr=0.001, batch_size=64):
+    def train_NN_batch(self, model, X, Y, num_epochs=10, lr=0.0001, batch_size=64):
         model.train()
-        X = torch.cat(X).float()
-        Y = torch.stack(Y).float().detach()
-        optimizer = optim.Adam(model.parameters(), lr=lr)
-        dataset = TensorDataset(X, Y)
-        dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
-        num = X.size(1)
 
-        for i in range(num_epochs):
-            batch_loss = 0.0
-            for x, y in dataloader:
-                x, y = x.to(self.device), y.to(self.device)
-                y = torch.reshape(y, (1,-1))
-                pred = model(x).view(-1)
+        try:
+            X = torch.cat(X).float()
+            Y = torch.stack(Y).float().detach()
 
-                optimizer.zero_grad()
-                loss = torch.mean((pred - y) ** 2)
-                loss.backward()
-                optimizer.step()
+            optimizer = optim.Adam(model.parameters(), lr=lr)
+            dataset = TensorDataset(X, Y)
+            dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+            num = X.size(1)
 
-                batch_loss += loss.item()
-            
-            if batch_loss / num <= 1e-3:
-                return batch_loss / num
+            for i in range(num_epochs):
+                batch_loss = 0.0
+                for x, y in dataloader:
+                    x, y = x.to(self.device), y.to(self.device)
+                    y = torch.reshape(y, (1,-1))
+                    pred = model(x).view(-1)
+
+                    optimizer.zero_grad()
+                    loss = torch.mean((pred - y) ** 2)
+                    loss.backward()
+                    optimizer.step()
+
+                    batch_loss += loss.item()
+                
+                if batch_loss / num <= 1e-3:
+                    return batch_loss / num
+        except:
+            batch_loss = 1 
+            num = 1
+            print('empty set')   
 
         return batch_loss / num
         
