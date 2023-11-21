@@ -15,42 +15,52 @@ from torch.utils.data import DataLoader, TensorDataset
 from skimage.measure import block_reduce
 # from load_data_addon import Bandit_multi
 
-
-
 class Network_exploitation(nn.Module):
-    def __init__(self, dim, hidden_size=100, k=10):
+
+    def __init__(self, input_dim, output_dim, hidden_size=100):
         super(Network_exploitation, self).__init__()
-        self.fc1 = nn.Linear(dim, hidden_size)
+        self.fc1 = nn.Linear(input_dim, hidden_size)
         self.activate = nn.ReLU()
-        self.fc2 = nn.Linear(hidden_size, k)
+        self.fc2 = nn.Linear(hidden_size, output_dim)
 
     def forward(self, x):
-        return self.fc2(self.activate(self.fc1(x)))
-    
+        x = self.fc1(x)
+        intermediate = self.activate(x)
+        final_output = self.fc2(intermediate)
+        return final_output, intermediate 
     
 class Network_exploration(nn.Module):
-    def __init__(self, dim, hidden_size=100, k=10):
+
+    def __init__(self, input_dim, output_dim, hidden_size=100):
         super(Network_exploration, self).__init__()
-        self.fc1 = nn.Linear(dim, hidden_size)
+
+        self.fc1 = nn.Linear(input_dim, hidden_size)
         self.activate = nn.ReLU()
-        self.fc2 = nn.Linear(hidden_size, k)
+        self.fc2 = nn.Linear(hidden_size, output_dim)
 
     def forward(self, x):
-        return self.fc2(self.activate(self.fc1(x)))
+        x = self.fc1(x)
+        x = self.activate(x)
+        x = self.fc2(x)
+        return x, None
 
 def EE_forward(net1, net2, x):
 
     x.requires_grad = True
-    f1 = net1(x)
+    f1, latent = net1(x)
     net1.zero_grad()
+
     f1.sum().backward(retain_graph=True)
     dc = torch.cat([p.grad.flatten().detach() for p in net1.parameters()])
-    #dc = dc / torch.linalg.norm(dc)
     dc = block_reduce(dc.cpu(), block_size=51, func=np.mean)
-    dc = torch.from_numpy(dc).to(x.device)
-    print('dc shape', dc.shape)
-    f2 = net2(dc)
-    return f1, f2, dc
+    dc = torch.from_numpy(dc).to('cuda:0')
+    dc = dc / torch.linalg.norm(dc)
+
+    dc = torch.cat([dc.detach(), latent[0].detach() ]  )
+
+    f2, _ = net2(dc)
+
+    return f1, f2, dc.unsqueeze(0)
 
 
 class NeuronAL():
@@ -77,9 +87,12 @@ class NeuronAL():
         self.query_num = 0
         self.X1_train, self.X2_train, self.y1, self.y2 = [], [], [], []
 
-        explore_size = 1560 if self.num_cls==10 else 1544 
-        self.net1 = Network_exploitation(self.d, k=self.num_cls).to(self.device)
-        self.net2 =Network_exploration(explore_size, k=self.num_cls).to(self.device)
+        input_dim = self.d
+        output_dim = self.num_cls
+        self.net1 = Network_exploitation(input_dim, output_dim).to(self.device)
+        
+        input_dim = 1660 if self.num_cls==10 else 1644 
+        self.net2 =Network_exploration(input_dim, output_dim).to(self.device)
 
 
     def get_action(self, t, X):
@@ -89,6 +102,7 @@ class NeuronAL():
         self.X = torch.from_numpy(X).to(self.device)
         self.f1, self.f2, self.dc = EE_forward(self.net1, self.net2, self.X)
         u = self.f1[0] + 1 / (self.query_num+1) * self.f2
+        print('u', u)
         u_sort, u_ind = torch.sort(u)
         i_hat = u_sort[-1]
         i_deg = u_sort[-2]
@@ -115,7 +129,7 @@ class NeuronAL():
             self.query_num += 1
 
             self.X1_train.append(self.X)
-            self.X2_train.append(torch.reshape(self.dc, (1, len(self.dc))))
+            self.X2_train.append( self.dc )
             r_1 = torch.zeros(self.num_cls).to(self.device)
             r_1[lbl] = 1
             self.y1.append(r_1) 
@@ -129,38 +143,39 @@ class NeuronAL():
         return None, None
         
 
-    def train_NN_batch(self, model, X, Y, num_epochs=10, lr=0.0001, batch_size=64):
+    def train_NN_batch(self, model, X, Y, num_epochs=10, lr=0.001, batch_size=64):
         model.train()
 
-        try:
-            X = torch.cat(X).float()
-            Y = torch.stack(Y).float().detach()
+    
+        X = torch.cat(X).float()
+        Y = torch.stack(Y).float().detach()
+        print(X.shape, Y.shape)
 
-            optimizer = optim.Adam(model.parameters(), lr=lr)
-            dataset = TensorDataset(X, Y)
-            dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
-            num = X.size(1)
+        optimizer = optim.Adam(model.parameters(), lr=lr)
+        dataset = TensorDataset(X, Y)
+        dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+        num = X.size(1)
 
-            for i in range(num_epochs):
-                batch_loss = 0.0
-                for x, y in dataloader:
-                    x, y = x.to(self.device), y.to(self.device)
-                    y = torch.reshape(y, (1,-1))
-                    pred = model(x).view(-1)
+        for i in range(num_epochs):
+            batch_loss = 0.0
+            for x, y in dataloader:
+                x, y = x.to(self.device), y.to(self.device)
+                # y = torch.reshape(y, (1,-1))
+                pred, _ = model(x)
+                # pred = pred.view(-1)
 
-                    optimizer.zero_grad()
-                    loss = torch.mean((pred - y) ** 2)
-                    loss.backward()
-                    optimizer.step()
+                print(pred.shape, y.shape)
 
-                    batch_loss += loss.item()
+                optimizer.zero_grad()
+                loss = torch.mean((pred - y) ** 2)
+                print('loss', loss)
+                loss.backward()
+                optimizer.step()
+
+                batch_loss += loss.item()
                 
-                if batch_loss / num <= 1e-3:
-                    return batch_loss / num
-        except:
-            batch_loss = 1 
-            num = 1
-            print('empty set')   
+            if batch_loss / num <= 1e-3:
+                return batch_loss / num
 
         return batch_loss / num
         
