@@ -134,6 +134,7 @@ def evaluate_parallel(evaluator, game, nfolds, id):
         elif args.approach == 'neuronal6':
             budget = evaluator.horizon
             nclasses = game.M
+            margin = 6
             alg = neuronal.NeuronAL(budget, nclasses, margin, 'cuda:0')
             algos.append( alg )
 
