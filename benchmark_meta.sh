@@ -6,12 +6,12 @@ context_type=$2
 case=$3
 
 if [ "$case" == "case1" ]; then
-    approaches=('neuronal3'  'neuronal6' 'EEneuralcbpside_v6') #'margin' 'cesa' 'ineural3' 'ineural6'  'EEneuralcbpside_v6' 'EEneuralcbpside_v5' 'ineural3' 'ineural6' 'neuronal3' 'neuronal6' 
+    approaches=('margin' 'cesa' 'ineural3' 'ineural6' 'neuronal3'  'neuronal6' 'EEneuralcbpside_v6') #  'EEneuralcbpside_v6' 'EEneuralcbpside_v5' 'ineural3' 'ineural6' 'neuronal3' 'neuronal6' 
 else   
-    approaches=( 'neuronal3'  'neuronal6' 'EEneuralcbpside_v6') #'EEneuralcbpside_v6' 'EEneuralcbpside_v5'  'ineural3' 'ineural6' 'neuronal3' 'neuronal6' 
+    approaches=( 'ineural3' 'ineural6' 'neuronal3'  'neuronal6' 'EEneuralcbpside_v6') #'EEneuralcbpside_v6' 'EEneuralcbpside_v5'  'ineural3' 'ineural6' 'neuronal3' 'neuronal6' 
 fi
 
-for model in 'LeNet' ; do #'MLP'
+for model in 'MLP' ; do #'MLP'
     for approach in "${approaches[@]}"; do
         python3 ./create_storage.py --case $case --horizon $horizon --n_folds $nfolds --model $model --approach $approach --context_type $context_type 
 
