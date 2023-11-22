@@ -5,70 +5,20 @@ import random
 import numpy as np
 
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
+# import torch.nn as nn
+# import torch.nn.functional as F
 import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
-
-# from utils import get_data
-# from load_data import load_mnist_1d
-from skimage.measure import block_reduce
-# from load_data_addon import Bandit_multi
-
-class Network_exploitation(nn.Module):
-
-    def __init__(self, input_dim, output_dim, hidden_size=100):
-        super(Network_exploitation, self).__init__()
-        self.fc1 = nn.Linear(input_dim, hidden_size)
-        self.activate = nn.ReLU()
-        self.fc2 = nn.Linear(hidden_size, output_dim)
-
-    def forward(self, x):
-        x = self.fc1(x)
-        intermediate = self.activate(x)
-        final_output = self.fc2(intermediate)
-        return final_output, intermediate 
-    
-class Network_exploration(nn.Module):
-
-    def __init__(self, input_dim, output_dim, hidden_size=100):
-        super(Network_exploration, self).__init__()
-
-        self.fc1 = nn.Linear(input_dim, hidden_size)
-        self.activate = nn.ReLU()
-        self.fc2 = nn.Linear(hidden_size, output_dim)
-
-    def forward(self, x):
-        x = self.fc1(x)
-        x = self.activate(x)
-        x = self.fc2(x)
-        return x, None
-
-def EE_forward(net1, net2, x):
-
-    x.requires_grad = True
-    f1, latent = net1(x)
-    net1.zero_grad()
-
-    f1.sum().backward(retain_graph=True)
-    dc = torch.cat([p.grad.flatten().detach() for p in net1.parameters()])
-    dc = block_reduce(dc.cpu(), block_size=51, func=np.mean)
-    dc = torch.from_numpy(dc).to('cuda:0')
-    dc = dc / torch.linalg.norm(dc)
-    dc = torch.cat([dc.detach(), latent[0].detach() ]  )
-
-    f2, _ = net2(dc)
-
-    return f1, f2, dc.unsqueeze(0)
+import EENets
 
 
 class NeuronAL():
 
-    def __init__(self, budget, num_cls, margin, device):
+    def __init__(self, model, budget, num_cls, margin, device):
         self.name = 'neuronal'
         
         self.device = device
-
+        self.model = model
         self.num_cls = num_cls
 
         self.budget = budget
@@ -83,12 +33,25 @@ class NeuronAL():
         self.query_num = 0
         self.X1_train, self.X2_train, self.y1, self.y2 = [], [], [], []
 
-        input_dim = self.d
-        output_dim = self.num_cls
-        self.net1 = Network_exploitation(input_dim, output_dim).to(self.device)
-        
-        input_dim = 1660 if self.num_cls==10 else 1644 
-        self.net2 =Network_exploration(input_dim, output_dim).to(self.device)
+        if self.model == 'MLP':
+            input_dim = self.d
+            output_dim = self.num_cls
+            self.net1 = EENets.Network_exploitation_MLP(input_dim, output_dim,  self.m).to(self.device)
+            
+
+            exp_dim = 1660 if self.num_cls==10 else 1644 
+            output_dim = self.num_cls
+            self.net2 = EENets.Network_exploration(exp_dim, output_dim, self.m).to(self.device)
+
+
+        elif self.model == 'LeNet':
+            input_dim = self.d
+            output_dim = self.num_cls
+            self.net1 = EENets.Network_exploitation_LeNet(output_dim, ).to(self.device)
+
+            exp_dim = 1330 if self.num_cls==10 else 1317 
+            output_dim = self.num_cls
+            self.net2 = EENets.Network_exploration(exp_dim, output_dim, self.m).to(self.device)
 
 
     def get_action(self, t, X):
@@ -96,7 +59,7 @@ class NeuronAL():
         print('X shape', X.shape)
         
         self.X = torch.from_numpy(X).to(self.device)
-        self.f1, self.f2, self.dc = EE_forward(self.net1, self.net2, self.X)
+        self.f1, self.f2, self.dc = EENets.EE_forward(self.net1, self.net2, self.X)
         u = self.f1[0] + 1 / (self.query_num+1) * self.f2
         print('u', u)
         u_sort, u_ind = torch.sort(u)
