@@ -58,7 +58,7 @@ class NeuronAL():
 
         print('X shape', X.shape)
         
-        self.X = torch.from_numpy(X).to(self.device)
+        self.X = X.to(self.device)
         self.f1, self.f2, self.dc = EENets.EE_forward(self.net1, self.net2, self.X)
         u = self.f1[0] + 1 / (self.query_num+1) * self.f2
         print('u', u)

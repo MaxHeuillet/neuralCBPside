@@ -123,25 +123,25 @@ if args.approach == 'EEneuralcbpside_v6':
     alg = neuralcbp_EE_kclasses_v6.CBPside( game, eval.model, 1.01, m, nclasses,  'cuda:0')
 
 elif args.approach == 'ineural3':
-    budget = evaluator.horizon
+    budget = eval.horizon
     margin = 3
     alg = ineural_multi.INeurALmulti(budget, nclasses, margin, m, 'cuda:0')
 
 elif args.approach == 'ineural6':
-    budget = evaluator.horizon
+    budget = eval.horizon
     margin = 6
     alg = ineural_multi.INeurALmulti(budget, nclasses, margin, 'cuda:0')
 
 
 elif args.approach == 'neuronal3':
-    budget = evaluator.horizon
+    budget = eval.horizon
     margin = 3
-    alg = neuronal.NeuronAL(evaluator.model, budget, nclasses, margin, m,'cuda:0')
+    alg = neuronal.NeuronAL(eval.model, budget, nclasses, margin, m,'cuda:0')
 
 elif args.approach == 'neuronal6':
-    budget = evaluator.horizon
+    budget = eval.horizon
     margin = 6
-    alg = neuronal.NeuronAL(evaluator.model, budget, nclasses, margin, m, 'cuda:0')
+    alg = neuronal.NeuronAL(eval.model, budget, nclasses, margin, m, 'cuda:0')
 
 elif args.approach == 'margin':
     threshold = 0.1

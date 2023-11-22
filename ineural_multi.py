@@ -81,7 +81,7 @@ class INeurALmulti():
         print(f'Net2 has {count_parameters(self.net2):,} trainable parameters.')
 
     def encode_context(self, X):
-        X = torch.from_numpy(X).to(self.device)
+        X = X.to(self.device)
         ci = torch.zeros(1, self.d).to(self.device)
         x_list = []
         for k in range(self.num_cls):

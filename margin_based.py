@@ -83,7 +83,7 @@ class MarginBased():
 
     def get_action(self, t, X):
 
-        prediction = self.func( torch.from_numpy( X ).float().to(self.device) ).cpu().detach()
+        prediction = self.func( X.float().to(self.device) ).cpu().detach()
         probability = expit(prediction)
         self.pred_action = 1 if probability < 0.5 else 2
 
