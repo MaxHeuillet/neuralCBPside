@@ -8,7 +8,7 @@ for context_type in  'MNISTbinary' #'linear' 'quadratic' 'sinusoid'
 
     do
 
-    for game in  'LE' 
+    for type in  'MLP' 'LeNet' 
 
         do
 

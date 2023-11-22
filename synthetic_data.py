@@ -16,8 +16,8 @@ from torchvision import datasets, transforms
 
 class MNISTcontexts():
 
-    def __init__(self, ):
-        pass
+    def __init__(self, type):
+        self.type = type
 
     def initiate_loader(self,):
         transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,)) ])
@@ -27,13 +27,18 @@ class MNISTcontexts():
         self.test_loader = list(test_loader)
         self.index = 0
         x, y = self.test_loader[self.index]
-        x = x.flatten()
-        self.d = x.shape[0]
+        if self.type == 'MLP':
+            x = x.flatten()
+            self.d = x.shape[0]
+        elif self.type == 'LeNet':
+            self.d = x.shape
 
     def get_context(self,):
         
         x, y = self.test_loader[self.index]
-        x = x.flatten()
+        if self.type == 'MLP':
+            x = x.flatten()
+            
         sample = x.numpy() #.reshape(1, -1)
 
         val = [0] * 10
@@ -43,10 +48,11 @@ class MNISTcontexts():
 
         return sample , val 
 
+
 class MNISTcontexts_binary():
 
-    def __init__(self, ):
-        pass
+    def __init__(self, type):
+        self.type = type
 
     def initiate_loader(self,):
         transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,)) ])
@@ -56,14 +62,24 @@ class MNISTcontexts_binary():
         self.test_loader = list(test_loader)
         self.index = 0
         x, y = self.test_loader[self.index]
-        x = x.flatten()
-        self.d = x.shape[0]
+        if self.type == 'MLP':
+            x = x.flatten()
+            self.d = x.shape[0]
+        elif self.type == 'LeNet':
+            self.d = x.shape
+
+
 
     def get_context(self,):
         
         x, y = self.test_loader[self.index]
-        x = x.flatten()
-        sample = x.numpy() #.reshape(1, -1)
+
+        if self.type == 'MLP':
+
+            x = x.flatten()
+
+
+        sample = x.numpy()
 
         p = 1 if y.item() % 2 == 0 else 0
         
@@ -72,8 +88,6 @@ class MNISTcontexts_binary():
         self.index += 1
 
         return sample , val 
-
-
 
 
 

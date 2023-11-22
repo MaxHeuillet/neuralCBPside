@@ -52,7 +52,7 @@ def game_case1( noise ):
     N_plus[1][2] = [ 1, 2 ]
 
     V = collections.defaultdict(dict)
-    V[1][2] = [ 0, 1, 2 ]
+    V[1][2] = [ 0, ]
 
     return Game( name, noise, LossMatrix, FeedbackMatrix, signal_matrices, mathcal_N, v, N_plus, V )
 

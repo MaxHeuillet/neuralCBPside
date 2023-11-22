@@ -160,9 +160,9 @@ def evaluate_parallel(evaluator, game, nfolds, id):
 
 class Evaluation:
 
-    def __init__(self, case, game_name, n_folds, horizon, game, label, context_type):
+    def __init__(self, case, model, n_folds, horizon, game, label, context_type):
 
-        self.game_name = game_name
+        self.model = model
         self.n_folds = n_folds
         self.case = case
         self.horizon = horizon
@@ -225,7 +225,7 @@ class Evaluation:
         result = np.cumsum(cumRegret)
         print(result)
         print('finished', jobid)
-        with gzip.open( './results/{}_{}_{}_{}_{}.pkl.gz'.format(self.case,self.context_type, self.horizon, self.n_folds, self.label) ,'ab') as f:
+        with gzip.open( './results/{}_{}_{}_{}_{}_{}.pkl.gz'.format(self.case, self.model, self.context_type, self.horizon, self.n_folds, self.label) ,'ab') as f:
             pkl.dump(result,f)
         print('saved', jobid)
 
@@ -244,7 +244,7 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument("--horizon", required=True, help="horizon of each realization of the experiment")
 parser.add_argument("--n_folds", required=True, help="number of folds")
-parser.add_argument("--game", required=True, help="game")
+parser.add_argument("--model", required=True, help="model")
 parser.add_argument("--case", required=True, help="case")
 parser.add_argument("--context_type", required=True, help="context type")
 parser.add_argument("--approach", required=True, help="algorithme")
@@ -270,6 +270,7 @@ elif args.case == 'case4':
 
 
 
+
 # factor_type = args.approach.split('_')[1]
 # print('factor_type', factor_type)
 
@@ -279,7 +280,7 @@ ngpus = int( torch.cuda.device_count() )
 print('ncpus', ncpus,'ngpus', ngpus)
 
 
-evaluator = Evaluation(args.case, args.game, n_folds, horizon, game, args.approach, args.context_type)
+evaluator = Evaluation(args.case, args.model, n_folds, horizon, game, args.approach, args.context_type)
 
 evaluate_parallel(evaluator, game, n_folds, id)
         

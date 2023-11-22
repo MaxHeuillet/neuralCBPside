@@ -55,7 +55,6 @@ def EE_forward(net1, net2, x):
     dc = block_reduce(dc.cpu(), block_size=51, func=np.mean)
     dc = torch.from_numpy(dc).to('cuda:0')
     dc = dc / torch.linalg.norm(dc)
-
     dc = torch.cat([dc.detach(), latent[0].detach() ]  )
 
     f2, _ = net2(dc)
@@ -76,9 +75,6 @@ class NeuronAL():
         self.query_num = 0
         self.margin = margin #according to their parameter search
         self.N = num_cls+1
-        self.ber = 1.1
-
-        self.X1_train, self.X2_train, self.y1, self.y2 = [], [], [], []
 
     def reset(self, d):
 
@@ -164,7 +160,7 @@ class NeuronAL():
                 pred, _ = model(x)
                 # pred = pred.view(-1)
 
-                print(pred.shape, y.shape)
+                # print(pred.shape, y.shape)
 
                 optimizer.zero_grad()
                 loss = torch.mean((pred - y) ** 2)
