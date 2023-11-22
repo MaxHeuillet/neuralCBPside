@@ -4,11 +4,9 @@ import os
 import argparse
 import os
 import torch
-import random
 
 import games
 import synthetic_data
-
 import evaluator
 
 import ineural_multi
@@ -58,14 +56,6 @@ print('ncpus', ncpus,'ngpus', ngpus)
 
 ############################# INITIATE THE EXPERIMENT:
 
-# case = 'case1'
-# model = 'LeNet'
-# approach = 'EEneuralcbpside_v6'
-# context_type = 'MNISTbinary'
-# n_folds = 1
-# horizon = 500
-# seed = 1
-
 
 horizon = int(args.horizon)
 n_folds = int(args.n_folds)
@@ -89,11 +79,11 @@ eval = evaluator.Evaluation(args.case, args.model, n_folds, horizon, game, args.
 
 ################################### CONTEXT GENERATOR:
 
-if eval.context_type == 'MNISTbinary': 
-    context_generator = synthetic_data.MNISTcontexts_binary(eval)
-            
-elif eval.context_type == 'MNIST': 
-    context_generator = synthetic_data.MNISTcontexts(eval)
+if args.context_type == 'MNIST':
+    if args.case == 'case1': 
+        context_generator = synthetic_data.MNISTcontexts_binary(eval)
+    else:
+        context_generator = synthetic_data.MNISTcontexts(eval)
 else:
     print('error')
 
@@ -130,7 +120,7 @@ elif args.approach == 'ineural3':
 elif args.approach == 'ineural6':
     budget = eval.horizon
     margin = 6
-    alg = ineural_multi.INeurALmulti(budget, nclasses, margin, 'cuda:0')
+    alg = ineural_multi.INeurALmulti(budget, nclasses, margin, m, 'cuda:0')
 
 
 elif args.approach == 'neuronal3':

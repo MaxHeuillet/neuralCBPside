@@ -81,12 +81,13 @@ class Evaluation:
 
             alg.update(action, feedback, outcome, t, context )
 
-            print('t', t, 'action', action, 'outcome', outcome, 'gaps', ( game.LossMatrix[0,...] - game.LossMatrix[1,...])  @ distribution  )
-
             i_star = np.argmin(  [ game.LossMatrix[i,...] @ np.array( distribution ) for i in range(alg.N) ]  )
             loss_diff = game.LossMatrix[action,...] - game.LossMatrix[i_star,...]
             val = loss_diff @ np.array( distribution )
             cumRegret[t] =  val
+
+            print('t', t, 'action', action, 'outcome', outcome, 'regret', val  )
+
 
         result = np.cumsum(cumRegret)
         print(result)

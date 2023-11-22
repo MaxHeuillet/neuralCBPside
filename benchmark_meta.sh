@@ -3,14 +3,12 @@
 horizon=9999
 nfolds=1
 case='case1'  # You can change this to 'case1', 'case2', 'case3', etc.
-
+context_type='MNIST'
 
 if [ "$case" == "case1" ]; then
-    context_type='MNISTbinary'
-    approaches=( 'neuronal3' ) #'EEneuralcbpside_v6' 'EEneuralcbpside_v5' 'ineural3' 'ineural6' 'neuronal3' 'neuronal6' 'margin' 'cesa'
-else
-    context_type='MNIST'
-    approaches=( 'neuronal3' ) #'EEneuralcbpside_v6' 'EEneuralcbpside_v5'  'ineural3' 'ineural6' 'neuronal3' 'neuronal6' 
+    approaches=('margin' 'cesa' 'ineural3' 'ineural6' 'neuronal3'  'neuronal6' 'EEneuralcbpside_v6') #'EEneuralcbpside_v6' 'EEneuralcbpside_v5' 'ineural3' 'ineural6' 'neuronal3' 'neuronal6' 'margin' 'cesa'
+else   
+    approaches=('ineural3' 'ineural6' 'neuronal3'  'neuronal6' 'EEneuralcbpside_v6') #'EEneuralcbpside_v6' 'EEneuralcbpside_v5'  'ineural3' 'ineural6' 'neuronal3' 'neuronal6' 
 fi
 
 for model in 'MLP' 'LeNet'; do

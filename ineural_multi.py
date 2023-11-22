@@ -49,11 +49,11 @@ def count_parameters(model):
 
 class INeurALmulti():
 
-    def __init__(self, budget, num_cls, margin, device):
+    def __init__(self, budget, num_cls, margin, m, device):
         self.name = 'ineuralmulti'
         
         self.device = device
-
+        self.m = m
         self.num_cls = num_cls
 
         self.budget = budget
@@ -74,8 +74,8 @@ class INeurALmulti():
         input_dim = self.d + (self.num_cls-1) * self.d
         print('input dim', input_dim)
 
-        self.net1 = Network_exploitation(input_dim).to(self.device)
-        self.net2 = Network_exploration(input_dim * 2).to(self.device)
+        self.net1 = Network_exploitation(input_dim, self.m).to(self.device)
+        self.net2 = Network_exploration(input_dim * 2, self.m).to(self.device)
 
         print(f'Net1 has {count_parameters(self.net1):,} trainable parameters.')
         print(f'Net2 has {count_parameters(self.net2):,} trainable parameters.')
