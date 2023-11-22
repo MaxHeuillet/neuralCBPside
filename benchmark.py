@@ -29,6 +29,7 @@ import neuralcbp_EE_kclasses_v2
 import neuralcbp_EE_kclasses_v3
 import neuralcbp_EE_kclasses_v4
 import neuralcbp_EE_kclasses_v5
+import neuralcbp_EE_kclasses_v6
 
 import ineural_multi
 import random_algo
@@ -77,11 +78,11 @@ def evaluate_parallel(evaluator, game, nfolds, id):
             context_generators.append( contexts )
 
         elif evaluator.context_type == 'MNISTbinary': 
-            contexts = synthetic_data.MNISTcontexts_binary()
+            contexts = synthetic_data.MNISTcontexts_binary(evaluator.model,)
             context_generators.append( contexts )
             
         elif evaluator.context_type == 'MNIST': 
-            contexts = synthetic_data.MNISTcontexts()
+            contexts = synthetic_data.MNISTcontexts(evaluator.model,)
             context_generators.append( contexts )
         else:
             print('error')
@@ -108,6 +109,12 @@ def evaluate_parallel(evaluator, game, nfolds, id):
             m = 100
             nclasses = game.M
             alg = neuralcbp_EE_kclasses_v5.CBPside( game, 1.01, m, nclasses,  'cuda:0')
+            algos.append( alg )
+
+        elif args.approach == 'EEneuralcbpside_v6':
+            m = 100
+            nclasses = game.M
+            alg = neuralcbp_EE_kclasses_v6.CBPside( game, evaluator.model, 1.01, m, nclasses,  'cuda:0')
             algos.append( alg )
 
         elif args.approach == 'ineural3':

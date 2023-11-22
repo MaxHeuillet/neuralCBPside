@@ -16,8 +16,8 @@ from torchvision import datasets, transforms
 
 class MNISTcontexts():
 
-    def __init__(self, type):
-        self.type = type
+    def __init__(self, model):
+        self.model = model
 
     def initiate_loader(self,):
         transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,)) ])
@@ -27,16 +27,16 @@ class MNISTcontexts():
         self.test_loader = list(test_loader)
         self.index = 0
         x, y = self.test_loader[self.index]
-        if self.type == 'MLP':
+        if self.model == 'MLP':
             x = x.flatten()
             self.d = x.shape[0]
-        elif self.type == 'LeNet':
+        elif self.model == 'LeNet':
             self.d = x.shape
 
     def get_context(self,):
         
         x, y = self.test_loader[self.index]
-        if self.type == 'MLP':
+        if self.model == 'MLP':
             x = x.flatten()
             
         sample = x.numpy() #.reshape(1, -1)
@@ -51,8 +51,8 @@ class MNISTcontexts():
 
 class MNISTcontexts_binary():
 
-    def __init__(self, type):
-        self.type = type
+    def __init__(self, model):
+        self.model = model
 
     def initiate_loader(self,):
         transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,)) ])
@@ -62,10 +62,10 @@ class MNISTcontexts_binary():
         self.test_loader = list(test_loader)
         self.index = 0
         x, y = self.test_loader[self.index]
-        if self.type == 'MLP':
+        if self.model == 'MLP':
             x = x.flatten()
             self.d = x.shape[0]
-        elif self.type == 'LeNet':
+        elif self.model == 'LeNet':
             self.d = x.shape
 
 
@@ -74,17 +74,12 @@ class MNISTcontexts_binary():
         
         x, y = self.test_loader[self.index]
 
-        if self.type == 'MLP':
-
+        if self.model == 'MLP':
             x = x.flatten()
 
-
         sample = x.numpy()
-
         p = 1 if y.item() % 2 == 0 else 0
-        
         val = [ p, 1-p ]
-
         self.index += 1
 
         return sample , val 
