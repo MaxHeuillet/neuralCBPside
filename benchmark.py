@@ -124,13 +124,6 @@ def evaluate_parallel(evaluator, game, nfolds, id):
             alg = ineural_multi.INeurALmulti(budget, nclasses, margin, 'cuda:0')
             algos.append( alg )
 
-        elif args.approach == 'neuronal3':
-            budget = evaluator.horizon
-            nclasses = game.M
-            margin = 3
-            alg = neuronal.NeuronAL(budget, nclasses, margin, 'cuda:0')
-            algos.append( alg )
-
         elif args.approach == 'ineural6':
             budget = evaluator.horizon
             nclasses = game.M
@@ -138,11 +131,18 @@ def evaluate_parallel(evaluator, game, nfolds, id):
             alg = ineural_multi.INeurALmulti(budget, nclasses, margin, 'cuda:0')
             algos.append( alg )
 
+        elif args.approach == 'neuronal3':
+            budget = evaluator.horizon
+            nclasses = game.M
+            margin = 3
+            alg = neuronal.NeuronAL(evaluator.model, budget, nclasses, margin, 'cuda:0')
+            algos.append( alg )
+
         elif args.approach == 'neuronal6':
             budget = evaluator.horizon
             nclasses = game.M
             margin = 6
-            alg = neuronal.NeuronAL(budget, nclasses, margin, 'cuda:0')
+            alg = neuronal.NeuronAL(evaluator.model, budget, nclasses, margin, 'cuda:0')
             algos.append( alg )
 
         elif args.approach == 'margin':
