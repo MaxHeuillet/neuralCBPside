@@ -208,12 +208,15 @@ class Evaluation:
 
             context, distribution = context_generator.get_context()
 
+            if self.model == 'MLP':
+                context = np.expand_dims(context, axis=0)
+
             if self.game.M>2:
                 outcome = np.argmax(distribution) 
             else:
                 outcome = 0 if distribution[0]<0.5 else 1
 
-            context = np.expand_dims(context, axis=0)
+            
             #print('context shape', context.shape)
             
             action, _ = alg.get_action(t, context)
