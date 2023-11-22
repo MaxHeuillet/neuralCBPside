@@ -161,7 +161,7 @@ class CBPside():
 
     def get_action(self, t, X):
 
-        self.X = torch.from_numpy(X).to(self.device)
+        self.X = X.to(self.device)
         halfspace = []
 
         self.f1, self.f2, self.dc = EENets.EE_forward(self.net1, self.net2, self.X )
@@ -285,14 +285,15 @@ class CBPside():
     def train_NN_batch(self, model, hist_X, hist_Y, num_epochs=10, lr=0.001, batch_size=64):
 
         model.train()
-        # print('X', X.shape, 'y', Y.shape)
+        print(len(hist_X), len(hist_Y) )
         optimizer = optim.Adam(model.parameters(), lr=lr)
-        X = torch.cat(hist_X).float().to(self.device)
-        Y = torch.cat(hist_Y).float().to(self.device)
+        hist_X = torch.cat(hist_X).float().to(self.device)
+        hist_Y = torch.cat(hist_Y).float().to(self.device)
+        print(hist_X.shape, hist_Y.shape )
 
-        dataset = TensorDataset(X, Y)
+        dataset = TensorDataset(hist_X, hist_Y)
         dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
-        num = X.size(1)
+        num = hist_X.size(1)
 
 
         for i in range(num_epochs):

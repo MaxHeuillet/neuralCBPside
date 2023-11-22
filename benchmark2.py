@@ -1,12 +1,6 @@
 
 import numpy as np
-from multiprocess import Pool
-# import multiprocessing as mp
 import os
-
-from functools import partial
-import pickle as pkl
-import gzip
 import argparse
 import os
 import torch
@@ -15,15 +9,11 @@ import random
 import games
 import synthetic_data
 
+import evaluator
 
-# import cbpside
-# import randcbpside2
-# import cbpside
-# import rand_cbpside
-# import randneuralcbp
-# import neuralcbp_LE
+import ineural_multi
+import neuronal
 import margin_based
-# import rand_neural_lin_cbpside_disjoint
 import cesa_bianchi
 import neuralcbp_EE_kclasses_v2
 import neuralcbp_EE_kclasses_v3
@@ -31,177 +21,15 @@ import neuralcbp_EE_kclasses_v4
 import neuralcbp_EE_kclasses_v5
 import neuralcbp_EE_kclasses_v6
 
-import ineural_multi
-import random_algo
-import random_algo2
-import neuronal
-
-
-######################
-######################
-
-
-def evaluate_parallel(evaluator, game, nfolds, id):
-
-    #print('start 2', alg.device)
-    random = np.random.RandomState(id)
-    random.seed(id)
-    torch.manual_seed(id)
-    torch.backends.cudnn.deterministic = True
-    torch.backends.cudnn.benchmark = False
-
-    if evaluator.context_type == 'MNISTbinary': 
-        context_generator = synthetic_data.MNISTcontexts_binary(evaluator.model,)
-            
-    elif evaluator.context_type == 'MNIST': 
-        context_generator = synthetic_data.MNISTcontexts(evaluator.model,)
-    else:
-        print('error')
-
-    if args.approach == 'EEneuralcbpside_v2':
-        m = 100
-        nclasses = game.M
-        alg = neuralcbp_EE_kclasses_v2.CBPside( game, 1.01, m, nclasses,  'cuda:0')
-
-
-    elif args.approach == 'EEneuralcbpside_v3':
-        m = 100
-        nclasses = game.M
-        alg = neuralcbp_EE_kclasses_v3.CBPside( game, 1.01, m, nclasses,  'cuda:0')
-
-
-    elif args.approach == 'EEneuralcbpside_v4':
-        m = 100
-        nclasses = game.M
-        alg = neuralcbp_EE_kclasses_v4.CBPside( game, 1.01, m, nclasses,  'cuda:0')
-
-
-    elif args.approach == 'EEneuralcbpside_v5':
-        m = 100
-        nclasses = game.M
-        alg = neuralcbp_EE_kclasses_v5.CBPside( game, 1.01, m, nclasses,  'cuda:0')
-
-
-    elif args.approach == 'EEneuralcbpside_v6':
-        m = 100
-        nclasses = game.M
-        alg = neuralcbp_EE_kclasses_v6.CBPside( game, evaluator.model, 1.01, m, nclasses,  'cuda:0')
-
-    elif args.approach == 'ineural3':
-        budget = evaluator.horizon
-        nclasses = game.M
-        margin = 3
-        alg = ineural_multi.INeurALmulti(budget, nclasses, margin, m, 'cuda:0')
-
-    elif args.approach == 'ineural6':
-        budget = evaluator.horizon
-        nclasses = game.M  
-        margin = 6
-        alg = ineural_multi.INeurALmulti(budget, nclasses, margin, 'cuda:0')
-
-
-    elif args.approach == 'neuronal3':
-        budget = evaluator.horizon
-        nclasses = game.M
-        margin = 3
-        m = 100
-        alg = neuronal.NeuronAL(evaluator.model, budget, nclasses, margin, m,'cuda:0')
-
-    elif args.approach == 'neuronal6':
-        budget = evaluator.horizon
-        nclasses = game.M
-        margin = 6
-        m = 100
-        alg = neuronal.NeuronAL(evaluator.model, budget, nclasses, margin, m, 'cuda:0')
-
-    elif args.approach == 'margin':
-        threshold = 0.1
-        m = 100
-        alg = margin_based.MarginBased(game, m, threshold,  'cuda:0')
-
-    elif args.approach == 'cesa':
-        m = 100
-        alg = cesa_bianchi.CesaBianchi(game, m, 'cuda:0')
-
-
-    job = context_generator, alg 
-    evaluator.eval_policy_once( game, job )  
-
-    return True
-
-class Evaluation:
-
-    def __init__(self, case, model, n_folds, horizon, game, label, context_type):
-
-        self.model = model
-        self.n_folds = n_folds
-        self.case = case
-        self.horizon = horizon
-        self.game = game
-        self.label =  label
-        self.context_type = context_type
-
-    def get_outcomes(self, game, ):
-        outcomes = np.random.choice( game.n_outcomes , p= list( game.outcome_dist.values() ), size= self.horizon) 
-        return outcomes
-
-    def get_feedback(self, game, action, outcome):
-        return game.FeedbackMatrix[ action ][ outcome ]
-
-    def eval_policy_once(self, game, job):
-
-        # print('start 1')
-        context_generator, alg = job
-
-        context_generator.initiate_loader()
-        alg.reset( context_generator.d )
-
-        for param in alg.net1.parameters():
-            print(param)
-
-        cumRegret =  np.zeros(self.horizon, dtype =float)
-        print('start 3')
-
-        for t in range(self.horizon):
-
-            if t % 1000 == 0 :
-                print(t)
-
-            context, distribution = context_generator.get_context()
-
-            if self.model == 'MLP':
-                context = np.expand_dims(context, axis=0)
-
-            # print('context', context)
-            if self.game.M>2:
-                outcome = np.argmax(distribution) 
-            else:
-                outcome = 0 if distribution[0]<0.5 else 1
-
-            
-            #print('context shape', context.shape)
-            
-            action, _ = alg.get_action(t, context)
-
-            feedback =  self.get_feedback( game, action, outcome )
-
-            alg.update(action, feedback, outcome, t, context )
-
-            print('t', t, 'action', action, 'outcome', outcome, 'gaps', ( game.LossMatrix[0,...] - game.LossMatrix[1,...])  @ distribution  )
-
-            i_star = np.argmin(  [ game.LossMatrix[i,...] @ np.array( distribution ) for i in range(alg.N) ]  )
-            loss_diff = game.LossMatrix[action,...] - game.LossMatrix[i_star,...]
-            val = loss_diff @ np.array( distribution )
-            cumRegret[t] =  val
-
-        result = np.cumsum(cumRegret)
-        print(result)
-        print('finished')
-        with gzip.open( './results/{}_{}_{}_{}_{}_{}.pkl.gz'.format(self.case, self.model, self.context_type, self.horizon, self.n_folds, self.label) ,'ab') as f:
-            pkl.dump(result,f)
-        print('saved')
-
-        return True
+# import cbpside
+# import randcbpside2
+# import cbpside
+# import rand_cbpside
+# import randneuralcbp
+# import neuralcbp_LE
+# import rand_neural_lin_cbpside_disjoint
+# import random_algo
+# import random_algo2
 
 
 ###################################
@@ -224,12 +52,25 @@ parser.add_argument("--id", required=True, help="algorithme")
 
 args = parser.parse_args()
 
+ncpus = int ( os.environ.get('SLURM_CPUS_PER_TASK', default=1) )
+ngpus = int( torch.cuda.device_count() )
+print('ncpus', ncpus,'ngpus', ngpus)
+
+############################# INITIATE THE EXPERIMENT:
+
+# case = 'case1'
+# model = 'LeNet'
+# approach = 'EEneuralcbpside_v6'
+# context_type = 'MNISTbinary'
+# n_folds = 1
+# horizon = 500
+# seed = 1
+
+
 horizon = int(args.horizon)
 n_folds = int(args.n_folds)
-id = int(args.id)
+seed = int(args.id)
 print(args.context_type, args.approach)
-
-
 
 if args.case == 'case1':
     game = games.game_case1( {} )
@@ -244,19 +85,77 @@ elif args.case == 'case4':
     game = games.game_case4( {} )
     game.informative_symbols = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9,]
 
+eval = evaluator.Evaluation(args.case, args.model, n_folds, horizon, game, args.approach, args.context_type)
+
+################################### CONTEXT GENERATOR:
+
+if eval.context_type == 'MNISTbinary': 
+    context_generator = synthetic_data.MNISTcontexts_binary(eval)
+            
+elif eval.context_type == 'MNIST': 
+    context_generator = synthetic_data.MNISTcontexts(eval)
+else:
+    print('error')
 
 
+################################### AGENT:
 
-# factor_type = args.approach.split('_')[1]
-# print('factor_type', factor_type)
+m = 100
+nclasses = game.M
 
-ncpus = int ( os.environ.get('SLURM_CPUS_PER_TASK', default=1) )
-ngpus = int( torch.cuda.device_count() )
-# nfolds = 5 #min([ncpus,ngpus]) 
-print('ncpus', ncpus,'ngpus', ngpus)
+# if args.approach == 'EEneuralcbpside_v2':
+#     alg = neuralcbp_EE_kclasses_v2.CBPside( game, 1.01, m, nclasses,  'cuda:0')
 
 
-evaluator = Evaluation(args.case, args.model, n_folds, horizon, game, args.approach, args.context_type)
+# elif args.approach == 'EEneuralcbpside_v3':
+#     alg = neuralcbp_EE_kclasses_v3.CBPside( game, 1.01, m, nclasses,  'cuda:0')
 
-evaluate_parallel(evaluator, game, n_folds, id)
+
+# elif args.approach == 'EEneuralcbpside_v4':
+#     alg = neuralcbp_EE_kclasses_v4.CBPside( game, 1.01, m, nclasses,  'cuda:0')
+
+
+# elif args.approach == 'EEneuralcbpside_v5':
+#     alg = neuralcbp_EE_kclasses_v5.CBPside( game, 1.01, m, nclasses,  'cuda:0')
+
+
+if args.approach == 'EEneuralcbpside_v6':
+    alg = neuralcbp_EE_kclasses_v6.CBPside( game, eval.model, 1.01, m, nclasses,  'cuda:0')
+
+elif args.approach == 'ineural3':
+    budget = evaluator.horizon
+    margin = 3
+    alg = ineural_multi.INeurALmulti(budget, nclasses, margin, m, 'cuda:0')
+
+elif args.approach == 'ineural6':
+    budget = evaluator.horizon
+    margin = 6
+    alg = ineural_multi.INeurALmulti(budget, nclasses, margin, 'cuda:0')
+
+
+elif args.approach == 'neuronal3':
+    budget = evaluator.horizon
+    margin = 3
+    alg = neuronal.NeuronAL(evaluator.model, budget, nclasses, margin, m,'cuda:0')
+
+elif args.approach == 'neuronal6':
+    budget = evaluator.horizon
+    margin = 6
+    alg = neuronal.NeuronAL(evaluator.model, budget, nclasses, margin, m, 'cuda:0')
+
+elif args.approach == 'margin':
+    threshold = 0.1
+    alg = margin_based.MarginBased(game, m, threshold,  'cuda:0')
+
+elif args.approach == 'cesa':
+    alg = cesa_bianchi.CesaBianchi(game, m, 'cuda:0')
+
+
+eval.set_random_seeds(seed)
+
+context_generator.initiate_loader()
+alg.reset(context_generator.d)
+
+job = context_generator, alg 
+eval.eval_policy_once( game, job )  
         

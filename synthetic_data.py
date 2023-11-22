@@ -16,56 +16,60 @@ from torchvision import datasets, transforms
 
 class MNISTcontexts():
 
-    def __init__(self, model):
-        self.model = model
+    def __init__(self, eval):
+        self.eval = eval
 
     def initiate_loader(self,):
         transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,)) ])
-        #train_dataset = datasets.MNIST(root='./data', train=True, transform=transform, download=True)
         test_dataset = datasets.MNIST(root='./data', train=False, transform=transform, download=True)
-        test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=1, shuffle=True)
-        self.test_loader = list(test_loader)
+        self.test_loader = [(img, label) for img, label in test_dataset]
+        self.eval.env_random_state.shuffle(self.test_loader)
+
         self.index = 0
         x, y = self.test_loader[self.index]
-        if self.model == 'MLP':
+
+        if self.eval.model == 'MLP':
             x = x.flatten()
             self.d = x.shape[0]
-        elif self.model == 'LeNet':
+        elif self.eval.model == 'LeNet':
             self.d = x.shape
 
     def get_context(self,):
         
         x, y = self.test_loader[self.index]
-        if self.model == 'MLP':
-            x = x.flatten()
-            
-        sample = x.numpy() #.reshape(1, -1)
 
+        if self.eval.model == 'MLP':
+            x = x.flatten()
+        
+        x = x.unsqueeze(0)
+            
         val = [0] * 10
-        val[ y.item() ] = 1
+        val[ y ] = 1
         
         self.index += 1
 
-        return sample , val 
+        return x , val 
 
 
 class MNISTcontexts_binary():
 
-    def __init__(self, model):
-        self.model = model
+    def __init__(self, eval):
+        self.eval = eval
 
     def initiate_loader(self,):
+
         transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,)) ])
-        #train_dataset = datasets.MNIST(root='./data', train=True, transform=transform, download=True)
         test_dataset = datasets.MNIST(root='./data', train=False, transform=transform, download=True)
-        test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=1, shuffle=True)
-        self.test_loader = list(test_loader)
+        self.test_loader = [(img, label) for img, label in test_dataset]
+        self.eval.env_random_state.shuffle(self.test_loader)
+
         self.index = 0
         x, y = self.test_loader[self.index]
-        if self.model == 'MLP':
+        print(y)
+        if self.eval.model == 'MLP':
             x = x.flatten()
             self.d = x.shape[0]
-        elif self.model == 'LeNet':
+        elif self.eval.model == 'LeNet':
             self.d = x.shape
 
 
@@ -74,15 +78,15 @@ class MNISTcontexts_binary():
         
         x, y = self.test_loader[self.index]
 
-        if self.model == 'MLP':
+        if self.eval.model == 'MLP':
             x = x.flatten()
+        x = x.unsqueeze(0)
 
-        sample = x.numpy()
-        p = 1 if y.item() % 2 == 0 else 0
+        p = 1 if y % 2 == 0 else 0
         val = [ p, 1-p ]
         self.index += 1
 
-        return sample , val 
+        return x, val 
 
 
 
