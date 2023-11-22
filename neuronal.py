@@ -14,13 +14,13 @@ import EENets
 
 class NeuronAL():
 
-    def __init__(self, model, budget, num_cls, margin, device):
+    def __init__(self, model, budget, num_cls, margin, m, device):
         self.name = 'neuronal'
         
         self.device = device
         self.model = model
         self.num_cls = num_cls
-
+        self.m = m
         self.budget = budget
         self.query_num = 0
         self.margin = margin #according to their parameter search
