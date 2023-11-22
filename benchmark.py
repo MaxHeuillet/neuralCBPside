@@ -215,6 +215,7 @@ class Evaluation:
             if self.model == 'MLP':
                 context = np.expand_dims(context, axis=0)
 
+            print('context', context.shape)
             if self.game.M>2:
                 outcome = np.argmax(distribution) 
             else:
