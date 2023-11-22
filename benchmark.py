@@ -268,12 +268,16 @@ print(args.context_type, args.approach)
 
 if args.case == 'case1':
     game = games.game_case1( {} )
+    game.informative_symbols = [0, 1]
 elif args.case == 'case2':
     game = games.game_case2( {} )
+    game.informative_symbols = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9,]
 elif args.case == 'case3':
     game = games.game_case3( {} )
+    game.informative_symbols = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9,]
 elif args.case == 'case4':
     game = games.game_case4( {} )
+    game.informative_symbols = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9,]
 
 
 
