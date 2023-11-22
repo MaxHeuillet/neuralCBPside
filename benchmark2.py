@@ -56,11 +56,12 @@ print('ncpus', ncpus,'ngpus', ngpus)
 
 ############################# INITIATE THE EXPERIMENT:
 
-
+print('nfolds', args.n_folds)
 horizon = int(args.horizon)
 n_folds = int(args.n_folds)
 seed = int(args.id)
 print(args.context_type, args.approach)
+print
 
 if args.case == 'case1':
     game = games.game_case1( {} )
