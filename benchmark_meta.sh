@@ -11,7 +11,7 @@ else
     approaches=('ineural3' 'ineural6' 'neuronal3'  'neuronal6' 'EEneuralcbpside_v6') #'EEneuralcbpside_v6' 'EEneuralcbpside_v5'  'ineural3' 'ineural6' 'neuronal3' 'neuronal6' 
 fi
 
-for model in 'MLP' 'LeNet'; do
+for model in 'MLP' ; do #'LeNet'
     for approach in "${approaches[@]}"; do
         python3 ./create_storage.py --case $case --horizon $horizon --n_folds $nfolds --model $model --approach $approach --context_type $context_type 
 
