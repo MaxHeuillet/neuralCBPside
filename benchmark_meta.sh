@@ -2,7 +2,7 @@
 
 horizon=9999
 nfolds=25
-case='case1'  # You can change this to 'case1', 'case2', 'case3', etc.
+case='case3'  # You can change this to 'case1', 'case2', 'case3', etc.
 context_type='MNIST'
 
 if [ "$case" == "case1" ]; then
