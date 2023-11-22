@@ -6,9 +6,9 @@ context_type=$2
 case=$3
 
 if [ "$case" == "case1" ]; then
-    approaches=('margin' 'cesa' 'ineural3' 'ineural6' 'neuronal3'  'neuronal6' 'EEneuralcbpside_v6') #  'EEneuralcbpside_v6' 'EEneuralcbpside_v5' 'ineural3' 'ineural6' 'neuronal3' 'neuronal6' 
+    approaches=( 'neuronal3'  'neuronal6' 'EEneuralcbpside_v6') #'margin' 'cesa' 'ineural3' 'ineural6'  'EEneuralcbpside_v6' 'EEneuralcbpside_v5' 'ineural3' 'ineural6' 'neuronal3' 'neuronal6' 
 else   
-    approaches=( 'ineural3' 'ineural6' 'neuronal3'  'neuronal6' 'EEneuralcbpside_v6') #'EEneuralcbpside_v6' 'EEneuralcbpside_v5'  'ineural3' 'ineural6' 'neuronal3' 'neuronal6' 
+    approaches=(  'neuronal3'  'neuronal6' 'EEneuralcbpside_v6') #'ineural3' 'ineural6' 'EEneuralcbpside_v6' 'EEneuralcbpside_v5'  'ineural3' 'ineural6' 'neuronal3' 'neuronal6' 
 fi
 
 for model in 'MLP' ; do #'MLP'
