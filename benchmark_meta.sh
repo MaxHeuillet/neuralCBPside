@@ -1,10 +1,9 @@
 #!/bin/bash
 
 horizon=9999
-nfolds=25
-context_type='MNIST'
-
-case=$0
+nfolds=$0
+context_type=$1
+case=$2
 
 if [ "$case" == "case1" ]; then
     approaches=('neuronal3'  'neuronal6' 'EEneuralcbpside_v6') #'margin' 'cesa' 'ineural3' 'ineural6'  'EEneuralcbpside_v6' 'EEneuralcbpside_v5' 'ineural3' 'ineural6' 'neuronal3' 'neuronal6' 
