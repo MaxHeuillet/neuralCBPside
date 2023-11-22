@@ -51,9 +51,6 @@ class Evaluation:
         # print('start 1')
         context_generator, alg = job
 
-        for param in alg.net1.parameters():
-            print(param)
-
         cumRegret =  np.zeros(self.horizon, dtype =float)
         print('start 3')
 
