@@ -46,9 +46,10 @@ def evaluate_parallel(evaluator, game, nfolds, id):
     print('numbers of processes to be launched', nfolds)
     pool = Pool(processes=1)
 
-    np.random.seed(1)
-    torch.manual_seed(1)
-    random.seed(1)
+    np.random.seed(0)
+    torch.manual_seed(0)
+    torch.cuda.manual_seed(0)
+    random.seed(0)
 
     context_generators = []
     seeds = []
@@ -59,25 +60,23 @@ def evaluate_parallel(evaluator, game, nfolds, id):
     for alg_id, seed in enumerate(range(id, id+1,1)):
         print(alg_id, seed)
         
-        if evaluator.context_type == 'linear':
-            size = 5
-            w = np.array([1/size]*size)
-            contexts = synthetic_data.LinearContexts( w , evaluator.task) 
-            context_generators.append( contexts )
+        # if evaluator.context_type == 'linear':
+        #     size = 5
+        #     w = np.array([1/size]*size)
+        #     contexts = synthetic_data.LinearContexts( w , evaluator.task) 
+        #     context_generators.append( contexts )
+        # elif evaluator.context_type == 'quadratic':
+        #     size = 5
+        #     w = np.array([1/size]*size)
+        #     contexts = synthetic_data.QuadraticContexts( w , evaluator.task )
+        #     context_generators.append( contexts )
+        # elif evaluator.context_type == 'sinusoid':
+        #     size = 5
+        #     w = np.array([1/size]*size)
+        #     contexts = synthetic_data.SinusoidContexts( w , evaluator.task )
+        #     context_generators.append( contexts )
 
-        elif evaluator.context_type == 'quadratic':
-            size = 5
-            w = np.array([1/size]*size)
-            contexts = synthetic_data.QuadraticContexts( w , evaluator.task )
-            context_generators.append( contexts )
-
-        elif evaluator.context_type == 'sinusoid':
-            size = 5
-            w = np.array([1/size]*size)
-            contexts = synthetic_data.SinusoidContexts( w , evaluator.task )
-            context_generators.append( contexts )
-
-        elif evaluator.context_type == 'MNISTbinary': 
+        if evaluator.context_type == 'MNISTbinary': 
             contexts = synthetic_data.MNISTcontexts_binary(evaluator.model,)
             context_generators.append( contexts )
             
@@ -190,7 +189,7 @@ class Evaluation:
 
     def eval_policy_once(self, game, job):
 
-        print('start 1')
+        # print('start 1')
         context_generator, jobid, alg = job
 
         #print('start 2', alg.device)
@@ -215,7 +214,7 @@ class Evaluation:
             if self.model == 'MLP':
                 context = np.expand_dims(context, axis=0)
 
-            print('context', context.shape)
+            print('context', context)
             if self.game.M>2:
                 outcome = np.argmax(distribution) 
             else:
