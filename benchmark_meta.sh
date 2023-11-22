@@ -1,17 +1,17 @@
 #!/bin/bash
 
 horizon=9999
-nfolds=1
-case='case4'  # You can change this to 'case1', 'case2', 'case3', etc.
+nfolds=25
+case='case1'  # You can change this to 'case1', 'case2', 'case3', etc.
 context_type='MNIST'
 
 if [ "$case" == "case1" ]; then
-    approaches=('neuronal3'  'neuronal6' 'EEneuralcbpside_v6') #'EEneuralcbpside_v6' 'EEneuralcbpside_v5' 'ineural3' 'ineural6' 'neuronal3' 'neuronal6' 'margin' 'cesa'
+    approaches=('margin' 'cesa' 'ineural3' 'ineural6' 'neuronal3'  'neuronal6' 'EEneuralcbpside_v6') #'EEneuralcbpside_v6' 'EEneuralcbpside_v5' 'ineural3' 'ineural6' 'neuronal3' 'neuronal6' 
 else   
     approaches=( 'neuronal3'  'neuronal6' 'EEneuralcbpside_v6') #'EEneuralcbpside_v6' 'EEneuralcbpside_v5'  'ineural3' 'ineural6' 'neuronal3' 'neuronal6' 
 fi
 
-for model in 'LeNet' ; do #'MLP'
+for model in 'MLP' ; do #'MLP'
     for approach in "${approaches[@]}"; do
         python3 ./create_storage.py --case $case --horizon $horizon --n_folds $nfolds --model $model --approach $approach --context_type $context_type 
 
