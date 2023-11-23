@@ -4,7 +4,7 @@ horizon=9999
 nfolds=$1
 context_type=$2
 case=$3
-model = $4
+model=$4
 
 if [ "$case" == "case1" ]; then
     approaches=( 'neuronal3'  'neuronal6' 'EEneuralcbpside_v6') #'margin' 'cesa' 'ineural3' 'ineural6'  'EEneuralcbpside_v6' 'EEneuralcbpside_v5' 'ineural3' 'ineural6' 'neuronal3' 'neuronal6' 
