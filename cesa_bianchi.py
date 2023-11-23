@@ -105,8 +105,8 @@ class CesaBianchi():
 
         explored = 1 if self.Z == 1 else 0
 
-        if t < 2:
-            action = 0
+        if t<self.N:
+            action = t
 
         history = {'monitor_action':action, 'explore':explored,}
             
@@ -114,7 +114,7 @@ class CesaBianchi():
 
     def update(self, action, feedback, outcome, t, X):
 
-        if self.Z == 1:
+        if action == 0:
             self.hist.append( X , [outcome] )
             if (self.pred_action == 1 and outcome == 0) or (self.pred_action == 2 and outcome ==1):
                 self.K += 1

@@ -76,6 +76,9 @@ class NeuronAL():
         print('pred',self.pred)
         action = self.pred if explored == 0 else 0
 
+        if t<self.N:
+            action = t
+
         history = {'monitor_action':action, 'explore':explored, }
 
         return action, history
