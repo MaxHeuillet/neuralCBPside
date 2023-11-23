@@ -102,18 +102,19 @@ class NeuronAL():
         return None, None
         
 
-    def train_NN_batch(self, model, X, Y, num_epochs=10, lr=0.001, batch_size=64):
+    def train_NN_batch(self, model, hist_X, hist_Y, num_epochs=10, lr=0.001, batch_size=64):
         model.train()
 
     
-        X = torch.cat(X).float()
-        Y = torch.stack(Y).float().detach()
-        print(X.shape, Y.shape)
+        hist_X = torch.cat(hist_X).float()
+        hist_Y = torch.stack(hist_Y).float().detach()
+        # print(X.shape, Y.shape)
 
         optimizer = optim.Adam(model.parameters(), lr=lr)
-        dataset = TensorDataset(X, Y)
+        dataset = TensorDataset(hist_X, hist_Y)
         dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
-        num = X.size(1)
+        # num = X.size(1)
+        num = hist_X.size(1)
 
         for i in range(num_epochs):
             batch_loss = 0.0

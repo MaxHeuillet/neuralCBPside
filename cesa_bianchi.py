@@ -83,7 +83,7 @@ class CesaBianchi():
 
     def get_action(self, t, X):
 
-        prediction = self.func( torch.from_numpy( X ).float().to(self.device) ).cpu().detach()
+        prediction = self.func( X.float().to(self.device) ).cpu().detach()
 
         probability = expit(prediction)
         self.pred_action = 1 if probability < 0.5 else 2
@@ -104,6 +104,9 @@ class CesaBianchi():
             action = self.pred_action
 
         explored = 1 if self.Z == 1 else 0
+
+        if t < 2:
+            action = 0
 
         history = {'monitor_action':action, 'explore':explored,}
             

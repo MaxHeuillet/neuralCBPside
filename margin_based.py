@@ -98,6 +98,9 @@ class MarginBased():
             explored = 0
 
         history = {'monitor_action':action, 'explore':explored,}
+
+        if t < 2:
+            action = 0
             
         return action, history
 
@@ -109,6 +112,7 @@ class MarginBased():
         global_loss = []
         global_losses = []
         if (t>self.N):
+
             if (t<=50) or (t % 50 == 0 and t<1000 and t>50) or (t % 500 == 0 and t>=1000): #
 
                 self.func = copy.deepcopy(self.func0)

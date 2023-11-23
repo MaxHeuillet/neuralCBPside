@@ -168,14 +168,15 @@ class INeurALmulti():
         return None, None
     
 
-    def train_NN_batch(self, model, X, y, num_epochs=10, lr=0.001, batch_size=64):
+    def train_NN_batch(self, model, hist_X, hist_Y, num_epochs=10, lr=0.001, batch_size=64):
         model.train()
-        X = torch.cat(X).float()
-        y = torch.cat(y).float()
+        hist_X = torch.cat(hist_X).float()
+        hist_Y = torch.stack(hist_Y).float()
+
         optimizer = optim.Adam(model.parameters(), lr=lr)
-        dataset = TensorDataset(X, y)
+        dataset = TensorDataset(hist_X, hist_Y)
         dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
-        num = X.size(0)
+        num = hist_X.size(0)
 
         for i in range(num_epochs):
             batch_loss = 0.0
