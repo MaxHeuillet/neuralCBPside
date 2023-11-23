@@ -13,6 +13,77 @@ import torch
 from torchvision import datasets, transforms
 
 
+class FashionMNISTContexts():
+
+    def __init__(self, eval):
+        self.eval = eval
+
+    def initiate_loader(self):
+        transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5,), (0.5,))])
+        test_dataset = datasets.FashionMNIST(root='./data', train=False, transform=transform, download=True)
+        self.test_loader = [(img, label) for img, label in test_dataset]
+        self.eval.env_random_state.shuffle(self.test_loader)
+
+        self.index = 0
+        x, y = self.test_loader[self.index]
+
+        if self.eval.model == 'MLP':
+            x = x.view(-1)  # Flatten the image
+            self.d = x.shape[0]
+        elif self.eval.model == 'LeNet':
+            self.d = x.shape
+
+    def get_context(self):
+        x, y = self.test_loader[self.index]
+
+        if self.eval.model == 'MLP':
+            x = x.view(-1)  # Flatten the image
+
+        x = x.unsqueeze(0)
+
+        val = [0] * 10
+        val[y] = 1
+
+        self.index += 1
+
+        return x, val
+
+
+class CIFAR10Contexts():
+
+    def __init__(self, eval):
+        self.eval = eval
+
+    def initiate_loader(self):
+        transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+        test_dataset = datasets.CIFAR10(root='./data', train=False, transform=transform, download=True)
+        self.test_loader = [(img, label) for img, label in test_dataset]
+        self.eval.env_random_state.shuffle(self.test_loader)
+
+        self.index = 0
+        x, y = self.test_loader[self.index]
+
+        if self.eval.model == 'MLP':
+            x = x.view(-1)  # Flatten the image
+            self.d = x.shape[0]
+        elif self.eval.model == 'LeNet':
+            self.d = x.shape
+
+    def get_context(self):
+        x, y = self.test_loader[self.index]
+
+        if self.eval.model == 'MLP':
+            x = x.view(-1)  # Flatten the image
+
+        x = x.unsqueeze(0)
+
+        val = [0] * 10
+        val[y] = 1
+
+        self.index += 1
+
+        return x, val
+
 
 class MNISTcontexts():
 

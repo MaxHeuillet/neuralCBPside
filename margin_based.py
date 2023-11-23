@@ -99,8 +99,8 @@ class MarginBased():
 
         history = {'monitor_action':action, 'explore':explored,}
 
-        if t < 2:
-            action = 0
+        if t<self.N:
+            action = t
             
         return action, history
 
