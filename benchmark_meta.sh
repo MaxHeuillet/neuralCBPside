@@ -11,8 +11,8 @@ case='case1'
 model='MLP'
 
 
-approaches=('adult' 'MagicTelescope' 'MNISTbinary' )
-context_types=( 'margin' 'cesa' 'ineural3' 'ineural6' 'neuronal3' 'neuronal6' 'EEneuralcbpside_v6')
+context_types=('adult' 'MagicTelescope' 'MNISTbinary' )
+approache=( 'margin' 'cesa' 'ineural3' 'ineural6' 'neuronal3' 'neuronal6' 'EEneuralcbpside_v6')
 
 
 for context_type in "${context_types[@]}"; do
