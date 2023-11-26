@@ -155,7 +155,7 @@ class NeuronAL():
 
                 optimizer.zero_grad()
                 loss = torch.mean((pred - y) ** 2)
-                print('loss', loss)
+                # print('loss', loss)
                 loss.backward()
                 optimizer.step()
 

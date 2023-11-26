@@ -130,7 +130,7 @@ class MarginBased():
                     # if _ % 10 == 0 :
                     #     scheduler.step()
                     # scheduler.step()
-                    if _ % 25 == 0:
+                    if _ % 100 == 0:
                         print('train loss', train_loss, 'losses', losses )
 
         return global_loss, global_losses
