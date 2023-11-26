@@ -8,7 +8,7 @@ import random
 
 class Game():
     
-     def __init__(self, name, noise, LossMatrix, FeedbackMatrix, SignalMatrices, mathcal_N, v, N_plus, V ):
+     def __init__(self, name, informative_symbols, noise, LossMatrix, FeedbackMatrix, SignalMatrices, mathcal_N, v, N_plus, V ):
         
         self.name = name
         self.LossMatrix = LossMatrix
@@ -21,9 +21,11 @@ class Game():
         self.N_plus = N_plus
         self.V = V
 
+
         self.N = len(self.LossMatrix)
         self.M = len(self.LossMatrix[0])
         self.noise = noise
+        self.informative_symbols = informative_symbols
         
      def get_feedback(self, action, outcome ):
           if self.noise.get(action) == None:
@@ -54,7 +56,9 @@ def game_case1( noise ):
     V = collections.defaultdict(dict)
     V[1][2] = [ 0, ]
 
-    return Game( name, noise, LossMatrix, FeedbackMatrix, signal_matrices, mathcal_N, v, N_plus, V )
+    informative_symbols = [0, 1]
+
+    return Game( name, informative_symbols, noise, LossMatrix, FeedbackMatrix, signal_matrices, mathcal_N, v, N_plus, V )
 
 
 
@@ -283,7 +287,9 @@ def game_case2( noise ):
 
     V[9][10] = [ 0,  ]
 
-    return Game( name,  noise, LossMatrix, FeedbackMatrix, signal_matrices, mathcal_N, v, N_plus, V )
+    informative_symbols = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9,]
+
+    return Game( name,  informative_symbols, noise, LossMatrix, FeedbackMatrix, signal_matrices, mathcal_N, v, N_plus, V )
 
 
 def game_case3(  noise ):
@@ -510,7 +516,9 @@ def game_case3(  noise ):
  
      V[9][10] = [ 0,  ]
 
-     return Game( name,  noise, LossMatrix, FeedbackMatrix, signal_matrices, mathcal_N, v, N_plus, V )
+     informative_symbols = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9,]
+
+     return Game( name, informative_symbols,  noise, LossMatrix, FeedbackMatrix, signal_matrices, mathcal_N, v, N_plus, V )
 
 
 
@@ -741,7 +749,9 @@ def game_case4(  noise ):
 
     V[9][10] = [ 0,  ]
 
-    return Game( name,  noise, LossMatrix, FeedbackMatrix, signal_matrices, mathcal_N, v, N_plus, V )
+    informative_symbols = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9,]
+
+    return Game( name, informative_symbols,  noise, LossMatrix, FeedbackMatrix, signal_matrices, mathcal_N, v, N_plus, V )
 
 
 
@@ -986,7 +996,9 @@ def game_case5( noise ):
 
     V[10][11] = [ 0, 1 ]
 
-    return Game( name,  noise, LossMatrix, FeedbackMatrix, signal_matrices, mathcal_N, v, N_plus, V )
+    informative_symbols = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9,]
+
+    return Game( name, informative_symbols,  noise, LossMatrix, FeedbackMatrix, signal_matrices, mathcal_N, v, N_plus, V )
 
 
 

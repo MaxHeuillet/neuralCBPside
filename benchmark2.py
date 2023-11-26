@@ -61,32 +61,60 @@ horizon = int(args.horizon)
 n_folds = int(args.n_folds)
 seed = int(args.id)
 print(args.context_type, args.approach)
-print
 
 if args.case == 'case1':
     game = games.game_case1( {} )
-    game.informative_symbols = [0, 1]
 elif args.case == 'case2':
     game = games.game_case2( {} )
-    game.informative_symbols = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9,]
 elif args.case == 'case3':
     game = games.game_case3( {} )
-    game.informative_symbols = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9,]
 elif args.case == 'case4':
     game = games.game_case4( {} )
-    game.informative_symbols = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9,]
 
 eval = evaluator.Evaluation(args.case, args.model, n_folds, horizon, game, args.approach, args.context_type)
+eval.set_random_seeds(seed)
 
 ################################### CONTEXT GENERATOR:
 
-if args.context_type == 'MNIST':
-    if args.case == 'case1': 
-        context_generator = synthetic_data.MNISTcontexts_binary(eval)
-    else:
-        context_generator = synthetic_data.MNISTcontexts(eval)
-else:
-    print('error')
+
+# ################################### CONTEXT GENERATOR:
+
+if args.context_type == 'MNISTbinary':
+    context_generator = synthetic_data.MNISTcontexts_binary(eval)
+    context_generator.initiate_loader()
+
+
+elif args.context_type == 'adult':
+    data = synthetic_data.Bandit_multi('adult') 
+    context_generator = synthetic_data.CustomContexts_binary(eval)
+    context_generator.initiate_loader(data.X, data.y)
+    
+
+elif args.context_type == 'MagicTelescope':
+    data = synthetic_data.Bandit_multi('MagicTelescope') 
+    context_generator = synthetic_data.CustomContexts_binary(eval)
+    context_generator.initiate_loader(data.X, data.y)
+
+
+elif args.context_type == 'MNIST':
+    context_generator = synthetic_data.MNISTcontexts(eval)
+    context_generator.initiate_loader()
+
+# elif context_type == 'FASHION':
+#     context_generator = synthetic_data.FashionMNISTContexts(eval)
+#     context_generator.initiate_loader()
+
+# elif context_type == 'CIFAR10':
+#     context_generator = synthetic_data.CIFAR10Contexts(eval)
+#     context_generator.initiate_loader()
+
+# if args.context_type == 'MNIST':
+#     if args.case == 'case1': 
+#         context_generator = synthetic_data.MNISTcontexts_binary(eval)
+#     else:
+#         context_generator = synthetic_data.MNISTcontexts(eval)
+# else:
+#     print('error')
 
 
 ################################### AGENT:
@@ -111,7 +139,7 @@ nclasses = game.M
 
 
 if args.approach == 'EEneuralcbpside_v6':
-    alg = neuralcbp_EE_kclasses_v6.CBPside( game, eval.model, 1.01, m, nclasses,  'cuda:0')
+    alg = neuralcbp_EE_kclasses_v6.CBPside( game, args.context_type, eval.model, 1.01, m, nclasses,  'cuda:0')
 
 elif args.approach == 'ineural3':
     budget = eval.horizon
@@ -127,12 +155,12 @@ elif args.approach == 'ineural6':
 elif args.approach == 'neuronal3':
     budget = eval.horizon
     margin = 3
-    alg = neuronal.NeuronAL(eval.model, budget, nclasses, margin, m,'cuda:0')
+    alg = neuronal.NeuronAL(eval.model,args.context_type, budget, nclasses, margin, m,'cuda:0')
 
 elif args.approach == 'neuronal6':
     budget = eval.horizon
     margin = 6
-    alg = neuronal.NeuronAL(eval.model, budget, nclasses, margin, m, 'cuda:0')
+    alg = neuronal.NeuronAL(eval.model,args.context_type, budget, nclasses, margin, m,'cuda:0')
 
 elif args.approach == 'margin':
     threshold = 0.1
@@ -142,9 +170,8 @@ elif args.approach == 'cesa':
     alg = cesa_bianchi.CesaBianchi(game, m, 'cuda:0')
 
 
-eval.set_random_seeds(seed)
 
-context_generator.initiate_loader()
+
 alg.reset(context_generator.d)
 
 job = context_generator, alg 

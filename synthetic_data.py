@@ -13,6 +13,131 @@ import torch
 from torchvision import datasets, transforms
 
 
+
+
+
+import pandas as pd
+import pickle
+# import arff
+from sklearn.datasets import fetch_openml
+import numpy as np
+from sklearn.preprocessing import normalize
+from sklearn.utils import shuffle
+
+class Bandit_multi:
+    def __init__(self, name):
+        # Fetch data
+        if name == 'covertype':
+            X, y = fetch_openml('covertype', version=3, return_X_y=True)
+            X = pd.get_dummies(X)
+            # print(X,y)
+            # class: 1-7
+            # avoid nan, set nan as -1
+            X[np.isnan(X)] = - 1
+            X = normalize(X)
+        elif name == 'MagicTelescope':
+            X, y = fetch_openml('MagicTelescope', version=1, return_X_y=True)
+            # class: h, g
+            # avoid nan, set nan as -1
+            # print(X,y)
+            unique_values = set(y.values)
+            label_map = {value:i for i,value in enumerate(unique_values)}
+            y = y.map(label_map)
+            X[np.isnan(X)] = - 1
+            X = normalize(X)
+        elif name == 'shuttle':
+            X, y = fetch_openml('shuttle', version=1, return_X_y=True)
+            # avoid nan, set nan as -1
+            # print(X,y)
+            X[np.isnan(X)] = - 1
+            X = normalize(X)
+        elif name == 'adult':
+            X, y = fetch_openml('adult', version=2, return_X_y=True)
+            X = pd.get_dummies(X)
+            # avoid nan, set nan as -1
+            # print(X,y)
+            unique_values = set(y.values)
+            label_map = {value:i for i,value in enumerate(unique_values)}
+            y = y.map(label_map)
+            X[np.isnan(X)] = - 1
+            X = normalize(X)
+        elif name == 'mushroom':
+            X, y = fetch_openml('mushroom', version=1, return_X_y=True)
+            # print(X,y,X.info())
+            X = pd.get_dummies(X)
+            unique_values = set(y.values)
+            label_map = {value:i+1 for i,value in enumerate(unique_values)}
+            y = y.map(label_map)
+            # avoid nan, set nan as -1
+            X[np.isnan(X)] = - 1
+            X = normalize(X)
+        elif name == 'fashion':
+            X, y = fetch_openml('Fashion-MNIST', version=1, return_X_y=True)
+            # print(X,y,X.info())
+            # avoid nan, set nan as -1
+            X[np.isnan(X)] = - 1
+            X = normalize(X)
+        elif name == 'phishing':
+            file_path = './binary_data/{}.txt'.format(name)
+            f = open(file_path, "r").readlines()
+            n = len(f)
+            m = 68
+            X = np.zeros([n, 68])
+            y = np.zeros([n])
+            for i, line in enumerate(f):
+                line = line.strip().split()
+                lbl = int(line[0])
+                if lbl != 0 and lbl != 1:
+                    raise ValueError
+                y[i] = lbl
+                l = len(line)
+                for item in range(1, l):
+                    pos, value = line[item].split(':')
+                    pos, value = int(pos), float(value)
+                    X[i, pos-1] = value
+        elif name == "letter":
+            file_path = './dataset/binary_data/{}_binary_data.pt'.format(name)
+            f = open(file_path, 'rb')
+            data = pickle.load(f)
+            X, y = data['X'], data['Y']   
+        else:
+            raise RuntimeError('Dataset does not exist')
+        # Shuffle data
+        self.X, self.y = shuffle(X, y)
+
+
+class CustomContexts_binary():
+    
+    def __init__(self, eval):
+        self.eval = eval
+
+    def initiate_loader(self,X, y):
+        self.test_loader = list( zip(X, y) )
+        self.eval.env_random_state.shuffle(self.test_loader)
+    
+        self.index = 0
+        x, y = self.test_loader[self.index]
+        print(x.shape)
+        self.d = x.shape[0]
+        self.len = len(self.test_loader)
+
+    def get_context(self):
+        if self.index >= self.len:
+            raise IndexError("Index out of range. No more data to retrieve.")
+        
+        x, y = self.test_loader[self.index]
+        x = x.reshape(1, -1)
+        x = torch.Tensor(x).unsqueeze(0)
+        val = [y, 1 - y]
+
+        self.index += 1
+
+        return x.reshape(1, -1), val
+    
+####################################################################################################
+####################################################################################################
+#####################################################################################################
+
 class FashionMNISTContexts():
 
     def __init__(self, eval):

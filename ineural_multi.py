@@ -116,11 +116,12 @@ class INeurALmulti():
                 self.pred = k
 
         self.u_list = sorted(self.u_list, key=lambda x: x[1], reverse=True)
-
+        print('ulist', self.u_list)
         self.pred = self.u_list[0][0] + 1
         print('pred',self.pred)
         
         diff = self.u_list[0][1] - self.u_list[1][1]
+        print('diff', diff)
         if diff < self.margin * 0.1:
             explored = 1
         else:
@@ -131,9 +132,11 @@ class INeurALmulti():
         #         explored = 1
 
         action = self.pred if explored == 0 else 0
-
+        print('action', action)
         if t<self.N:
             action = t
+
+        print('action2', action)
 
         history = {'monitor_action':action, 'explore':explored, }
 
@@ -171,11 +174,11 @@ class INeurALmulti():
         return None, None
     
 
-    def train_NN_batch(self, model, hist_X, hist_Y, num_epochs=10, lr=0.001, batch_size=64):
+    def train_NN_batch(self, model, hist_X, hist_Y, num_epochs=40, lr=0.001, batch_size=64):
         model.train()
         hist_X = torch.cat(hist_X).float()
-        hist_Y = torch.stack(hist_Y).float()
-
+        hist_Y = torch.cat(hist_Y).float()
+        print('hist_X', hist_X.shape, hist_Y.shape)
         optimizer = optim.Adam(model.parameters(), lr=lr)
         dataset = TensorDataset(hist_X, hist_Y)
         dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)

@@ -14,7 +14,8 @@ import EENets
 
 class NeuronAL():
 
-    def __init__(self, model, budget, num_cls, margin, m, device):
+
+    def __init__(self, model, context_type, budget, num_cls, margin, m, device):
         self.name = 'neuronal'
         
         self.device = device
@@ -25,6 +26,7 @@ class NeuronAL():
         self.query_num = 0
         self.margin = margin #according to their parameter search
         self.N = num_cls+1
+        self.context_type = context_type
 
     def reset(self, d):
 
@@ -33,25 +35,47 @@ class NeuronAL():
         self.query_num = 0
         self.X1_train, self.X2_train, self.y1, self.y2 = [], [], [], []
 
-        if self.model == 'MLP':
+        
+        if self.context_type == 'MNISTbinary':
             input_dim = self.d
             output_dim = self.num_cls
             self.net1 = EENets.Network_exploitation_MLP(input_dim, output_dim,  self.m).to(self.device)
-            
-
-            exp_dim = 1660 if self.num_cls==10 else 1644 
+            exp_dim = 1644 
             output_dim = self.num_cls
             self.net2 = EENets.Network_exploration(exp_dim, output_dim, self.m).to(self.device)
 
-
-        elif self.model == 'LeNet':
+        elif self.context_type == 'MNIST':
             input_dim = self.d
             output_dim = self.num_cls
-            self.net1 = EENets.Network_exploitation_LeNet(output_dim, ).to(self.device)
-
-            exp_dim = 1330 if self.num_cls==10 else 1317 
+            self.net1 = EENets.Network_exploitation_MLP(input_dim, output_dim,  self.m).to(self.device)
+            exp_dim = 1660 
             output_dim = self.num_cls
             self.net2 = EENets.Network_exploration(exp_dim, output_dim, self.m).to(self.device)
+
+        elif self.context_type == 'adult':
+            input_dim = self.d
+            output_dim = self.num_cls
+            self.net1 = EENets.Network_exploitation_MLP(input_dim, output_dim,  self.m).to(self.device)
+            exp_dim = 312 
+            output_dim = self.num_cls
+            self.net2 = EENets.Network_exploration(exp_dim, output_dim, self.m).to(self.device)
+
+        elif self.context_type == 'MagicTelescope':
+            input_dim = self.d
+            output_dim = self.num_cls
+            self.net1 = EENets.Network_exploitation_MLP(input_dim, output_dim,  self.m).to(self.device)
+            exp_dim = 126 
+            output_dim = self.num_cls
+            self.net2 = EENets.Network_exploration(exp_dim, output_dim, self.m).to(self.device)
+
+        # elif self.model == 'LeNet':
+        #     input_dim = self.d
+        #     output_dim = self.num_cls
+        #     self.net1 = EENets.Network_exploitation_LeNet(output_dim, ).to(self.device)
+
+        #     exp_dim = 1330 if self.num_cls==10 else 1317 
+        #     output_dim = self.num_cls
+        #     self.net2 = EENets.Network_exploration(exp_dim, output_dim, self.m).to(self.device)
 
 
     def get_action(self, t, X):
@@ -85,7 +109,7 @@ class NeuronAL():
     
     def update(self, action, feedback, outcome, t, X):
 
-        lbl = outcome #+1 
+        lbl = outcome 
 
         if (action == 0) and (self.query_num < self.budget): 
             self.query_num += 1
@@ -105,13 +129,13 @@ class NeuronAL():
         return None, None
         
 
-    def train_NN_batch(self, model, hist_X, hist_Y, num_epochs=10, lr=0.001, batch_size=64):
+    def train_NN_batch(self, model, hist_X, hist_Y, num_epochs=40, lr=0.0001, batch_size=64):
         model.train()
 
-    
+        
         hist_X = torch.cat(hist_X).float()
         hist_Y = torch.stack(hist_Y).float().detach()
-        # print(X.shape, Y.shape)
+        print(hist_X.shape, hist_Y.shape)
 
         optimizer = optim.Adam(model.parameters(), lr=lr)
         dataset = TensorDataset(hist_X, hist_Y)

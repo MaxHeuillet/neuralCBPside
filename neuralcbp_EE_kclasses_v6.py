@@ -43,11 +43,12 @@ def count_parameters(model):
 
 class CBPside():
 
-    def __init__(self, game, model, alpha, m, num_cls, device):
+    def __init__(self, game, context_type, model, alpha, m, num_cls, device):
 
         self.name = 'neuralCBPside'
         self.device = device
         self.model = model
+        self.context_type = context_type
         
         self.num_workers = 1 #int ( os.environ.get('SLURM_CPUS_PER_TASK', default=1) )
         print('num workers', self.num_workers  )
@@ -115,48 +116,119 @@ class CBPside():
                 vec = self.v[ pair[0] ][ pair[1] ][k]
                 W[k] = np.max( [ W[k], np.linalg.norm(vec , np.inf) ] )
         return W
+    
 
     def reset(self, d):
+
         self.d = d
-        
+
+        self.query_num = 0
+        self.X1_train, self.X2_train, self.y1, self.y2 = [], [], [], []
         self.memory_pareto = {}
         self.memory_neighbors = {}
 
-        self.X1_train, self.X2_train, self.y1, self.y2 = [], [], [], []
-
-
-        if self.model == 'MLP':
+        
+        if self.context_type == 'MNISTbinary':
             input_dim = self.d
             output_dim = self.num_cls
             self.net1 = EENets.Network_exploitation_MLP(input_dim, output_dim,  self.m).to(self.device)
-            print(f'Net1 has {count_parameters(self.net1):,} trainable parameters.')
-
-            exp_dim = 1660 if self.num_cls==10 else 1644 
+            exp_dim = 1644 
             output_dim = self.num_cls
             self.net2 = EENets.Network_exploration(exp_dim, output_dim, self.m).to(self.device)
-            print(f'Net2 has {count_parameters(self.net2):,} trainable parameters.')
 
             self.contexts = {}
             for i in range(self.N):
                 self.contexts[i] =  {'V_it_inv': torch.eye(exp_dim)  }
 
-        elif self.model == 'LeNet':
+        elif self.context_type == 'MNIST':
             input_dim = self.d
             output_dim = self.num_cls
-            self.net1 = EENets.Network_exploitation_LeNet(output_dim, ).to(self.device)
-            print(f'Net1 has {count_parameters(self.net1):,} trainable parameters.')
-
-            exp_dim = 1330 if self.num_cls==10 else 1317 
+            self.net1 = EENets.Network_exploitation_MLP(input_dim, output_dim,  self.m).to(self.device)
+            exp_dim = 1660 
             output_dim = self.num_cls
             self.net2 = EENets.Network_exploration(exp_dim, output_dim, self.m).to(self.device)
-            print(f'Net2 has {count_parameters(self.net2):,} trainable parameters.')
-
 
             self.contexts = {}
             for i in range(self.N):
                 self.contexts[i] =  {'V_it_inv': torch.eye(exp_dim)  }
 
-        self.X1_train, self.X2_train, self.y1, self.y2 = [], [], [], []
+        elif self.context_type == 'adult':
+            input_dim = self.d
+            output_dim = self.num_cls
+            self.net1 = EENets.Network_exploitation_MLP(input_dim, output_dim,  self.m).to(self.device)
+            exp_dim = 312 
+            output_dim = self.num_cls
+            self.net2 = EENets.Network_exploration(exp_dim, output_dim, self.m).to(self.device)
+
+            self.contexts = {}
+            for i in range(self.N):
+                self.contexts[i] =  {'V_it_inv': torch.eye(exp_dim)  }
+
+        elif self.context_type == 'MagicTelescope':
+            input_dim = self.d
+            output_dim = self.num_cls
+            self.net1 = EENets.Network_exploitation_MLP(input_dim, output_dim,  self.m).to(self.device)
+            exp_dim = 126 
+            output_dim = self.num_cls
+            self.net2 = EENets.Network_exploration(exp_dim, output_dim, self.m).to(self.device)
+
+            self.contexts = {}
+            for i in range(self.N):
+                self.contexts[i] =  {'V_it_inv': torch.eye(exp_dim)  }
+
+        
+
+        # elif self.model == 'LeNet':
+        #     input_dim = self.d
+        #     output_dim = self.num_cls
+        #     self.net1 = EENets.Network_exploitation_LeNet(output_dim, ).to(self.device)
+
+        #     exp_dim = 1330 if self.num_cls==10 else 1317 
+        #     output_dim = self.num_cls
+        #     self.net2 = EENets.Network_exploration(exp_dim, output_dim, self.m).to(self.device)
+
+
+    # def reset(self, d):
+    #     self.d = d
+        
+    #     self.memory_pareto = {}
+    #     self.memory_neighbors = {}
+
+    #     self.X1_train, self.X2_train, self.y1, self.y2 = [], [], [], []
+
+
+    #     if self.model == 'MLP':
+    #         input_dim = self.d
+    #         output_dim = self.num_cls
+    #         self.net1 = EENets.Network_exploitation_MLP(input_dim, output_dim,  self.m).to(self.device)
+    #         print(f'Net1 has {count_parameters(self.net1):,} trainable parameters.')
+
+    #         exp_dim = 1660 if self.num_cls==10 else 1644 
+    #         output_dim = self.num_cls
+    #         self.net2 = EENets.Network_exploration(exp_dim, output_dim, self.m).to(self.device)
+    #         print(f'Net2 has {count_parameters(self.net2):,} trainable parameters.')
+
+    #         self.contexts = {}
+    #         for i in range(self.N):
+    #             self.contexts[i] =  {'V_it_inv': torch.eye(exp_dim)  }
+
+    #     elif self.model == 'LeNet':
+    #         input_dim = self.d
+    #         output_dim = self.num_cls
+    #         self.net1 = EENets.Network_exploitation_LeNet(output_dim, ).to(self.device)
+    #         print(f'Net1 has {count_parameters(self.net1):,} trainable parameters.')
+
+    #         exp_dim = 1330 if self.num_cls==10 else 1317 
+    #         output_dim = self.num_cls
+    #         self.net2 = EENets.Network_exploration(exp_dim, output_dim, self.m).to(self.device)
+    #         print(f'Net2 has {count_parameters(self.net2):,} trainable parameters.')
+
+
+    #         self.contexts = {}
+    #         for i in range(self.N):
+    #             self.contexts[i] =  {'V_it_inv': torch.eye(exp_dim)  }
+
+    #     self.X1_train, self.X2_train, self.y1, self.y2 = [], [], [], []
 
 
     def get_action(self, t, X):
@@ -282,7 +354,7 @@ class CBPside():
 
         return global_loss, global_losses
 
-    def train_NN_batch(self, model, hist_X, hist_Y, num_epochs=10, lr=0.001, batch_size=64):
+    def train_NN_batch(self, model, hist_X, hist_Y, num_epochs=40, lr=0.001, batch_size=64):
 
         model.train()
         # print(len(hist_X), len(hist_Y) )
