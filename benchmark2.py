@@ -140,39 +140,46 @@ nclasses = game.M
 
 if args.approach == 'EEneuralcbpside_v6':
     alg = neuralcbp_EE_kclasses_v6.CBPside( game, args.context_type, eval.model, 1.01, m, nclasses,  'cuda:0')
+    alg.reset(context_generator.d)
 
 elif args.approach == 'ineural3':
     budget = eval.horizon
     margin = 3
     alg = ineural_multi.INeurALmulti(budget, nclasses, margin, m, 'cuda:0')
+    alg.reset(context_generator.d)
 
 elif args.approach == 'ineural6':
     budget = eval.horizon
     margin = 6
     alg = ineural_multi.INeurALmulti(budget, nclasses, margin, m, 'cuda:0')
+    alg.reset(context_generator.d)
 
 
 elif args.approach == 'neuronal3':
     budget = eval.horizon
     margin = 3
     alg = neuronal.NeuronAL(eval.model,args.context_type, budget, nclasses, margin, m,'cuda:0')
+    alg.reset(context_generator.d)
 
 elif args.approach == 'neuronal6':
     budget = eval.horizon
     margin = 6
     alg = neuronal.NeuronAL(eval.model,args.context_type, budget, nclasses, margin, m,'cuda:0')
+    alg.reset(context_generator.d)
 
 elif args.approach == 'margin':
     threshold = 0.1
     alg = margin_based.MarginBased(game, m, threshold,  'cuda:0')
+    alg.reset(context_generator.d)
 
 elif args.approach == 'cesa':
     alg = cesa_bianchi.CesaBianchi(game, m, 'cuda:0')
+    alg.reset(context_generator.d)
 
 
 
 
-alg.reset(context_generator.d)
+
 
 job = context_generator, alg 
 eval.eval_policy_once( game, job )  
