@@ -12,6 +12,8 @@ from scipy.special import logit, expit
 import torch
 from torchvision import datasets, transforms
 
+import pickle as pkl
+import gzip
 
 
 
@@ -27,16 +29,19 @@ from sklearn.utils import shuffle
 class Bandit_multi:
     def __init__(self, name):
         # Fetch data
-        if name == 'covertype':
-            X, y = fetch_openml('covertype', version=3, return_X_y=True)
-            X = pd.get_dummies(X)
-            # print(X,y)
-            # class: 1-7
-            # avoid nan, set nan as -1
-            X[np.isnan(X)] = - 1
-            X = normalize(X)
-        elif name == 'MagicTelescope':
-            X, y = fetch_openml('MagicTelescope', version=1, return_X_y=True)
+        # if name == 'covertype':
+        #     X, y = fetch_openml('covertype', version=3, return_X_y=True)
+        #     X = pd.get_dummies(X)
+        #     # print(X,y)
+        #     # class: 1-7
+        #     # avoid nan, set nan as -1
+        #     X[np.isnan(X)] = - 1
+        #     X = normalize(X)
+        if name == 'MagicTelescope':
+            with open('./data/MagicTelescope.pkl', 'rb') as file:
+                X, y = pkl.load(file)
+
+            # X, y = fetch_openml('MagicTelescope', version=1, return_X_y=True)
             # class: h, g
             # avoid nan, set nan as -1
             # print(X,y)
@@ -45,14 +50,17 @@ class Bandit_multi:
             y = y.map(label_map)
             X[np.isnan(X)] = - 1
             X = normalize(X)
-        elif name == 'shuttle':
-            X, y = fetch_openml('shuttle', version=1, return_X_y=True)
-            # avoid nan, set nan as -1
-            # print(X,y)
-            X[np.isnan(X)] = - 1
-            X = normalize(X)
+        # elif name == 'shuttle':
+        #     X, y = fetch_openml('shuttle', version=1, return_X_y=True)
+        #     # avoid nan, set nan as -1
+        #     # print(X,y)
+        #     X[np.isnan(X)] = - 1
+        #     X = normalize(X)
         elif name == 'adult':
-            X, y = fetch_openml('adult', version=2, return_X_y=True)
+            
+            with open('./data/adult.pkl', 'rb') as file:
+                X, y = pkl.load(file)
+
             X = pd.get_dummies(X)
             # avoid nan, set nan as -1
             # print(X,y)
@@ -61,45 +69,45 @@ class Bandit_multi:
             y = y.map(label_map)
             X[np.isnan(X)] = - 1
             X = normalize(X)
-        elif name == 'mushroom':
-            X, y = fetch_openml('mushroom', version=1, return_X_y=True)
-            # print(X,y,X.info())
-            X = pd.get_dummies(X)
-            unique_values = set(y.values)
-            label_map = {value:i+1 for i,value in enumerate(unique_values)}
-            y = y.map(label_map)
-            # avoid nan, set nan as -1
-            X[np.isnan(X)] = - 1
-            X = normalize(X)
-        elif name == 'fashion':
-            X, y = fetch_openml('Fashion-MNIST', version=1, return_X_y=True)
-            # print(X,y,X.info())
-            # avoid nan, set nan as -1
-            X[np.isnan(X)] = - 1
-            X = normalize(X)
-        elif name == 'phishing':
-            file_path = './binary_data/{}.txt'.format(name)
-            f = open(file_path, "r").readlines()
-            n = len(f)
-            m = 68
-            X = np.zeros([n, 68])
-            y = np.zeros([n])
-            for i, line in enumerate(f):
-                line = line.strip().split()
-                lbl = int(line[0])
-                if lbl != 0 and lbl != 1:
-                    raise ValueError
-                y[i] = lbl
-                l = len(line)
-                for item in range(1, l):
-                    pos, value = line[item].split(':')
-                    pos, value = int(pos), float(value)
-                    X[i, pos-1] = value
-        elif name == "letter":
-            file_path = './dataset/binary_data/{}_binary_data.pt'.format(name)
-            f = open(file_path, 'rb')
-            data = pickle.load(f)
-            X, y = data['X'], data['Y']   
+        # elif name == 'mushroom':
+        #     X, y = fetch_openml('mushroom', version=1, return_X_y=True)
+        #     # print(X,y,X.info())
+        #     X = pd.get_dummies(X)
+        #     unique_values = set(y.values)
+        #     label_map = {value:i+1 for i,value in enumerate(unique_values)}
+        #     y = y.map(label_map)
+        #     # avoid nan, set nan as -1
+        #     X[np.isnan(X)] = - 1
+        #     X = normalize(X)
+        # elif name == 'fashion':
+        #     X, y = fetch_openml('Fashion-MNIST', version=1, return_X_y=True)
+        #     # print(X,y,X.info())
+        #     # avoid nan, set nan as -1
+        #     X[np.isnan(X)] = - 1
+        #     X = normalize(X)
+        # elif name == 'phishing':
+        #     file_path = './binary_data/{}.txt'.format(name)
+        #     f = open(file_path, "r").readlines()
+        #     n = len(f)
+        #     m = 68
+        #     X = np.zeros([n, 68])
+        #     y = np.zeros([n])
+        #     for i, line in enumerate(f):
+        #         line = line.strip().split()
+        #         lbl = int(line[0])
+        #         if lbl != 0 and lbl != 1:
+        #             raise ValueError
+        #         y[i] = lbl
+        #         l = len(line)
+        #         for item in range(1, l):
+        #             pos, value = line[item].split(':')
+        #             pos, value = int(pos), float(value)
+        #             X[i, pos-1] = value
+        # elif name == "letter":
+        #     file_path = './dataset/binary_data/{}_binary_data.pt'.format(name)
+        #     f = open(file_path, 'rb')
+        #     data = pickle.load(f)
+        #     X, y = data['X'], data['Y']   
         else:
             raise RuntimeError('Dataset does not exist')
         # Shuffle data
