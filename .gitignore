@@ -8,3 +8,4 @@ slurm-*
 stdout*
 stderr*
 .data/
+./data/
