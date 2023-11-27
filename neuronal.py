@@ -76,6 +76,14 @@ class NeuronAL():
             output_dim = self.num_cls
             self.net2 = EENets.Network_exploration(exp_dim, output_dim, self.m).to(self.device)
 
+        elif self.context_type == 'shuttle':
+            input_dim = self.d
+            output_dim = self.num_cls
+            self.net1 = EENets.Network_exploitation_MLP(input_dim, output_dim,  self.m).to(self.device)
+            exp_dim = 134 
+            output_dim = self.num_cls
+            self.net2 = EENets.Network_exploration(exp_dim, output_dim, self.m).to(self.device)
+
         # elif self.model == 'LeNet':
         #     input_dim = self.d
         #     output_dim = self.num_cls
