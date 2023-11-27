@@ -102,9 +102,9 @@ elif args.context_type == 'MNIST':
     context_generator = synthetic_data.MNISTcontexts(eval)
     context_generator.initiate_loader()
 
-# elif context_type == 'FASHION':
-#     context_generator = synthetic_data.FashionMNISTContexts(eval)
-#     context_generator.initiate_loader()
+elif args.context_type == 'FASHION':
+    context_generator = synthetic_data.FashionMNISTContexts(eval)
+    context_generator.initiate_loader()
 
 # elif context_type == 'CIFAR10':
 #     context_generator = synthetic_data.CIFAR10Contexts(eval)

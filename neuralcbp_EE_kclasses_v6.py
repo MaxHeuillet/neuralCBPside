@@ -140,7 +140,7 @@ class CBPside():
             for i in range(self.N):
                 self.contexts[i] =  {'V_it_inv': torch.eye(exp_dim)  }
 
-        elif self.context_type == 'MNIST':
+        if self.context_type in ['MNIST', 'FASHION'] :
             input_dim = self.d
             output_dim = self.num_cls
             self.net1 = EENets.Network_exploitation_MLP(input_dim, output_dim,  self.m).to(self.device)

@@ -36,7 +36,7 @@ class NeuronAL():
         self.X1_train, self.X2_train, self.y1, self.y2 = [], [], [], []
 
         
-        if self.context_type == 'MNISTbinary':
+        if self.context_type =='MNISTbinary':
             input_dim = self.d
             output_dim = self.num_cls
             self.net1 = EENets.Network_exploitation_MLP(input_dim, output_dim,  self.m).to(self.device)
@@ -44,7 +44,7 @@ class NeuronAL():
             output_dim = self.num_cls
             self.net2 = EENets.Network_exploration(exp_dim, output_dim, self.m).to(self.device)
 
-        elif self.context_type == 'MNIST':
+        if self.context_type in ['MNIST', 'FASHION'] :
             input_dim = self.d
             output_dim = self.num_cls
             self.net1 = EENets.Network_exploitation_MLP(input_dim, output_dim,  self.m).to(self.device)
