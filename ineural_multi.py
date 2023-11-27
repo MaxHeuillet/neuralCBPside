@@ -162,10 +162,10 @@ class INeurALmulti():
                 self.X2_train.append( self.dc_list[k].detach().cpu() )
                 if k_prime == self.pred:
                     self.y1.append(torch.Tensor([reward]))
-                    self.y2.append(torch.Tensor([reward - self.f1_list[k] - self.f2_list[k]]))
+                    self.y2.append(torch.Tensor([reward - self.f1_list[k] ]))
                 else:
                     self.y1.append(torch.Tensor([1 - reward]))
-                    self.y2.append(torch.Tensor([1 - reward - self.f1_list[k] - self.f2_list[k]]))
+                    self.y2.append(torch.Tensor([1 - reward - self.f1_list[k] ]))
 
         if (t<=50) or (t % 50 == 0 and t<1000 and t>50) or (t % 500 == 0 and t>=1000): #
             self.train_NN_batch(self.net1, self.X1_train, self.y1)
