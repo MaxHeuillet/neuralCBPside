@@ -36,44 +36,14 @@
 ##### To evaluate on the 10-classes tasks with MLP
 #######################################
 
-# horizon=9999
-# nfolds=$1
-
-# case='case2'
-# model='MLP'
-
-
-# context_types=('MNIST' 'FASHION' )
-# approaches=(  'ineural3' 'ineural6' 'neuronal3' 'neuronal6' 'EEneuralcbpside_v6' ) #'margin' 'cesa' 
-
-# for context_type in "${context_types[@]}"; do
-
-#     for approach in "${approaches[@]}"; do
-
-#         python3 ./create_storage.py --case $case --horizon $horizon --n_folds $nfolds --model $model --approach $approach --context_type $context_type 
-
-#         for ((id=0; id<$nfolds; id+=1)); do
-#             echo 'case' $case 'model' $model 'horizon' $horizon 'nfolds' $nfolds 'CONTEXT_TYPE' $context_type 'TASK' $task 'APR' $approach 'ID' $id
-#             sbatch --export=ALL,CASE=$case,MODEL=$model,HORIZON=$horizon,NFOLDS=$nfolds,CONTEXT_TYPE=$context_type,APR=$approach,ID=$id ./benchmark_launch.sh     
-#             done
-
-#     done
-# done
-
-
-
-#######################################
-##### To evaluate on the other tasks with MLP
-#######################################
-
 horizon=9999
 nfolds=$1
 
-case='game_case_seven'
+case='case2'
 model='MLP'
 
 
-context_types=('shuttle' 'covertype' )
+context_types=('MNIST' 'FASHION' )
 approaches=(  'ineural3' 'ineural6' 'neuronal3' 'neuronal6' 'EEneuralcbpside_v6' ) #'margin' 'cesa' 
 
 for context_type in "${context_types[@]}"; do
@@ -89,6 +59,36 @@ for context_type in "${context_types[@]}"; do
 
     done
 done
+
+
+
+#######################################
+##### To evaluate on the other tasks with MLP
+#######################################
+
+# horizon=9999
+# nfolds=$1
+
+# case='game_case_seven'
+# model='MLP'
+
+
+# context_types=('shuttle' 'covertype' )
+# approaches=(  'ineural3' 'ineural6' 'neuronal3' 'neuronal6' 'EEneuralcbpside_v6' ) #'margin' 'cesa' 
+
+# for context_type in "${context_types[@]}"; do
+
+#     for approach in "${approaches[@]}"; do
+
+#         python3 ./create_storage.py --case $case --horizon $horizon --n_folds $nfolds --model $model --approach $approach --context_type $context_type 
+
+#         for ((id=0; id<$nfolds; id+=1)); do
+#             echo 'case' $case 'model' $model 'horizon' $horizon 'nfolds' $nfolds 'CONTEXT_TYPE' $context_type 'TASK' $task 'APR' $approach 'ID' $id
+#             sbatch --export=ALL,CASE=$case,MODEL=$model,HORIZON=$horizon,NFOLDS=$nfolds,CONTEXT_TYPE=$context_type,APR=$approach,ID=$id ./benchmark_launch.sh     
+#             done
+
+#     done
+# done
 
 
 #######################################
