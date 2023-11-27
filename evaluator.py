@@ -67,7 +67,7 @@ class Evaluation:
             if self.game.M>2:
                 outcome = np.argmax(distribution) 
             else:
-                outcome = 0 if distribution[0]<0.5 else 1
+                outcome = 0 if distribution[0]>0.5 else 1
 
             
             #print('context shape', context.shape)
