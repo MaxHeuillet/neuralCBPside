@@ -176,6 +176,30 @@ class CBPside():
             for i in range(self.N):
                 self.contexts[i] =  {'V_it_inv': torch.eye(exp_dim)  }
 
+        elif self.context_type == 'covertype':
+            input_dim = self.d
+            output_dim = self.num_cls
+            self.net1 = EENets.Network_exploitation_MLP(input_dim, output_dim,  self.m).to(self.device)
+            exp_dim = 308 
+            output_dim = self.num_cls
+            self.net2 = EENets.Network_exploration(exp_dim, output_dim, self.m).to(self.device)
+
+            self.contexts = {}
+            for i in range(self.N):
+                self.contexts[i] =  {'V_it_inv': torch.eye(exp_dim)  }
+
+        elif self.context_type == 'shuttle':
+            input_dim = self.d
+            output_dim = self.num_cls
+            self.net1 = EENets.Network_exploitation_MLP(input_dim, output_dim,  self.m).to(self.device)
+            exp_dim = 134 
+            output_dim = self.num_cls
+            self.net2 = EENets.Network_exploration(exp_dim, output_dim, self.m).to(self.device)
+
+            self.contexts = {}
+            for i in range(self.N):
+                self.contexts[i] =  {'V_it_inv': torch.eye(exp_dim)  }
+
         
 
         # elif self.model == 'LeNet':

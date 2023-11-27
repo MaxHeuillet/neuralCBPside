@@ -29,15 +29,21 @@ from sklearn.utils import shuffle
 class Bandit_multi:
     def __init__(self, name):
         # Fetch data
-        # if name == 'covertype':
-        #     X, y = fetch_openml('covertype', version=3, return_X_y=True)
-        #     X = pd.get_dummies(X)
-        #     # print(X,y)
-        #     # class: 1-7
-        #     # avoid nan, set nan as -1
-        #     X[np.isnan(X)] = - 1
-        #     X = normalize(X)
-        if name == 'MagicTelescope':
+        if name == 'covertype':
+            with open('./data/covertype.pkl', 'rb') as file:
+                X, y = pkl.load(file)
+            
+            X = pd.get_dummies(X)
+            # print(X,y)
+            # class: 1-7
+            # avoid nan, set nan as -1
+            X[np.isnan(X)] = - 1
+            X = normalize(X)
+            unique_values = set(y.values)
+            label_map = {value:i for i,value in enumerate(unique_values)}
+            y = y.map(label_map)
+            
+        elif name == 'MagicTelescope':
             with open('./data/MagicTelescope.pkl', 'rb') as file:
                 X, y = pkl.load(file)
 
@@ -50,12 +56,19 @@ class Bandit_multi:
             y = y.map(label_map)
             X[np.isnan(X)] = - 1
             X = normalize(X)
-        # elif name == 'shuttle':
-        #     X, y = fetch_openml('shuttle', version=1, return_X_y=True)
-        #     # avoid nan, set nan as -1
-        #     # print(X,y)
-        #     X[np.isnan(X)] = - 1
-        #     X = normalize(X)
+
+        elif name == 'shuttle':
+            with open('./data/shuttle.pkl', 'rb') as file:
+                X, y = pkl.load(file)
+            
+            # avoid nan, set nan as -1
+            # print(X,y)
+            X[np.isnan(X)] = - 1
+            X = normalize(X)
+            unique_values = set(y.values)
+            label_map = {value:i for i,value in enumerate(unique_values)}
+            y = y.map(label_map)
+        
         elif name == 'adult':
             
             with open('./data/adult.pkl', 'rb') as file:
@@ -120,6 +133,7 @@ class CustomContexts_binary():
         self.eval = eval
 
     def initiate_loader(self,X, y):
+        self.nb_classes = len(set(y))
         self.test_loader = list( zip(X, y) )
         self.eval.env_random_state.shuffle(self.test_loader)
     
@@ -136,7 +150,10 @@ class CustomContexts_binary():
         x, y = self.test_loader[self.index]
         x = x.reshape(1, -1)
         x = torch.Tensor(x).unsqueeze(0)
-        val = [y, 1 - y]
+
+
+        val = [0] * self.nb_classes
+        val[y] = 1
 
         self.index += 1
 

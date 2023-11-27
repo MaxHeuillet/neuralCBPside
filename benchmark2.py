@@ -70,6 +70,8 @@ elif args.case == 'case3':
     game = games.game_case3( {} )
 elif args.case == 'case4':
     game = games.game_case4( {} )
+elif case == 'game_case_seven':
+    game = games.game_case_seven( {} )
 
 eval = evaluator.Evaluation(args.case, args.model, n_folds, horizon, game, args.approach, args.context_type)
 eval.set_random_seeds(seed)

@@ -68,6 +68,14 @@ class NeuronAL():
             output_dim = self.num_cls
             self.net2 = EENets.Network_exploration(exp_dim, output_dim, self.m).to(self.device)
 
+        elif self.context_type == 'covertype':
+            input_dim = self.d
+            output_dim = self.num_cls
+            self.net1 = EENets.Network_exploitation_MLP(input_dim, output_dim,  self.m).to(self.device)
+            exp_dim = 308 
+            output_dim = self.num_cls
+            self.net2 = EENets.Network_exploration(exp_dim, output_dim, self.m).to(self.device)
+
         # elif self.model == 'LeNet':
         #     input_dim = self.d
         #     output_dim = self.num_cls
@@ -80,12 +88,12 @@ class NeuronAL():
 
     def get_action(self, t, X):
 
-        print('X shape', X.shape)
+        # print('X shape', X.shape)
         
         self.X = X.to(self.device)
         self.f1, self.f2, self.dc = EENets.EE_forward(self.net1, self.net2, self.X)
         u = self.f1[0] + 1 / (self.query_num+1) * self.f2
-        print('u', u)
+        # print('u', u)
         u_sort, u_ind = torch.sort(u)
         i_hat = u_sort[-1]
         i_deg = u_sort[-2]
@@ -97,7 +105,7 @@ class NeuronAL():
             explored = 0
 
         self.pred = int(u_ind[-1].item()) +1
-        print('pred',self.pred)
+        # print('pred',self.pred)
         action = self.pred if explored == 0 else 0
 
         if t<self.N:
@@ -135,7 +143,7 @@ class NeuronAL():
         
         hist_X = torch.cat(hist_X).float()
         hist_Y = torch.stack(hist_Y).float().detach()
-        print(hist_X.shape, hist_Y.shape)
+        # print(hist_X.shape, hist_Y.shape)
 
         optimizer = optim.Adam(model.parameters(), lr=lr)
         dataset = TensorDataset(hist_X, hist_Y)

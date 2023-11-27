@@ -167,7 +167,7 @@ class INeurALmulti():
                     self.y1.append(torch.Tensor([1 - reward]))
                     self.y2.append(torch.Tensor([1 - reward - self.f1_list[k] ]))
 
-        if (t<=50) or (t % 50 == 0 and t<1000 and t>50) or (t % 500 == 0 and t>=1000): #
+        if (t<=50) or (t % 50 == 0 and t<1000 and t>50) or (t % 500 == 0 and t>=1000): 
             self.train_NN_batch(self.net1, self.X1_train, self.y1)
             self.train_NN_batch(self.net2, self.X2_train, self.y2)
 
@@ -178,7 +178,7 @@ class INeurALmulti():
         model.train()
         hist_X = torch.cat(hist_X).float()
         hist_Y = torch.cat(hist_Y).float()
-        print('hist_X', hist_X.shape, hist_Y.shape)
+        # print('hist_X', hist_X.shape, hist_Y.shape)
         optimizer = optim.Adam(model.parameters(), lr=lr)
         dataset = TensorDataset(hist_X, hist_Y)
         dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
@@ -190,7 +190,8 @@ class INeurALmulti():
             for x, y in dataloader:
                 x, y = x.to(self.device), y.to(self.device)
                 pred = model(x).view(-1)
-
+                # print(pred.shape,y.shape)
+                # print(pred, y)
                 loss = torch.mean((pred - y) ** 2)
                 optimizer.zero_grad()
                 loss.backward()
