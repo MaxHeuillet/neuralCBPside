@@ -7,5 +7,5 @@ __pycache__
 slurm-*
 stdout*
 stderr*
-.data/
-./data/
+.data/*
+./data/*
