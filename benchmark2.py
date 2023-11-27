@@ -99,6 +99,16 @@ elif args.context_type == 'MagicTelescope':
     context_generator = synthetic_data.CustomContexts_binary(eval)
     context_generator.initiate_loader(data.X, data.y)
 
+elif args.context_type == 'covertype':
+    data = synthetic_data.Bandit_multi('covertype') 
+    context_generator = synthetic_data.CustomContexts_binary(eval)
+    context_generator.initiate_loader(data.X, data.y)
+
+elif args.context_type == 'shuttle':
+    data = synthetic_data.Bandit_multi('shuttle') 
+    context_generator = synthetic_data.CustomContexts_binary(eval)
+    context_generator.initiate_loader(data.X, data.y)
+
 
 elif args.context_type == 'MNIST':
     context_generator = synthetic_data.MNISTcontexts(eval)
