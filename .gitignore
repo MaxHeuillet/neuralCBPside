@@ -9,4 +9,4 @@ stdout*
 stderr*
 .data/*
 ./data/*
-/data/
+/data/*
