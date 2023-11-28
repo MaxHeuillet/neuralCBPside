@@ -163,6 +163,53 @@ class CustomContexts_binary():
 ####################################################################################################
 #####################################################################################################
 
+
+class EMNISTcontexts():
+
+    def __init__(self, eval):
+        self.eval = eval
+
+    def initiate_loader(self):
+        # Define the transformation for the dataset
+        transform = transforms.Compose([transforms.ToTensor(), 
+                                        transforms.Normalize((0.5,), (0.5,))])
+
+        # Load the EMNIST letters dataset
+        test_dataset = datasets.EMNIST(root='./data', split='letters', train=False, 
+                                       transform=transform, download=True)
+        
+        # Create a list of (image, label) pairs
+        self.test_loader = [(img, label) for img, label in test_dataset]
+        self.eval.env_random_state.shuffle(self.test_loader)
+
+        # Initialize the index and determine the input shape
+        self.index = 0
+        x, y = self.test_loader[self.index]
+
+        if self.eval.model == 'MLP':
+            x = x.flatten()
+            self.d = x.shape[0]
+        elif self.eval.model == 'LeNet':
+            self.d = x.shape
+
+    def get_context(self):
+        
+        x, y = self.test_loader[self.index]
+
+        if self.eval.model == 'MLP':
+            x = x.flatten()
+        
+        x = x.unsqueeze(0)
+
+        # Adjust for 26 classes (letters) instead of 10 (digits)
+        val = [0] * 26
+        val[y - 1] = 1  # Assuming labels are 1-26 for letters A-Z
+
+        self.index += 1
+
+        return x, val
+
+
 class FashionMNISTContexts():
 
     def __init__(self, eval):

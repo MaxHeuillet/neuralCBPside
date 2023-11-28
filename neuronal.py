@@ -36,7 +36,7 @@ class NeuronAL():
         self.X1_train, self.X2_train, self.y1, self.y2 = [], [], [], []
 
         
-        if self.context_type =='MNISTbinary':
+        if self.context_type =='MNISTbinary' and self.model == 'MLP':
             input_dim = self.d
             output_dim = self.num_cls
             self.net1 = EENets.Network_exploitation_MLP(input_dim, output_dim,  self.m).to(self.device)
@@ -44,7 +44,7 @@ class NeuronAL():
             output_dim = self.num_cls
             self.net2 = EENets.Network_exploration(exp_dim, output_dim, self.m).to(self.device)
 
-        if self.context_type in ['MNIST', 'FASHION'] :
+        elif self.context_type in ['MNIST', 'FASHION'] and self.model == 'MLP':
             input_dim = self.d
             output_dim = self.num_cls
             self.net1 = EENets.Network_exploitation_MLP(input_dim, output_dim,  self.m).to(self.device)
@@ -52,7 +52,15 @@ class NeuronAL():
             output_dim = self.num_cls
             self.net2 = EENets.Network_exploration(exp_dim, output_dim, self.m).to(self.device)
 
-        elif self.context_type == 'adult':
+        elif self.context_type == 'LETTERS' and self.model == 'MLP':
+            input_dim = self.d
+            output_dim = self.num_cls
+            self.net1 = EENets.Network_exploitation_MLP(input_dim, output_dim,  self.m).to(self.device)
+            exp_dim = 1691 
+            output_dim = self.num_cls
+            self.net2 = EENets.Network_exploration(exp_dim, output_dim, self.m).to(self.device)
+
+        elif self.context_type == 'adult' and self.model == 'MLP':
             input_dim = self.d
             output_dim = self.num_cls
             self.net1 = EENets.Network_exploitation_MLP(input_dim, output_dim,  self.m).to(self.device)
@@ -60,7 +68,7 @@ class NeuronAL():
             output_dim = self.num_cls
             self.net2 = EENets.Network_exploration(exp_dim, output_dim, self.m).to(self.device)
 
-        elif self.context_type == 'MagicTelescope':
+        elif self.context_type == 'MagicTelescope' and self.model == 'MLP':
             input_dim = self.d
             output_dim = self.num_cls
             self.net1 = EENets.Network_exploitation_MLP(input_dim, output_dim,  self.m).to(self.device)
@@ -68,7 +76,7 @@ class NeuronAL():
             output_dim = self.num_cls
             self.net2 = EENets.Network_exploration(exp_dim, output_dim, self.m).to(self.device)
 
-        elif self.context_type == 'covertype':
+        elif self.context_type == 'covertype' and self.model == 'MLP':
             input_dim = self.d
             output_dim = self.num_cls
             self.net1 = EENets.Network_exploitation_MLP(input_dim, output_dim,  self.m).to(self.device)
@@ -76,7 +84,7 @@ class NeuronAL():
             output_dim = self.num_cls
             self.net2 = EENets.Network_exploration(exp_dim, output_dim, self.m).to(self.device)
 
-        elif self.context_type == 'shuttle':
+        elif self.context_type == 'shuttle' and self.model == 'MLP':
             input_dim = self.d
             output_dim = self.num_cls
             self.net1 = EENets.Network_exploitation_MLP(input_dim, output_dim,  self.m).to(self.device)
@@ -84,14 +92,35 @@ class NeuronAL():
             output_dim = self.num_cls
             self.net2 = EENets.Network_exploration(exp_dim, output_dim, self.m).to(self.device)
 
-        # elif self.model == 'LeNet':
-        #     input_dim = self.d
-        #     output_dim = self.num_cls
-        #     self.net1 = EENets.Network_exploitation_LeNet(output_dim, ).to(self.device)
+        elif self.context_type == 'CIFAR10' and self.model == 'LeNet':
+            output_dim = self.num_cls
+            channels = 3
+            print(channels)
+            latent_dim = 1200
+            self.net1 = EENets.Network_exploitation_LeNet(latent_dim,channels, output_dim,  ).to(self.device)
+            self.size = 153
+            exp_dim = 3948 
+            output_dim = self.num_cls
+            self.net2 = EENets.Network_exploration(exp_dim, output_dim, self.m).to(self.device)
 
-        #     exp_dim = 1330 if self.num_cls==10 else 1317 
-        #     output_dim = self.num_cls
-        #     self.net2 = EENets.Network_exploration(exp_dim, output_dim, self.m).to(self.device)
+            self.contexts = {}
+            for i in range(self.N):
+                self.contexts[i] =  {'V_it_inv': torch.eye(exp_dim)  }
+
+        elif self.context_type in ['MNIST', 'FASHION'] and self.model == 'LeNet':
+            input_dim = self.d
+            output_dim = self.num_cls
+            self.size = 51
+            channels = 1
+            latent_dim = 256
+            self.net1 = EENets.Network_exploitation_LeNet(latent_dim, channels, output_dim, ).to(self.device)
+            exp_dim = 992 
+            output_dim = self.num_cls
+            self.net2 = EENets.Network_exploration(exp_dim, output_dim, self.m).to(self.device)
+
+            self.contexts = {}
+            for i in range(self.N):
+                self.contexts[i] =  {'V_it_inv': torch.eye(exp_dim)  }
 
 
     def get_action(self, t, X):
@@ -99,7 +128,7 @@ class NeuronAL():
         # print('X shape', X.shape)
         
         self.X = X.to(self.device)
-        self.f1, self.f2, self.dc = EENets.EE_forward(self.net1, self.net2, self.X)
+        self.f1, self.f2, self.dc = EENets.EE_forward(self.net1, self.net2, self.X, self.size)
         u = self.f1[0] + 1 / (self.query_num+1) * self.f2
         # print('u', u)
         u_sort, u_ind = torch.sort(u)
