@@ -129,7 +129,7 @@ class NeuronAL():
         
         self.X = X.to(self.device)
         self.f1, self.f2, self.dc = EENets.EE_forward(self.net1, self.net2, self.X, self.size)
-        u = self.f1[0] + 1 / (self.query_num+1) * self.f2
+        u = self.f1[0] + self.f2 #1 / (self.query_num+1) *
         # print('u', u)
         u_sort, u_ind = torch.sort(u)
         i_hat = u_sort[-1]

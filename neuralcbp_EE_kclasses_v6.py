@@ -236,15 +236,10 @@ class CBPside():
 
         self.X = X.to(self.device)
         halfspace = []
-        print('hey1')
 
         self.f1, self.f2, self.dc = EENets.EE_forward(self.net1, self.net2, self.X, self.size )
-        print('hey2')
         q = self.convert_pred_format(self.f1)
         w = self.convert_conf_format(self.f2)
-        print('pred', q)
-        print('conf', w )
-        # print('dc', self.dc)
 
         #print('########################### eliminate actions')
         for pair in self.mathcal_N:
