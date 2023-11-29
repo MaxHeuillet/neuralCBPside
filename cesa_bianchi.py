@@ -80,10 +80,15 @@ class CesaBianchi():
 
         self.K = 0
         self.beta = 1
+        self.norm_hist = 0
 
     def get_action(self, t, X):
 
         prediction = self.func( X.float().to(self.device) ).cpu().detach()
+
+        norm = np.linalg.norm( X.detach().cpu() )
+
+        self.X_prime = max( self.norm_hist, norm  )
 
         probability = expit(prediction)
         self.pred_action = 1 if probability < 0.5 else 2
@@ -91,7 +96,7 @@ class CesaBianchi():
         print('prediction', prediction, self.pred_action)
 
 
-        b = self.beta * np.sqrt(1+self.K) 
+        b = self.beta * np.sqrt(self.K+1) * self.X_prime**2
         
         p = b / ( b + abs( probability ) )
 
@@ -118,56 +123,44 @@ class CesaBianchi():
             self.hist.append( X , [outcome] )
             if (self.pred_action == 1 and outcome == 0) or (self.pred_action == 2 and outcome ==1):
                 self.K += 1
+                self.norm_hist = self.X_prime**2
             
-        global_loss = []
-        global_losses = []
+
         if (t>self.N):
             if (t<=50) or (t % 50 == 0 and t<1000 and t>50) or (t % 500 == 0 and t>=1000): #
+        
+                losses = self.step(self.func, self.hist)
 
-                self.func = copy.deepcopy(self.func0)
-                optimizer = optim.Adam(self.func.parameters(), lr=0.001, weight_decay = 0 )
-                dataloader = DataLoader(self.hist, batch_size=len(self.hist), shuffle=True) 
-                #scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, 0.99)
-
-                loss = nn.BCEWithLogitsLoss()
- 
-
-                for _ in range(1000): 
-                        
-                    train_loss, losses = self.step(dataloader, loss, optimizer)
-                    current_lr = optimizer.param_groups[0]['lr']
-                    global_loss.append(train_loss)
-                    global_losses.append(losses)
-                    # if _ % 10 == 0 :
-                    #     scheduler.step()
-                    # scheduler.step()
-                    if _ % 100 == 0:
-                        print('train loss', train_loss, 'losses', losses )
-
-        return global_loss, global_losses
+        return None, None
                 
 
-    def step(self, loader, loss_func, opt):
+    def step(self, model, data, num_epochs=40, lr=0.001, batch_size=64):
         #""Standard training/evaluation epoch over the dataset"""
+        dataloader = DataLoader(data, batch_size=len(self.hist), shuffle=True) 
+        optimizer = optim.Adam(model.parameters(), lr=lr)
+        loss = nn.BCEWithLogitsLoss()
+        num = len(self.hist)
 
-        for X, y in loader:
-            X, y  = X.to(self.device).float(), y.to(self.device).float()
+        for _ in range(40):
+            batch_loss = 0.0
 
-            loss = 0
-            losses = []
-            losses_vec =[]
- 
+            for X, y in dataloader:
+                X, y  = X.to(self.device).float(), y.to(self.device).float()
 
-            pred = self.func(X).squeeze(1)
-            # print(pred.shape, y.shape)
-            l = loss_func(pred, y)
 
-            loss += l
-            losses.append( l )
-            losses_vec.append(l.item())
+                pred = self.func(X).squeeze(1)
+                # print(pred.shape, y.shape)
+                l = loss(pred, y)
 
-            opt.zero_grad()
-            l.backward()
-            opt.step()
-            # print(losses)
-        return loss.item(), losses_vec
+                batch_loss += l.item()
+
+
+                optimizer.zero_grad()
+                l.backward()
+                optimizer.step()
+                # print(losses)
+
+            if batch_loss / num <= 1e-3:
+                return batch_loss / num
+                
+        return None

@@ -112,49 +112,39 @@ class MarginBased():
         global_loss = []
         global_losses = []
         if (t>self.N):
-
             if (t<=50) or (t % 50 == 0 and t<1000 and t>50) or (t % 500 == 0 and t>=1000): #
-
-                self.func = copy.deepcopy(self.func0)
-                dataloader = DataLoader(self.hist, batch_size=len(self.hist), shuffle=True) 
-                
-                optimizer = optim.Adam(self.func.parameters(), lr=0.001, weight_decay = 0 )
-                #scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, 0.99)
-
-                for _ in range(1000): 
-                        
-                    train_loss, losses = self.step(dataloader, optimizer)
-                    current_lr = optimizer.param_groups[0]['lr']
-                    global_loss.append(train_loss)
-                    global_losses.append(losses)
-                    # if _ % 10 == 0 :
-                    #     scheduler.step()
-                    # scheduler.step()
-                    if _ % 100 == 0:
-                        print('train loss', train_loss, 'losses', losses )
+        
+                losses = self.step(self.func, self.hist)
 
         return global_loss, global_losses
                 
-
-    def step(self, loader, opt):
+    def step(self, model, data, num_epochs=40, lr=0.001, batch_size=64):
         #""Standard training/evaluation epoch over the dataset"""
+        dataloader = DataLoader(data, batch_size=len(self.hist), shuffle=True) 
+        optimizer = optim.Adam(model.parameters(), lr=lr)
+        loss = nn.BCEWithLogitsLoss()
+        num = len(self.hist)
 
-        for X, y in loader:
-            X, y  = X.to(self.device).float(), y.to(self.device).float()
-            loss = 0
-            losses = []
-            losses_vec =[]
- 
+        for _ in range(40):
+            batch_loss = 0.0
 
-            pred = self.func(X).squeeze(1)
-            # print(pred.shape, y.shape)
-            l = nn.BCEWithLogitsLoss()(pred, y)
-            loss += l
-            losses.append( l )
-            losses_vec.append(l.item())
+            for X, y in dataloader:
+                X, y  = X.to(self.device).float(), y.to(self.device).float()
 
-            opt.zero_grad()
-            l.backward()
-            opt.step()
-            # print(losses)
-        return loss.item(), losses_vec
+
+                pred = self.func(X).squeeze(1)
+                # print(pred.shape, y.shape)
+                l = loss(pred, y)
+
+                batch_loss += l.item()
+
+
+                optimizer.zero_grad()
+                l.backward()
+                optimizer.step()
+                # print(losses)
+
+            if batch_loss / num <= 1e-3:
+                return batch_loss / num
+                
+        return None

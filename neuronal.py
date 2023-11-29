@@ -37,6 +37,7 @@ class NeuronAL():
 
         
         if self.context_type =='MNISTbinary' and self.model == 'MLP':
+            self.size = 51
             input_dim = self.d
             output_dim = self.num_cls
             self.net1 = EENets.Network_exploitation_MLP(input_dim, output_dim,  self.m).to(self.device)
@@ -45,6 +46,7 @@ class NeuronAL():
             self.net2 = EENets.Network_exploration(exp_dim, output_dim, self.m).to(self.device)
 
         elif self.context_type in ['MNIST', 'FASHION'] and self.model == 'MLP':
+            self.size = 51
             input_dim = self.d
             output_dim = self.num_cls
             self.net1 = EENets.Network_exploitation_MLP(input_dim, output_dim,  self.m).to(self.device)
@@ -53,6 +55,7 @@ class NeuronAL():
             self.net2 = EENets.Network_exploration(exp_dim, output_dim, self.m).to(self.device)
 
         elif self.context_type == 'LETTERS' and self.model == 'MLP':
+            self.size = 51
             input_dim = self.d
             output_dim = self.num_cls
             self.net1 = EENets.Network_exploitation_MLP(input_dim, output_dim,  self.m).to(self.device)
@@ -61,6 +64,7 @@ class NeuronAL():
             self.net2 = EENets.Network_exploration(exp_dim, output_dim, self.m).to(self.device)
 
         elif self.context_type == 'adult' and self.model == 'MLP':
+            self.size = 51
             input_dim = self.d
             output_dim = self.num_cls
             self.net1 = EENets.Network_exploitation_MLP(input_dim, output_dim,  self.m).to(self.device)
@@ -69,6 +73,7 @@ class NeuronAL():
             self.net2 = EENets.Network_exploration(exp_dim, output_dim, self.m).to(self.device)
 
         elif self.context_type == 'MagicTelescope' and self.model == 'MLP':
+            self.size = 51
             input_dim = self.d
             output_dim = self.num_cls
             self.net1 = EENets.Network_exploitation_MLP(input_dim, output_dim,  self.m).to(self.device)
@@ -77,6 +82,7 @@ class NeuronAL():
             self.net2 = EENets.Network_exploration(exp_dim, output_dim, self.m).to(self.device)
 
         elif self.context_type == 'covertype' and self.model == 'MLP':
+            self.size = 51
             input_dim = self.d
             output_dim = self.num_cls
             self.net1 = EENets.Network_exploitation_MLP(input_dim, output_dim,  self.m).to(self.device)
@@ -85,6 +91,7 @@ class NeuronAL():
             self.net2 = EENets.Network_exploration(exp_dim, output_dim, self.m).to(self.device)
 
         elif self.context_type == 'shuttle' and self.model == 'MLP':
+            self.size = 51
             input_dim = self.d
             output_dim = self.num_cls
             self.net1 = EENets.Network_exploitation_MLP(input_dim, output_dim,  self.m).to(self.device)
@@ -190,12 +197,12 @@ class NeuronAL():
 
         for i in range(num_epochs):
             batch_loss = 0.0
+            
             for x, y in dataloader:
                 x, y = x.to(self.device), y.to(self.device)
                 # y = torch.reshape(y, (1,-1))
                 pred, _ = model(x)
                 # pred = pred.view(-1)
-
                 # print(pred.shape, y.shape)
 
                 optimizer.zero_grad()
