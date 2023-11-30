@@ -104,7 +104,7 @@ class MarginBased():
             
         return action, history
 
-    def update(self, action, feedback, outcome, t, X):
+    def update(self, action, feedback, outcome, t, X, loss):
 
         if action == 0:
             self.hist.append( X , [outcome] )

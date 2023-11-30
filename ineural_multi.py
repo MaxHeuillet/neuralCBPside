@@ -143,7 +143,7 @@ class INeurALmulti():
         return action, history
         
 
-    def update(self, action, feedback, outcome, t, X):
+    def update(self, action, feedback, outcome, t, X, loss):
 
         lbl = outcome +1 
         if self.pred != lbl:

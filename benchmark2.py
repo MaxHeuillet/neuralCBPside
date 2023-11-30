@@ -79,10 +79,6 @@ eval.set_random_seeds(seed)
 ################################### CONTEXT GENERATOR:
 
 
-# ################################### CONTEXT GENERATOR:
-
-
-
 if args.context_type == 'MNISTbinary':
     context_generator = synthetic_data.MNISTcontexts_binary(eval)
     context_generator.initiate_loader()

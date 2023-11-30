@@ -132,6 +132,7 @@ class CBPside():
             output_dim = self.num_cls
             self.net1 = EENets.Network_exploitation_MLP(input_dim, output_dim,  self.m).to(self.device)
             exp_dim = 1644 
+            self.size = 51
             output_dim = self.num_cls
             self.net2 = EENets.Network_exploration(exp_dim, output_dim, self.m).to(self.device)
 
@@ -144,6 +145,7 @@ class CBPside():
             output_dim = self.num_cls
             self.net1 = EENets.Network_exploitation_MLP(input_dim, output_dim,  self.m).to(self.device)
             exp_dim = 1660 
+            self.size = 51
             output_dim = self.num_cls
             self.net2 = EENets.Network_exploration(exp_dim, output_dim, self.m).to(self.device)
 
@@ -156,6 +158,7 @@ class CBPside():
             output_dim = self.num_cls
             self.net1 = EENets.Network_exploitation_MLP(input_dim, output_dim,  self.m).to(self.device)
             exp_dim = 312 
+            self.size = 51
             output_dim = self.num_cls
             self.net2 = EENets.Network_exploration(exp_dim, output_dim, self.m).to(self.device)
 
@@ -168,6 +171,7 @@ class CBPside():
             output_dim = self.num_cls
             self.net1 = EENets.Network_exploitation_MLP(input_dim, output_dim,  self.m).to(self.device)
             exp_dim = 126 
+            self.size = 51
             output_dim = self.num_cls
             self.net2 = EENets.Network_exploration(exp_dim, output_dim, self.m).to(self.device)
 
@@ -180,6 +184,7 @@ class CBPside():
             output_dim = self.num_cls
             self.net1 = EENets.Network_exploitation_MLP(input_dim, output_dim,  self.m).to(self.device)
             exp_dim = 308 
+            self.size = 51
             output_dim = self.num_cls
             self.net2 = EENets.Network_exploration(exp_dim, output_dim, self.m).to(self.device)
 
@@ -192,6 +197,7 @@ class CBPside():
             output_dim = self.num_cls
             self.net1 = EENets.Network_exploitation_MLP(input_dim, output_dim,  self.m).to(self.device)
             exp_dim = 134 
+            self.size = 51
             output_dim = self.num_cls
             self.net2 = EENets.Network_exploration(exp_dim, output_dim, self.m).to(self.device)
 
@@ -317,7 +323,7 @@ class CBPside():
         return action, history
 
 
-    def update(self, action, feedback, outcome, t, X):
+    def update(self, action, feedback, outcome, t, X, loss):
 
 
         ### UPDATE PSEUDO-COUNTS:

@@ -52,6 +52,7 @@ class Evaluation:
         context_generator, alg = job
 
         cumRegret =  np.zeros(self.horizon, dtype =float)
+        history = [None] * self.horizon
         print('start 3')
 
         for t in range(self.horizon):
@@ -63,34 +64,29 @@ class Evaluation:
             print(context.shape)
 
 
-            # print('context', context)
-            if self.game.M>2:
-                outcome = np.argmax(distribution) 
-            else:
-                outcome = 0 if distribution[0]<0.5 else 1
+            outcome = np.argmax(distribution) 
 
-            
-            #print('context shape', context.shape)
             
             action, _ = alg.get_action(t, context)
 
             feedback =  self.get_feedback( game, action, outcome )
+            
 
-            alg.update(action, feedback, outcome, t, context )
+            alg.update(action, feedback, outcome, t, context, game.LossMatrix )
 
             i_star = np.argmin(  [ game.LossMatrix[i,...] @ np.array( distribution ) for i in range(alg.N) ]  )
             loss_diff = game.LossMatrix[action,...] - game.LossMatrix[i_star,...]
             val = loss_diff @ np.array( distribution )
             cumRegret[t] =  val
-
+            history[t] = [action, outcome]
             print('t', t, 'action', action, 'outcome', outcome, 'regret', val  )
 
 
-        result = np.cumsum(cumRegret)
+        result = {'regret': np.cumsum(cumRegret), 'history':history}
         print(result)
         print('finished')
         with gzip.open( './results/{}_{}_{}_{}_{}_{}.pkl.gz'.format(self.case, self.model, self.context_type, self.horizon, self.n_folds, self.label) ,'ab') as f:
             pkl.dump(result,f)
         print('saved')
 
-        return True
+        return result

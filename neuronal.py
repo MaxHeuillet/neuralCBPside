@@ -15,13 +15,14 @@ import EENets
 class NeuronAL():
 
 
-    def __init__(self, model, context_type, budget, num_cls, margin, m, device):
+    def __init__(self, model, context_type, budget, num_cls, margin, unit_loss, m, device):
         self.name = 'neuronal'
         
         self.device = device
         self.model = model
         self.num_cls = num_cls
         self.m = m
+        self.unit_loss = unit_loss
         self.budget = budget
         self.query_num = 0
         self.margin = margin #according to their parameter search
@@ -159,7 +160,7 @@ class NeuronAL():
 
         return action, history
     
-    def update(self, action, feedback, outcome, t, X):
+    def update(self, action, feedback, outcome, t, X, lossmatrix):
 
         lbl = outcome 
 
@@ -169,7 +170,7 @@ class NeuronAL():
             self.X1_train.append(self.X)
             self.X2_train.append( self.dc )
             r_1 = torch.zeros(self.num_cls).to(self.device)
-            r_1[lbl] = 1
+            r_1[lbl] = 1 if self.unit_loss==True else lossmatrix[ self.pred ][ outcome ]
             self.y1.append(r_1) 
             self.y2.append((r_1 - self.f1)[0])
             
@@ -184,7 +185,6 @@ class NeuronAL():
     def train_NN_batch(self, model, hist_X, hist_Y, num_epochs=40, lr=0.0001, batch_size=64):
         model.train()
 
-        
         hist_X = torch.cat(hist_X).float()
         hist_Y = torch.stack(hist_Y).float().detach()
         # print(hist_X.shape, hist_Y.shape)

@@ -75,8 +75,6 @@ class Bandit_multi:
                 X, y = pkl.load(file)
 
             X = pd.get_dummies(X)
-            # avoid nan, set nan as -1
-            # print(X,y)
             unique_values = set(y.values)
             label_map = {value:i for i,value in enumerate(unique_values)}
             y = y.map(label_map)
