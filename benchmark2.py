@@ -64,6 +64,10 @@ print(args.context_type, args.approach)
 
 if args.case == 'case1':
     game = games.game_case1( {} )
+elif args.case == 'case1b':
+    game = games.game_case1b( {} )
+elif args.case == 'case1c':
+    game = games.game_case1c( {} )
 elif args.case == 'case2':
     game = games.game_case2( {} )
 elif args.case == 'case3':
