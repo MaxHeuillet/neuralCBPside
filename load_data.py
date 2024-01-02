@@ -2,6 +2,23 @@ from sklearn.datasets import fetch_openml
 import pickle as pkl
 import gzip
 
+from torchvision import datasets
+
+print('download CIFAR10')
+
+datasets.CIFAR10(root='./data', train=True, download=True)
+datasets.CIFAR10(root='./data', train=False,  download=True)
+
+print('download FashionMNIST')
+
+datasets.FashionMNIST(root='./data', train=True,  download=True)
+datasets.FashionMNIST(root='./data', train=False,  download=True)
+
+print('download MNIST')
+
+datasets.MNIST(root='./data', train=True, download=True)
+datasets.MNIST(root='./data', train=False,  download=True)
+
 print('download MagicTelescope')
 
 # Downloading the dataset

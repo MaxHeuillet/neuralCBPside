@@ -173,6 +173,8 @@ class CustomContexts():
 ####################################################################################################
 #####################################################################################################
 
+
+
 class FashionMNISTContexts():
 
     def __init__(self, eval):
@@ -230,6 +232,7 @@ class FashionMNISTContexts():
         X = torch.cat(X).float().to('cuda:0')
         
         return X, y
+
 
 
 class CIFAR10Contexts():
