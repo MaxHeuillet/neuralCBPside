@@ -87,28 +87,25 @@ if args.context_type == 'MNISTbinary':
     context_generator = synthetic_data.MNISTcontexts_binary(eval)
     context_generator.initiate_loader()
 
-
 elif args.context_type == 'adult':
     data = synthetic_data.Bandit_multi('adult') 
-    context_generator = synthetic_data.CustomContexts_binary(eval)
+    context_generator = synthetic_data.CustomContexts(eval)
     context_generator.initiate_loader(data.X, data.y)
     
-
 elif args.context_type == 'MagicTelescope':
     data = synthetic_data.Bandit_multi('MagicTelescope') 
-    context_generator = synthetic_data.CustomContexts_binary(eval)
+    context_generator = synthetic_data.CustomContexts(eval)
     context_generator.initiate_loader(data.X, data.y)
 
 elif args.context_type == 'covertype':
     data = synthetic_data.Bandit_multi('covertype') 
-    context_generator = synthetic_data.CustomContexts_binary(eval)
+    context_generator = synthetic_data.CustomContexts(eval)
     context_generator.initiate_loader(data.X, data.y)
 
 elif args.context_type == 'shuttle':
     data = synthetic_data.Bandit_multi('shuttle') 
-    context_generator = synthetic_data.CustomContexts_binary(eval)
+    context_generator = synthetic_data.CustomContexts(eval)
     context_generator.initiate_loader(data.X, data.y)
-
 
 elif args.context_type == 'MNIST':
     context_generator = synthetic_data.MNISTcontexts(eval)

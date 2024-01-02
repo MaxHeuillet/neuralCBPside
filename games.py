@@ -36,7 +36,29 @@ class Game():
                feedback = random.choices(feedbacks, weights=noise)[0]
           return feedback
 
-     
+def game_bandit( noise ):
+
+    name = 'bandit'
+    LossMatrix = np.array( [ [1, 1],[0, 1],[1, 0] ] )
+    FeedbackMatrix = np.array(  [ [0, 1], [2, 2], [2, 2] ] )
+
+    signal_matrices = [ np.array( [ [1, 0],[0, 1] ]), np.array( [ [1,1] ] ), np.array( [ [1,1] ] ) ] 
+
+    mathcal_N = [  [1,2] ] 
+
+    v = {1: {2: [ np.array([-1,  1]), np.array([0]), np.array([0])]}, } 
+    
+    N_plus =  collections.defaultdict(dict)
+    N_plus[1][2] = [ 1, 2 ]
+
+    V = collections.defaultdict(dict)
+    V[1][2] = [ 0, ]
+
+    informative_symbols = [0, 1]
+
+    return Game( name, informative_symbols, noise, LossMatrix, FeedbackMatrix, signal_matrices, mathcal_N, v, N_plus, V )
+
+
 
 def game_case1( noise ):
 
@@ -59,6 +81,9 @@ def game_case1( noise ):
     informative_symbols = [0, 1]
 
     return Game( name, informative_symbols, noise, LossMatrix, FeedbackMatrix, signal_matrices, mathcal_N, v, N_plus, V )
+
+
+
 
 
 def game_case1b( noise ):
