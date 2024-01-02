@@ -65,6 +65,10 @@ class CesaBianchi():
 
         self.K = 0
 
+    def predictor(self,X,y):
+        y_pred = self.func(X)
+        return y_pred
+
 
     def reset(self, d):
         self.d = d

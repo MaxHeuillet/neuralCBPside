@@ -64,6 +64,10 @@ class INeurALmulti():
 
         self.X1_train, self.X2_train, self.y1, self.y2 = [], [], [], []
 
+    def predictor(self,X,y):
+        y_pred = self.net1(X)
+        return y_pred
+
     def reset(self, d):
 
         self.d = d

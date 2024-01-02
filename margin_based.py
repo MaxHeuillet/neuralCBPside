@@ -67,7 +67,10 @@ class MarginBased():
         self.H = 50
 
         self.margin = margin
-
+        
+    def predictor(self,X,y):
+        y_pred = self.func(X)
+        return y_pred
 
     def reset(self, d, ):
         self.d = d

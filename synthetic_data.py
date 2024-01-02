@@ -221,7 +221,10 @@ class FashionMNISTContexts():
 
         # Iterate over the dataset and separate the features and labels
         for data, target in self.test_dataset:
-            X.append( data.flatten().unsqueeze(0) )
+            if self.eval.model == 'MLP':
+                X.append( data.flatten().unsqueeze(0) )
+            elif self.eval.model == 'LeNet':
+                X.append( data )
             y.append(target)
 
         X = torch.cat(X).float().to('cuda:0')
@@ -277,7 +280,10 @@ class CIFAR10Contexts():
 
         # Iterate over the dataset and separate the features and labels
         for data, target in self.test_dataset:
-            X.append( data.flatten().unsqueeze(0) )
+            if self.eval.model == 'MLP':
+                X.append( data.flatten().unsqueeze(0) )
+            elif self.eval.model == 'LeNet':
+                X.append( data )
             y.append(target)
 
         X = torch.cat(X).float().to('cuda:0')
@@ -334,7 +340,10 @@ class MNISTcontexts():
 
         # Iterate over the dataset and separate the features and labels
         for data, target in self.test_dataset:
-            X.append( data.flatten().unsqueeze(0) )
+            if self.eval.model == 'MLP':
+                X.append( data.flatten().unsqueeze(0) )
+            elif self.eval.model == 'LeNet':
+                X.append( data )
             y.append(target)
 
         X = torch.cat(X).float().to('cuda:0')
@@ -390,7 +399,10 @@ class MNISTcontexts_binary():
 
         # Iterate over the dataset and separate the features and labels
         for data, target in self.test_dataset:
-            X.append( data.flatten().unsqueeze(0) )
+            if self.eval.model == 'MLP':
+                X.append( data.flatten().unsqueeze(0) )
+            elif self.eval.model == 'LeNet':
+                X.append( data )
             target = 1 if target % 2 == 0 else 0
             y.append(target)
 
