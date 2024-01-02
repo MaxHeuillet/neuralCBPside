@@ -19,3 +19,4 @@ n_folds = int(args.n_folds)
 
 with gzip.open( './results/{}_{}_{}_{}_{}_{}.pkl.gz'.format(args.case, args.model, args.context_type, horizon, n_folds, args.approach) ,'wb') as g:
     pkl.dump( [None]*horizon, g)
+
