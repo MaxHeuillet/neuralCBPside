@@ -235,8 +235,9 @@ class CBPside():
             for i in range(self.N):
                 self.contexts[i] =  {'V_it_inv': torch.eye(exp_dim)  }
 
-
-
+    def predictor(self,X,y):
+        y_pred, _ = self.net1(X)
+        return y_pred
 
     def get_action(self, t, X):
 

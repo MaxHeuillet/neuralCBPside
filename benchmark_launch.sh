@@ -7,7 +7,7 @@
 #SBATCH --gpus-per-node=1
 
 #SBATCH --mem-per-cpu=4000M
-#SBATCH --time=00:30:00
+#SBATCH --time=01:00:00
 
 #SBATCH --mail-user=maxime.heuillet.1@ulaval.ca
 #SBATCH --mail-type=ALL
@@ -22,8 +22,8 @@ module load python/3.10
 module load scipy-stack
 # module load gurobi
 
-source /home/mheuill/projects/def-adurand/mheuill/MYENV3/bin/activate
-# source /home/mheuill/projects/def-adurand/mheuill/ENV_nogurobi/bin/activate
+# source /home/mheuill/projects/def-adurand/mheuill/MYENV3/bin/activate
+source /home/mheuill/projects/def-adurand/mheuill/ENV_nogurobi/bin/activate
 # source /home/mheuill/projects/def-adurand/mheuill/Gurobi_Py310/bin/activate
 
 # virtualenv-clone /home/mheuill/projects/def-adurand/mheuill/MYENV3 $SLURM_TMPDIR/MYENV2

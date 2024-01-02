@@ -13,6 +13,9 @@ from functools import partial
 import pickle as pkl
 import gzip
 
+from sklearn.metrics import f1_score
+from sklearn.metrics import accuracy_score
+
 class Evaluation:
 
     def __init__(self, case, model, n_folds, horizon, game, label, context_type):
@@ -53,7 +56,7 @@ class Evaluation:
 
         cumRegret =  np.zeros(self.horizon, dtype =float)
         history = [None] * self.horizon
-        print('start 3')
+        pred_performance = {}
 
         for t in range(self.horizon):
 
@@ -81,8 +84,16 @@ class Evaluation:
             history[t] = [action, outcome]
             print('t', t, 'action', action, 'outcome', outcome, 'regret', val  )
 
+            if t in [50, 100, 500, 1000, 5000, 9999]:
+                X, y = context_generator.get_context()
+                X = X.to('cuda:0')
+                y_probas = alg.predictor(X)
+                y_pred = torch.argmax( y_probas, 1 ).tolist()
+                accuracy_score = accuracy_score(y, y_pred)
+                f1_score = f1_score(y, y_pred, average='weighted')
+                pred_performance[t] = {'accuracy':accuracy_score, 'f1':f1_score}
 
-        result = {'regret': np.cumsum(cumRegret), 'history':history}
+        result = {'regret': np.cumsum(cumRegret), 'history':history, 'pred':pred_performance}
         print(result)
         print('finished')
         with gzip.open( './results/{}_{}_{}_{}_{}_{}.pkl.gz'.format(self.case, self.model, self.context_type, self.horizon, self.n_folds, self.label) ,'ab') as f:

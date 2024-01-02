@@ -29,6 +29,10 @@ class NeuronAL():
         self.N = num_cls+1
         self.context_type = context_type
 
+    def predictor(self,X,y):
+        y_pred, _ = self.net1(X)
+        return y_pred
+
     def reset(self, d):
 
         self.d = d
