@@ -201,7 +201,7 @@ class FashionMNISTContexts():
             self.d = x.shape
 
     def get_context(self):
-        x, y = self.test_loader[self.index]
+        x, y = self.train_loader[self.index]
 
         if self.eval.model == 'MLP':
             x = x.view(-1)  # Flatten the image
@@ -261,7 +261,7 @@ class CIFAR10Contexts():
             self.d = x.shape
 
     def get_context(self):
-        x, y = self.test_loader[self.index]
+        x, y = self.train_loader[self.index]
 
         if self.eval.model == 'MLP':
             x = x.view(-1)  # Flatten the image
@@ -321,7 +321,7 @@ class MNISTcontexts():
 
     def get_context(self,):
         
-        x, y = self.test_loader[self.index]
+        x, y = self.train_loader[self.index]
 
         if self.eval.model == 'MLP':
             x = x.flatten()
