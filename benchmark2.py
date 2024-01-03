@@ -154,7 +154,6 @@ elif args.approach == 'ineural6':
     margin = 6
     alg = ineural_multi.INeurALmulti(budget, nclasses, margin, m, 'cuda:0')
 
-
 elif args.approach == 'neuronal3':
     budget = eval.horizon
     margin = 3
