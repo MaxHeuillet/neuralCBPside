@@ -158,12 +158,13 @@ elif args.approach == 'ineural6':
 elif args.approach == 'neuronal3':
     budget = eval.horizon
     margin = 3
-    alg = neuronal.NeuronAL(eval.model,args.context_type, budget, nclasses, margin, m,'cuda:0')
+    alg = neuronal.NeuronAL(eval.model,args.context_type, budget, nclasses, margin, True, m,'cuda:0')
+
 
 elif args.approach == 'neuronal6':
     budget = eval.horizon
     margin = 6
-    alg = neuronal.NeuronAL(eval.model,args.context_type, budget, nclasses, margin, m,'cuda:0')
+    alg = neuronal.NeuronAL(eval.model, args.context_type, budget, nclasses, margin, True, m,'cuda:0')
 
 elif args.approach == 'margin':
     threshold = 0.1

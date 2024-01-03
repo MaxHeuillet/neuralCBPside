@@ -89,9 +89,9 @@ class Evaluation:
                 X = X.to('cuda:0')
                 y_probas = alg.predictor(X,y)
                 y_pred = torch.argmax( y_probas, 1 ).tolist()
-                accuracy_score = accuracy_score(y, y_pred)
-                f1_score = f1_score(y, y_pred, average='weighted')
-                pred_performance[t] = {'accuracy':accuracy_score, 'f1':f1_score}
+                acc = accuracy_score(y, y_pred)
+                f1 = f1_score(y, y_pred, average='weighted')
+                pred_performance[t] = {'accuracy':acc, 'f1':f1}
 
         result = {'regret': np.cumsum(cumRegret), 'history':history, 'pred':pred_performance}
         print(result)

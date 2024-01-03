@@ -65,8 +65,17 @@ class INeurALmulti():
         self.X1_train, self.X2_train, self.y1, self.y2 = [], [], [], []
 
     def predictor(self,X,y):
-        y_pred = self.net1(X)
-        return y_pred
+        y_preds = []
+        for x in X:
+            x = x.unsqueeze(0)
+            print('x shape', x.shape)
+            x_list = self.encode_context(x)
+            f1_list = []
+            for k in range(self.num_cls):
+                y_pred = self.net1(x_list[k])
+                f1_list.append( y_pred.item() )
+            y_preds.append(f1_list)
+        return torch.Tensor(y_preds)
 
     def reset(self, d):
 
@@ -130,10 +139,6 @@ class INeurALmulti():
             explored = 1
         else:
             explored = 0
-
-        # if (explored ==1) and (self.query_num < self.budget):
-        #     if random.random() > self.ber:
-        #         explored = 1
 
         action = self.pred if explored == 0 else 0
         print('action', action)
