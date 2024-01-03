@@ -406,7 +406,9 @@ class MNISTcontexts_binary():
                 X.append( data.flatten().unsqueeze(0) )
             elif self.eval.model == 'LeNet':
                 X.append( data )
-            target = 1 if target % 2 == 0 else 0
+            p = 1 if target % 2 == 0 else 0
+            val = [ p, 1-p ]
+            target = np.argmax(val)
             y.append(target)
 
         X = torch.cat(X).float().to('cuda:0')

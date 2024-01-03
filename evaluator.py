@@ -55,7 +55,8 @@ class Evaluation:
         context_generator, alg = job
 
         cumRegret =  np.zeros(self.horizon, dtype =float)
-        history = [None] * self.horizon
+        action_history = [None] * self.horizon
+        outcome_history = [None] * self.horizon
         pred_performance = {}
         n_verifs = 0
 
@@ -86,19 +87,23 @@ class Evaluation:
             loss_diff = game.LossMatrix[action,...] - game.LossMatrix[i_star,...]
             val = loss_diff @ np.array( distribution )
             cumRegret[t] =  val
-            history[t] = [action, outcome]
+            action_history[t] = action
+            outcome_history[t] = outcome
             print('t', t, 'action', action, 'outcome', outcome, 'regret', val  )
 
-            if n_verifs in [50, 100, 500, 1000, 2500, 5000, 7500, 9000] and n_verifs not in pred_performance.keys():
+            if n_verifs in [10, 50, 100, 250, 500, 750, 1000, 2500, 5000, 7500, 9000] and n_verifs not in pred_performance.keys():
                 X, y = context_generator.get_test_data()
                 X = X.to('cuda:0')
                 y_probas = alg.predictor(X,y)
                 y_pred = torch.argmax( y_probas, 1 ).tolist()
                 acc = accuracy_score(y, y_pred)
                 f1 = f1_score(y, y_pred, average='weighted')
+                print('y', y)
+                print('ypred', y_pred)
                 pred_performance[n_verifs] = {'accuracy':acc, 'f1':f1}
 
-        result = {'regret': np.cumsum(cumRegret), 'history':history, 'pred':pred_performance}
+        result = {'regret': np.cumsum(cumRegret), 'action_history':action_history,
+                  'outcome_history':outcome_history, 'pred':pred_performance}
         print(result)
         print('finished')
         with gzip.open( './results/{}_{}_{}_{}_{}_{}.pkl.gz'.format(self.case, self.model, self.context_type, self.horizon, self.n_folds, self.label) ,'ab') as f:
