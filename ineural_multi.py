@@ -68,7 +68,7 @@ class INeurALmulti():
         y_preds = []
         for x in X:
             x = x.unsqueeze(0)
-            print('x shape', x.shape)
+            # print('x shape', x.shape)
             x_list = self.encode_context(x)
             f1_list = []
             for k in range(self.num_cls):

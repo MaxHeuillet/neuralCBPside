@@ -57,6 +57,7 @@ class Evaluation:
         cumRegret =  np.zeros(self.horizon, dtype =float)
         history = [None] * self.horizon
         pred_performance = {}
+        n_verifs = 0
 
         for t in range(self.horizon):
 
@@ -72,10 +73,14 @@ class Evaluation:
             
             action, _ = alg.get_action(t, context)
 
+
             feedback =  self.get_feedback( game, action, outcome )
             
 
             alg.update(action, feedback, outcome, t, context, game.LossMatrix )
+
+            if action == 0:
+                n_verifs += 1
 
             i_star = np.argmin(  [ game.LossMatrix[i,...] @ np.array( distribution ) for i in range(alg.N) ]  )
             loss_diff = game.LossMatrix[action,...] - game.LossMatrix[i_star,...]
@@ -84,11 +89,12 @@ class Evaluation:
             history[t] = [action, outcome]
             print('t', t, 'action', action, 'outcome', outcome, 'regret', val  )
 
-            if t in [50, 100, 500, 1000, 5000, 9999]:
+            if n_verifs in [50, 100, 500, 1000, 5000, 9000]:
                 X, y = context_generator.get_context()
                 X = X.to('cuda:0')
                 y_probas = alg.predictor(X,y)
                 y_pred = torch.argmax( y_probas, 1 ).tolist()
+                print(len(y), len(y_pred))
                 acc = accuracy_score(y, y_pred)
                 f1 = f1_score(y, y_pred, average='weighted')
                 pred_performance[t] = {'accuracy':acc, 'f1':f1}
