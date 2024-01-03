@@ -87,7 +87,7 @@ class Evaluation:
             if t in [50, 100, 500, 1000, 5000, 9999]:
                 X, y = context_generator.get_context()
                 X = X.to('cuda:0')
-                y_probas = alg.predictor(X)
+                y_probas = alg.predictor(X,y)
                 y_pred = torch.argmax( y_probas, 1 ).tolist()
                 accuracy_score = accuracy_score(y, y_pred)
                 f1_score = f1_score(y, y_pred, average='weighted')
