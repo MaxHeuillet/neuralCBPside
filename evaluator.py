@@ -99,7 +99,7 @@ class Evaluation:
                 y_pred = torch.argmax( y_probas, 1 ).tolist()
                 acc = accuracy_score(y, y_pred)
                 f1 = f1_score(y, y_pred, average='weighted')
-                pred_performance[t] = {'accuracy':acc, 'f1':f1, 'nverifs':n_verifs}
+                pred_performance[n_verifs] = {'accuracy':acc, 'f1':f1, 'nverifs':n_verifs}
 
         result = {'regret': np.cumsum(cumRegret), 'action_history':action_history,
                   'outcome_history':outcome_history, 'pred':pred_performance}
