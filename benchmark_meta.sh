@@ -88,7 +88,6 @@ nfolds=$1
 ##### To evaluate on the other tasks with MLP
 #######################################
 
-
 case='game_case_seven'
 model='MLP'
 
@@ -109,8 +108,6 @@ for context_type in "${context_types[@]}"; do
 
     done
 done
-
-
 
 #######################################
 ##### To evaluate with LeNet on MNIST, Fashion-MNIST, CIFAR-10 
