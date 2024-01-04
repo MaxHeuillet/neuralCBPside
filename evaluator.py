@@ -91,17 +91,15 @@ class Evaluation:
             outcome_history[t] = outcome
             print('t', t, 'action', action, 'outcome', outcome, 'regret', val  )
 
-            # if n_verifs in [10, 50, 100, 250, 500, 750, 1000, 2500, 5000, 7500, 9000] and n_verifs not in pred_performance.keys():
-            if t in [10, 50, 100, 250, 500, 750, 1000, 2500, 5000, 7500, 9000]:
+            if n_verifs in [10, 50, 100, 250, 500, 750, 1000, 2500, 5000, 7500, 9000] and n_verifs not in pred_performance.keys():
+            # if t in [10, 50, 100, 250, 500, 750, 1000, 2500, 5000, 7500, 9000]:
                 X, y = context_generator.get_test_data()
                 X = X.to('cuda:0')
                 y_probas = alg.predictor(X,y)
                 y_pred = torch.argmax( y_probas, 1 ).tolist()
                 acc = accuracy_score(y, y_pred)
                 f1 = f1_score(y, y_pred, average='weighted')
-                print('y', y)
-                print('ypred', y_pred)
-                pred_performance[n_verifs] = {'accuracy':acc, 'f1':f1, 'nverifs':n_verifs}
+                pred_performance[t] = {'accuracy':acc, 'f1':f1, 'nverifs':n_verifs}
 
         result = {'regret': np.cumsum(cumRegret), 'action_history':action_history,
                   'outcome_history':outcome_history, 'pred':pred_performance}
