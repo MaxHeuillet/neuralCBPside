@@ -65,7 +65,7 @@ done
 case='case2'
 model='MLP'
 
-context_types=('CIFAR10' 'MNIST' 'FASHION' 'covertype' 'shuttle') 
+context_types=(  'covertype' 'shuttle') #'MNIST' 'FASHION'
 approaches=( 'EEneuralcbpside_v6' 'ineural3' 'ineural6' 'neuronal3' 'neuronal6') 
 
 for context_type in "${context_types[@]}"; do
