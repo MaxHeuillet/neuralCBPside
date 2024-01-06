@@ -210,7 +210,7 @@ class CBPside():
             channels = 3
             print(channels)
             latent_dim = 1200
-            self.net1 = EENets.Network_exploitation_LeNet(latent_dim,channels, output_dim,  ).to(self.device)
+            self.net1 = EENets.Network_exploitation_LeNet(latent_dim, channels, output_dim,  ).to(self.device)
             self.size = 153
             exp_dim = 3948 
             output_dim = self.num_cls
@@ -236,9 +236,13 @@ class CBPside():
                 self.contexts[i] =  {'V_it_inv': torch.eye(exp_dim)  }
 
     def predictor(self,X,y):
-        if self.model == 'LeNet':
-            # X = torch.squeeze(X, 0)
+        if self.context_type == 'CIFAR10' and self.model == 'LeNet':
             # X = torch.unsqueeze(X, 1)
+            print(X.shape)
+            y_pred, _ = self.net1(X)
+        elif self.context_type in ['MNIST', 'FASHION'] and self.model == 'LeNet':
+            X = torch.squeeze(X, 0)
+            X = torch.unsqueeze(X, 1)
             y_pred, _ = self.net1(X)
         else:
             y_pred, _ = self.net1(X)

@@ -249,11 +249,12 @@ class CIFAR10Contexts():
 
         test_dataset = datasets.CIFAR10(root='./data', train=False, transform=transform, download=True)
         self.test_dataset = [(img, label) for img, label in test_dataset]
+        # print('test', len(self.test_dataset[0][0]) )
         self.eval.env_random_state.shuffle(self.test_dataset)
 
         self.index = 0
         x, y = self.train_loader[self.index]
-        print(y)
+        # print(y)
         if self.eval.model == 'MLP':
             x = x.flatten()
             self.d = x.shape[0]
@@ -289,7 +290,10 @@ class CIFAR10Contexts():
                 X.append( data )
             y.append(target)
 
-        X = torch.cat(X).float().to('cuda:0')
+        if self.eval.model == 'MLP':
+            X = torch.cat(X).float().to('cuda:0')
+        elif self.eval.model == 'LeNet':
+            X =  torch.stack(X, dim=0).to('cuda:0')
         
         return X, y
 
