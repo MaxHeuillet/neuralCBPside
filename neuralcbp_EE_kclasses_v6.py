@@ -237,8 +237,8 @@ class CBPside():
 
     def predictor(self,X,y):
         if self.model == 'LeNet':
-            X = torch.squeeze(X, 0)
-            X = torch.unsqueeze(X, 1)
+            # X = torch.squeeze(X, 0)
+            # X = torch.unsqueeze(X, 1)
             y_pred, _ = self.net1(X)
         else:
             y_pred, _ = self.net1(X)
