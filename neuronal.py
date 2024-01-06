@@ -30,7 +30,11 @@ class NeuronAL():
         self.context_type = context_type
 
     def predictor(self,X,y):
-        if self.model == 'LeNet':
+        if self.context_type == 'CIFAR10' and self.model == 'LeNet':
+            # X = torch.unsqueeze(X, 1)
+            print(X.shape)
+            y_pred, _ = self.net1(X)
+        elif self.context_type in ['MNIST', 'FASHION'] and self.model == 'LeNet':
             X = torch.squeeze(X, 0)
             X = torch.unsqueeze(X, 1)
             y_pred, _ = self.net1(X)
