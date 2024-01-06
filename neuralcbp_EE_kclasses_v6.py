@@ -236,7 +236,12 @@ class CBPside():
                 self.contexts[i] =  {'V_it_inv': torch.eye(exp_dim)  }
 
     def predictor(self,X,y):
-        y_pred, _ = self.net1(X)
+        if self.model == 'LeNet':
+            X = torch.squeeze(X, 0)
+            X = torch.unsqueeze(X, 1)
+            y_pred, _ = self.net1(X)
+        else:
+            y_pred, _ = self.net1(X)
         return y_pred
 
     def get_action(self, t, X):
