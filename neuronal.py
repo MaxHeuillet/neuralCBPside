@@ -30,7 +30,12 @@ class NeuronAL():
         self.context_type = context_type
 
     def predictor(self,X,y):
-        y_pred, _ = self.net1(X)
+        if self.model == 'LeNet':
+            X = torch.squeeze(X, 0)
+            X = torch.unsqueeze(X, 1)
+            y_pred, _ = self.net1(X)
+        else:
+            y_pred, _ = self.net1(X)
         return y_pred
 
     def reset(self, d):
@@ -140,6 +145,7 @@ class NeuronAL():
         # print('X shape', X.shape)
         
         self.X = X.to(self.device)
+
         self.f1, self.f2, self.dc = EENets.EE_forward(self.net1, self.net2, self.X, self.size)
         u = self.f1[0] + self.f2 #1 / (self.query_num+1) *
         # print('u', u)
