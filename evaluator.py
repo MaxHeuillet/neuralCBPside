@@ -15,6 +15,8 @@ import gzip
 
 from sklearn.metrics import f1_score
 from sklearn.metrics import accuracy_score
+from sklearn.metrics import confusion_matrix
+
 
 class Evaluation:
 
@@ -100,9 +102,15 @@ class Evaluation:
                 acc = accuracy_score(y, y_pred)
                 f1 = f1_score(y, y_pred, average='weighted')
                 pred_performance[n_verifs] = {'accuracy':acc, 'f1':f1, 'nverifs':n_verifs}
-
+        
+        X, y = context_generator.get_test_data()
+        X = X.to('cuda:0')
+        y_probas = alg.predictor(X,y)
+        y_pred = torch.argmax( y_probas, 1 ).tolist()
+        cm = confusion_matrix(y, y_pred)
         result = {'regret': np.cumsum(cumRegret), 'action_history':action_history,
-                  'outcome_history':outcome_history, 'pred':pred_performance}
+                  'outcome_history':outcome_history, 'pred':pred_performance, 'cm':cm}
+        
         print(result)
         print('finished')
         with gzip.open( './results/{}_{}_{}_{}_{}_{}.pkl.gz'.format(self.case, self.model, self.context_type, self.horizon, self.n_folds, self.label) ,'ab') as f:
