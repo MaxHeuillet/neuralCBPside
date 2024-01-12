@@ -1,0 +1,525 @@
+,Model,Dataset,Approach,Value
+0,MLP,MNIST binary,Neural-CBP,1353.0
+1,MLP,MNIST binary,Neural-CBP,1352.0
+2,MLP,MNIST binary,Neural-CBP,1556.0
+3,MLP,MNIST binary,Neural-CBP,1298.0
+4,MLP,MNIST binary,Neural-CBP,1346.0
+5,MLP,MNIST binary,Neural-CBP,1266.0
+6,MLP,MNIST binary,Neural-CBP,1200.0
+7,MLP,MNIST binary,Neural-CBP,1546.0
+8,MLP,MNIST binary,Neural-CBP,1196.0
+9,MLP,MNIST binary,Neural-CBP,1272.0
+10,MLP,MNIST binary,Neural-CBP,1377.0
+11,MLP,MNIST binary,Neural-CBP,1255.0
+12,MLP,MNIST binary,Neural-CBP,1326.0
+13,MLP,MNIST binary,Neural-CBP,1738.0
+14,MLP,MNIST binary,Neural-CBP,1284.0
+15,MLP,MNIST binary,Neural-CBP,1469.0
+16,MLP,MNIST binary,Neural-CBP,1314.0
+17,MLP,MNIST binary,Neural-CBP,1268.0
+18,MLP,MNIST binary,Neural-CBP,1317.0
+19,MLP,MNIST binary,Neural-CBP,1319.0
+20,MLP,MNIST binary,Neural-CBP,1278.0
+21,MLP,MNIST binary,Neural-CBP,1376.0
+22,MLP,MNIST binary,Neural-CBP,1284.0
+23,MLP,MNIST binary,Neural-CBP,1486.0
+24,MLP,MNIST binary,Neural-CBP,1322.0
+25,MLP,MNIST binary,IneurAL (official),3515.0
+26,MLP,MNIST binary,IneurAL (official),4350.0
+27,MLP,MNIST binary,IneurAL (official),4050.0
+28,MLP,MNIST binary,IneurAL (official),3763.0
+29,MLP,MNIST binary,IneurAL (official),3885.0
+30,MLP,MNIST binary,IneurAL (official),3933.0
+31,MLP,MNIST binary,IneurAL (official),3887.0
+32,MLP,MNIST binary,IneurAL (official),4037.0
+33,MLP,MNIST binary,IneurAL (official),4320.0
+34,MLP,MNIST binary,IneurAL (official),4003.0
+35,MLP,MNIST binary,IneurAL (official),4117.0
+36,MLP,MNIST binary,IneurAL (official),3994.0
+37,MLP,MNIST binary,IneurAL (official),4113.0
+38,MLP,MNIST binary,IneurAL (official),3884.0
+39,MLP,MNIST binary,IneurAL (official),3646.0
+40,MLP,MNIST binary,IneurAL (official),3937.0
+41,MLP,MNIST binary,IneurAL (official),3716.0
+42,MLP,MNIST binary,IneurAL (official),3567.0
+43,MLP,MNIST binary,IneurAL (official),3989.0
+44,MLP,MNIST binary,IneurAL (official),3746.0
+45,MLP,MNIST binary,IneurAL (official),4122.0
+46,MLP,MNIST binary,IneurAL (official),4128.0
+47,MLP,MNIST binary,IneurAL (official),4171.0
+48,MLP,MNIST binary,IneurAL (official),3733.0
+49,MLP,MNIST binary,IneurAL (tuned),1476.0
+50,MLP,MNIST binary,IneurAL (tuned),5081.0
+51,MLP,MNIST binary,IneurAL (tuned),1673.0
+52,MLP,MNIST binary,IneurAL (tuned),1596.0
+53,MLP,MNIST binary,IneurAL (tuned),1627.0
+54,MLP,MNIST binary,IneurAL (tuned),1557.0
+55,MLP,MNIST binary,IneurAL (tuned),1621.0
+56,MLP,MNIST binary,IneurAL (tuned),1679.0
+57,MLP,MNIST binary,IneurAL (tuned),1565.0
+58,MLP,MNIST binary,IneurAL (tuned),1572.0
+59,MLP,MNIST binary,IneurAL (tuned),1594.0
+60,MLP,MNIST binary,IneurAL (tuned),1647.0
+61,MLP,MNIST binary,IneurAL (tuned),1542.0
+62,MLP,MNIST binary,IneurAL (tuned),1597.0
+63,MLP,MNIST binary,IneurAL (tuned),1522.0
+64,MLP,MNIST binary,IneurAL (tuned),1676.0
+65,MLP,MNIST binary,IneurAL (tuned),1528.0
+66,MLP,MNIST binary,IneurAL (tuned),1519.0
+67,MLP,MNIST binary,IneurAL (tuned),1585.0
+68,MLP,MNIST binary,IneurAL (tuned),1631.0
+69,MLP,MNIST binary,IneurAL (tuned),1685.0
+70,MLP,MNIST binary,IneurAL (tuned),1522.0
+71,MLP,MNIST binary,IneurAL (tuned),1557.0
+72,MLP,MNIST binary,IneurAL (tuned),1522.0
+73,MLP,MNIST binary,IneurAL (tuned),1600.0
+74,MLP,MNIST binary,Neuronal (official),1670.0
+75,MLP,MNIST binary,Neuronal (official),1690.0
+76,MLP,MNIST binary,Neuronal (official),1692.0
+77,MLP,MNIST binary,Neuronal (official),1730.0
+78,MLP,MNIST binary,Neuronal (official),1743.0
+79,MLP,MNIST binary,Neuronal (official),1775.0
+80,MLP,MNIST binary,Neuronal (official),1737.0
+81,MLP,MNIST binary,Neuronal (official),1698.0
+82,MLP,MNIST binary,Neuronal (official),1721.0
+83,MLP,MNIST binary,Neuronal (official),1701.0
+84,MLP,MNIST binary,Neuronal (official),1772.0
+85,MLP,MNIST binary,Neuronal (official),1824.0
+86,MLP,MNIST binary,Neuronal (official),1748.0
+87,MLP,MNIST binary,Neuronal (official),1610.0
+88,MLP,MNIST binary,Neuronal (official),1684.0
+89,MLP,MNIST binary,Neuronal (official),1720.0
+90,MLP,MNIST binary,Neuronal (official),1680.0
+91,MLP,MNIST binary,Neuronal (official),1746.0
+92,MLP,MNIST binary,Neuronal (official),1730.0
+93,MLP,MNIST binary,Neuronal (official),1799.0
+94,MLP,MNIST binary,Neuronal (official),1684.0
+95,MLP,MNIST binary,Neuronal (official),1664.0
+96,MLP,MNIST binary,Neuronal (official),1788.0
+97,MLP,MNIST binary,Neuronal (official),1720.0
+98,MLP,MNIST binary,Neuronal (official),1721.0
+99,MLP,MNIST binary,Neuronal (tuned),1338.0
+100,MLP,MNIST binary,Neuronal (tuned),1351.0
+101,MLP,MNIST binary,Neuronal (tuned),1531.0
+102,MLP,MNIST binary,Neuronal (tuned),1452.0
+103,MLP,MNIST binary,Neuronal (tuned),5186.0
+104,MLP,MNIST binary,Neuronal (tuned),1447.0
+105,MLP,MNIST binary,Neuronal (tuned),1483.0
+106,MLP,MNIST binary,Neuronal (tuned),1365.0
+107,MLP,MNIST binary,Neuronal (tuned),1483.0
+108,MLP,MNIST binary,Neuronal (tuned),1366.0
+109,MLP,MNIST binary,Neuronal (tuned),1413.0
+110,MLP,MNIST binary,Neuronal (tuned),1375.0
+111,MLP,MNIST binary,Neuronal (tuned),1575.0
+112,MLP,MNIST binary,Neuronal (tuned),1467.0
+113,MLP,MNIST binary,Neuronal (tuned),5111.0
+114,MLP,MNIST binary,Neuronal (tuned),1357.0
+115,MLP,MNIST binary,Neuronal (tuned),1387.0
+116,MLP,MNIST binary,Neuronal (tuned),1379.0
+117,MLP,MNIST binary,Neuronal (tuned),1374.0
+118,MLP,MNIST binary,Neuronal (tuned),1422.0
+119,MLP,MNIST binary,Neuronal (tuned),1392.0
+120,MLP,MNIST binary,Neuronal (tuned),1343.0
+121,MLP,MNIST binary,Neuronal (tuned),1474.0
+122,MLP,MNIST binary,Neuronal (tuned),1528.0
+123,MLP,MNIST binary,Neuronal (tuned),1437.0
+124,MLP,MNIST binary,Margin,5077.0
+125,MLP,MNIST binary,Margin,2116.0
+126,MLP,MNIST binary,Margin,2552.0
+127,MLP,MNIST binary,Margin,2114.0
+128,MLP,MNIST binary,Margin,2059.0
+129,MLP,MNIST binary,Margin,1998.0
+130,MLP,MNIST binary,Margin,5095.0
+131,MLP,MNIST binary,Margin,3501.0
+132,MLP,MNIST binary,Margin,5182.0
+133,MLP,MNIST binary,Margin,5016.0
+134,MLP,MNIST binary,Margin,2104.0
+135,MLP,MNIST binary,Margin,2037.0
+136,MLP,MNIST binary,Margin,1842.0
+137,MLP,MNIST binary,Margin,1975.0
+138,MLP,MNIST binary,Margin,2252.0
+139,MLP,MNIST binary,Margin,2178.0
+140,MLP,MNIST binary,Margin,2158.0
+141,MLP,MNIST binary,Margin,1923.0
+142,MLP,MNIST binary,Margin,4981.0
+143,MLP,MNIST binary,Margin,5077.0
+144,MLP,MNIST binary,Margin,5062.0
+145,MLP,MNIST binary,Margin,5115.0
+146,MLP,MNIST binary,Margin,2047.0
+147,MLP,MNIST binary,Margin,1921.0
+148,MLP,MNIST binary,Margin,5036.0
+149,MLP,MNIST binary,Cesa,4718.0
+150,MLP,MNIST binary,Cesa,4760.0
+151,MLP,MNIST binary,Cesa,5182.0
+152,MLP,MNIST binary,Cesa,4682.0
+153,MLP,MNIST binary,Cesa,4637.0
+154,MLP,MNIST binary,Cesa,3855.0
+155,MLP,MNIST binary,Cesa,5084.0
+156,MLP,MNIST binary,Cesa,5088.0
+157,MLP,MNIST binary,Cesa,5094.0
+158,MLP,MNIST binary,Cesa,5122.0
+159,MLP,MNIST binary,Cesa,4841.0
+160,MLP,MNIST binary,Cesa,5285.0
+161,MLP,MNIST binary,Cesa,5054.0
+162,MLP,MNIST binary,Cesa,5093.0
+163,MLP,MNIST binary,Cesa,4028.0
+164,MLP,MNIST binary,Cesa,5102.0
+165,MLP,MNIST binary,Cesa,4976.0
+166,MLP,MNIST binary,Cesa,5545.0
+167,MLP,MNIST binary,Cesa,4759.0
+168,MLP,MNIST binary,Cesa,5023.0
+169,MLP,MNIST binary,Cesa,4220.0
+170,MLP,MNIST binary,Cesa,4980.0
+171,MLP,MNIST binary,Cesa,4348.0
+172,MLP,MNIST binary,Cesa,5077.0
+173,MLP,MNIST binary,Cesa,4783.0
+174,MLP,MagicTelescope,Neural-CBP,3082.0
+175,MLP,MagicTelescope,Neural-CBP,2887.0
+176,MLP,MagicTelescope,Neural-CBP,3512.0
+177,MLP,MagicTelescope,Neural-CBP,3796.0
+178,MLP,MagicTelescope,Neural-CBP,3532.0
+179,MLP,MagicTelescope,Neural-CBP,2722.0
+180,MLP,MagicTelescope,Neural-CBP,3074.0
+181,MLP,MagicTelescope,Neural-CBP,2869.0
+182,MLP,MagicTelescope,Neural-CBP,2844.0
+183,MLP,MagicTelescope,Neural-CBP,2695.0
+184,MLP,MagicTelescope,Neural-CBP,2732.0
+185,MLP,MagicTelescope,Neural-CBP,2976.0
+186,MLP,MagicTelescope,Neural-CBP,2642.0
+187,MLP,MagicTelescope,Neural-CBP,3560.0
+188,MLP,MagicTelescope,Neural-CBP,3044.0
+189,MLP,MagicTelescope,Neural-CBP,3306.0
+190,MLP,MagicTelescope,Neural-CBP,2716.0
+191,MLP,MagicTelescope,Neural-CBP,2800.0
+192,MLP,MagicTelescope,Neural-CBP,2556.0
+193,MLP,MagicTelescope,Neural-CBP,3312.0
+194,MLP,MagicTelescope,Neural-CBP,2893.0
+195,MLP,MagicTelescope,Neural-CBP,2926.0
+196,MLP,MagicTelescope,Neural-CBP,2748.0
+197,MLP,MagicTelescope,Neural-CBP,3089.0
+198,MLP,MagicTelescope,Neural-CBP,6477.0
+199,MLP,MagicTelescope,IneurAL (official),6605.0
+200,MLP,MagicTelescope,IneurAL (official),7263.0
+201,MLP,MagicTelescope,IneurAL (official),9127.0
+202,MLP,MagicTelescope,IneurAL (official),9200.0
+203,MLP,MagicTelescope,IneurAL (official),9158.0
+204,MLP,MagicTelescope,IneurAL (official),8945.0
+205,MLP,MagicTelescope,IneurAL (official),9225.0
+206,MLP,MagicTelescope,IneurAL (official),8891.0
+207,MLP,MagicTelescope,IneurAL (official),8450.0
+208,MLP,MagicTelescope,IneurAL (official),9146.0
+209,MLP,MagicTelescope,IneurAL (official),9333.0
+210,MLP,MagicTelescope,IneurAL (official),8957.0
+211,MLP,MagicTelescope,IneurAL (official),9043.0
+212,MLP,MagicTelescope,IneurAL (official),8927.0
+213,MLP,MagicTelescope,IneurAL (official),8932.0
+214,MLP,MagicTelescope,IneurAL (official),9016.0
+215,MLP,MagicTelescope,IneurAL (official),8916.0
+216,MLP,MagicTelescope,IneurAL (official),9120.0
+217,MLP,MagicTelescope,IneurAL (official),9206.0
+218,MLP,MagicTelescope,IneurAL (official),8986.0
+219,MLP,MagicTelescope,IneurAL (official),9003.0
+220,MLP,MagicTelescope,IneurAL (official),9089.0
+221,MLP,MagicTelescope,IneurAL (official),9016.0
+222,MLP,MagicTelescope,IneurAL (official),9027.0
+223,MLP,MagicTelescope,IneurAL (official),9326.0
+224,MLP,MagicTelescope,IneurAL (tuned),4679.0
+225,MLP,MagicTelescope,IneurAL (tuned),4413.0
+226,MLP,MagicTelescope,IneurAL (tuned),5001.0
+227,MLP,MagicTelescope,IneurAL (tuned),5945.0
+228,MLP,MagicTelescope,IneurAL (tuned),6462.0
+229,MLP,MagicTelescope,IneurAL (tuned),4940.0
+230,MLP,MagicTelescope,IneurAL (tuned),6099.0
+231,MLP,MagicTelescope,IneurAL (tuned),5959.0
+232,MLP,MagicTelescope,IneurAL (tuned),6261.0
+233,MLP,MagicTelescope,IneurAL (tuned),5656.0
+234,MLP,MagicTelescope,IneurAL (tuned),6461.0
+235,MLP,MagicTelescope,IneurAL (tuned),6904.0
+236,MLP,MagicTelescope,IneurAL (tuned),6151.0
+237,MLP,MagicTelescope,IneurAL (tuned),5635.0
+238,MLP,MagicTelescope,IneurAL (tuned),5611.0
+239,MLP,MagicTelescope,IneurAL (tuned),6658.0
+240,MLP,MagicTelescope,IneurAL (tuned),5666.0
+241,MLP,MagicTelescope,IneurAL (tuned),4879.0
+242,MLP,MagicTelescope,IneurAL (tuned),5244.0
+243,MLP,MagicTelescope,IneurAL (tuned),5589.0
+244,MLP,MagicTelescope,IneurAL (tuned),5707.0
+245,MLP,MagicTelescope,IneurAL (tuned),5488.0
+246,MLP,MagicTelescope,IneurAL (tuned),6131.0
+247,MLP,MagicTelescope,IneurAL (tuned),5805.0
+248,MLP,MagicTelescope,IneurAL (tuned),6111.0
+249,MLP,MagicTelescope,Neuronal (official),3515.0
+250,MLP,MagicTelescope,Neuronal (official),3526.0
+251,MLP,MagicTelescope,Neuronal (official),3541.0
+252,MLP,MagicTelescope,Neuronal (official),4050.0
+253,MLP,MagicTelescope,Neuronal (official),6513.0
+254,MLP,MagicTelescope,Neuronal (official),3886.0
+255,MLP,MagicTelescope,Neuronal (official),3538.0
+256,MLP,MagicTelescope,Neuronal (official),6460.0
+257,MLP,MagicTelescope,Neuronal (official),4150.0
+258,MLP,MagicTelescope,Neuronal (official),4328.0
+259,MLP,MagicTelescope,Neuronal (official),4876.0
+260,MLP,MagicTelescope,Neuronal (official),4600.0
+261,MLP,MagicTelescope,Neuronal (official),4087.0
+262,MLP,MagicTelescope,Neuronal (official),4543.0
+263,MLP,MagicTelescope,Neuronal (official),4509.0
+264,MLP,MagicTelescope,Neuronal (official),4396.0
+265,MLP,MagicTelescope,Neuronal (official),4556.0
+266,MLP,MagicTelescope,Neuronal (official),4606.0
+267,MLP,MagicTelescope,Neuronal (official),4646.0
+268,MLP,MagicTelescope,Neuronal (official),4648.0
+269,MLP,MagicTelescope,Neuronal (official),4299.0
+270,MLP,MagicTelescope,Neuronal (official),4564.0
+271,MLP,MagicTelescope,Neuronal (official),4608.0
+272,MLP,MagicTelescope,Neuronal (official),4729.0
+273,MLP,MagicTelescope,Neuronal (official),5410.0
+274,MLP,MagicTelescope,Neuronal (tuned),3554.0
+275,MLP,MagicTelescope,Neuronal (tuned),3514.0
+276,MLP,MagicTelescope,Neuronal (tuned),3510.0
+277,MLP,MagicTelescope,Neuronal (tuned),3554.0
+278,MLP,MagicTelescope,Neuronal (tuned),6516.0
+279,MLP,MagicTelescope,Neuronal (tuned),3565.0
+280,MLP,MagicTelescope,Neuronal (tuned),3508.0
+281,MLP,MagicTelescope,Neuronal (tuned),3540.0
+282,MLP,MagicTelescope,Neuronal (tuned),3525.0
+283,MLP,MagicTelescope,Neuronal (tuned),3564.0
+284,MLP,MagicTelescope,Neuronal (tuned),6532.0
+285,MLP,MagicTelescope,Neuronal (tuned),6479.0
+286,MLP,MagicTelescope,Neuronal (tuned),3502.0
+287,MLP,MagicTelescope,Neuronal (tuned),3491.0
+288,MLP,MagicTelescope,Neuronal (tuned),6475.0
+289,MLP,MagicTelescope,Neuronal (tuned),3541.0
+290,MLP,MagicTelescope,Neuronal (tuned),6521.0
+291,MLP,MagicTelescope,Neuronal (tuned),3524.0
+292,MLP,MagicTelescope,Neuronal (tuned),3547.0
+293,MLP,MagicTelescope,Neuronal (tuned),3560.0
+294,MLP,MagicTelescope,Neuronal (tuned),3532.0
+295,MLP,MagicTelescope,Neuronal (tuned),6473.0
+296,MLP,MagicTelescope,Neuronal (tuned),3479.0
+297,MLP,MagicTelescope,Neuronal (tuned),3459.0
+298,MLP,MagicTelescope,Neuronal (tuned),6440.0
+299,MLP,MagicTelescope,Margin,3072.0
+300,MLP,MagicTelescope,Margin,2916.0
+301,MLP,MagicTelescope,Margin,2947.0
+302,MLP,MagicTelescope,Margin,6530.0
+303,MLP,MagicTelescope,Margin,3098.0
+304,MLP,MagicTelescope,Margin,6444.0
+305,MLP,MagicTelescope,Margin,2909.0
+306,MLP,MagicTelescope,Margin,3508.0
+307,MLP,MagicTelescope,Margin,2989.0
+308,MLP,MagicTelescope,Margin,4725.0
+309,MLP,MagicTelescope,Margin,3037.0
+310,MLP,MagicTelescope,Margin,3514.0
+311,MLP,MagicTelescope,Margin,4463.0
+312,MLP,MagicTelescope,Margin,3087.0
+313,MLP,MagicTelescope,Margin,3125.0
+314,MLP,MagicTelescope,Margin,3923.0
+315,MLP,MagicTelescope,Margin,3519.0
+316,MLP,MagicTelescope,Margin,3496.0
+317,MLP,MagicTelescope,Margin,2804.0
+318,MLP,MagicTelescope,Margin,3496.0
+319,MLP,MagicTelescope,Margin,3040.0
+320,MLP,MagicTelescope,Margin,3505.0
+321,MLP,MagicTelescope,Margin,3494.0
+322,MLP,MagicTelescope,Margin,4180.0
+323,MLP,MagicTelescope,Margin,6213.0
+324,MLP,MagicTelescope,Cesa,2926.0
+325,MLP,MagicTelescope,Cesa,3397.0
+326,MLP,MagicTelescope,Cesa,3524.0
+327,MLP,MagicTelescope,Cesa,2785.0
+328,MLP,MagicTelescope,Cesa,3519.0
+329,MLP,MagicTelescope,Cesa,3029.0
+330,MLP,MagicTelescope,Cesa,4542.0
+331,MLP,MagicTelescope,Cesa,3495.0
+332,MLP,MagicTelescope,Cesa,3284.0
+333,MLP,MagicTelescope,Cesa,3267.0
+334,MLP,MagicTelescope,Cesa,2898.0
+335,MLP,MagicTelescope,Cesa,3030.0
+336,MLP,MagicTelescope,Cesa,3397.0
+337,MLP,MagicTelescope,Cesa,3449.0
+338,MLP,MagicTelescope,Cesa,6416.0
+339,MLP,MagicTelescope,Cesa,3600.0
+340,MLP,MagicTelescope,Cesa,3051.0
+341,MLP,MagicTelescope,Cesa,3480.0
+342,MLP,MagicTelescope,Cesa,3097.0
+343,MLP,MagicTelescope,Cesa,3087.0
+344,MLP,MagicTelescope,Cesa,2968.0
+345,MLP,MagicTelescope,Cesa,3084.0
+346,MLP,MagicTelescope,Cesa,2928.0
+347,MLP,MagicTelescope,Cesa,3449.0
+348,MLP,MagicTelescope,Cesa,3234.0
+349,MLP,adult,Neural-CBP,2138.0
+350,MLP,adult,Neural-CBP,2189.0
+351,MLP,adult,Neural-CBP,2431.0
+352,MLP,adult,Neural-CBP,2431.0
+353,MLP,adult,Neural-CBP,2174.0
+354,MLP,adult,Neural-CBP,2387.0
+355,MLP,adult,Neural-CBP,2360.0
+356,MLP,adult,Neural-CBP,2131.0
+357,MLP,adult,Neural-CBP,2398.0
+358,MLP,adult,Neural-CBP,2398.0
+359,MLP,adult,Neural-CBP,2903.0
+360,MLP,adult,Neural-CBP,2340.0
+361,MLP,adult,Neural-CBP,2323.0
+362,MLP,adult,Neural-CBP,2169.0
+363,MLP,adult,Neural-CBP,2363.0
+364,MLP,adult,Neural-CBP,2228.0
+365,MLP,adult,Neural-CBP,2566.0
+366,MLP,adult,Neural-CBP,2619.0
+367,MLP,adult,Neural-CBP,2437.0
+368,MLP,adult,Neural-CBP,2112.0
+369,MLP,adult,Neural-CBP,2412.0
+370,MLP,adult,Neural-CBP,2132.0
+371,MLP,adult,Neural-CBP,7602.0
+372,MLP,adult,Neural-CBP,2148.0
+373,MLP,adult,Neural-CBP,2193.0
+374,MLP,adult,IneurAL (official),4261.0
+375,MLP,adult,IneurAL (official),8390.0
+376,MLP,adult,IneurAL (official),9672.0
+377,MLP,adult,IneurAL (official),9819.0
+378,MLP,adult,IneurAL (official),9920.0
+379,MLP,adult,IneurAL (official),9912.0
+380,MLP,adult,IneurAL (official),9942.0
+381,MLP,adult,IneurAL (official),9927.0
+382,MLP,adult,IneurAL (official),9914.0
+383,MLP,adult,IneurAL (official),7584.0
+384,MLP,adult,IneurAL (official),9920.0
+385,MLP,adult,IneurAL (official),9838.0
+386,MLP,adult,IneurAL (official),7556.0
+387,MLP,adult,IneurAL (official),9915.0
+388,MLP,adult,IneurAL (official),5012.0
+389,MLP,adult,IneurAL (official),8813.0
+390,MLP,adult,IneurAL (official),8003.0
+391,MLP,adult,IneurAL (official),9948.0
+392,MLP,adult,IneurAL (official),2422.0
+393,MLP,adult,IneurAL (official),9931.0
+394,MLP,adult,IneurAL (official),6120.0
+395,MLP,adult,IneurAL (official),7557.0
+396,MLP,adult,IneurAL (official),9957.0
+397,MLP,adult,IneurAL (official),8759.0
+398,MLP,adult,IneurAL (official),7648.0
+399,MLP,adult,IneurAL (tuned),2405.0
+400,MLP,adult,IneurAL (tuned),2424.0
+401,MLP,adult,IneurAL (tuned),2403.0
+402,MLP,adult,IneurAL (tuned),2375.0
+403,MLP,adult,IneurAL (tuned),7568.0
+404,MLP,adult,IneurAL (tuned),7567.0
+405,MLP,adult,IneurAL (tuned),2473.0
+406,MLP,adult,IneurAL (tuned),7563.0
+407,MLP,adult,IneurAL (tuned),3169.0
+408,MLP,adult,IneurAL (tuned),3169.0
+409,MLP,adult,IneurAL (tuned),7599.0
+410,MLP,adult,IneurAL (tuned),3443.0
+411,MLP,adult,IneurAL (tuned),2420.0
+412,MLP,adult,IneurAL (tuned),7574.0
+413,MLP,adult,IneurAL (tuned),7570.0
+414,MLP,adult,IneurAL (tuned),7703.0
+415,MLP,adult,IneurAL (tuned),7646.0
+416,MLP,adult,IneurAL (tuned),3072.0
+417,MLP,adult,IneurAL (tuned),7626.0
+418,MLP,adult,IneurAL (tuned),7537.0
+419,MLP,adult,IneurAL (tuned),2370.0
+420,MLP,adult,IneurAL (tuned),3799.0
+421,MLP,adult,IneurAL (tuned),2746.0
+422,MLP,adult,IneurAL (tuned),2407.0
+423,MLP,adult,IneurAL (tuned),2667.0
+424,MLP,adult,Neuronal (official),2379.0
+425,MLP,adult,Neuronal (official),2431.0
+426,MLP,adult,Neuronal (official),2421.0
+427,MLP,adult,Neuronal (official),2431.0
+428,MLP,adult,Neuronal (official),2434.0
+429,MLP,adult,Neuronal (official),2769.0
+430,MLP,adult,Neuronal (official),2781.0
+431,MLP,adult,Neuronal (official),3498.0
+432,MLP,adult,Neuronal (official),3438.0
+433,MLP,adult,Neuronal (official),2353.0
+434,MLP,adult,Neuronal (official),2410.0
+435,MLP,adult,Neuronal (official),3727.0
+436,MLP,adult,Neuronal (official),2335.0
+437,MLP,adult,Neuronal (official),6229.0
+438,MLP,adult,Neuronal (official),4415.0
+439,MLP,adult,Neuronal (official),5745.0
+440,MLP,adult,Neuronal (official),5925.0
+441,MLP,adult,Neuronal (official),6330.0
+442,MLP,adult,Neuronal (official),5788.0
+443,MLP,adult,Neuronal (official),8251.0
+444,MLP,adult,Neuronal (official),8120.0
+445,MLP,adult,Neuronal (official),6431.0
+446,MLP,adult,Neuronal (official),6470.0
+447,MLP,adult,Neuronal (official),7226.0
+448,MLP,adult,Neuronal (official),8181.0
+449,MLP,adult,Neuronal (tuned),2378.0
+450,MLP,adult,Neuronal (tuned),2419.0
+451,MLP,adult,Neuronal (tuned),2394.0
+452,MLP,adult,Neuronal (tuned),2383.0
+453,MLP,adult,Neuronal (tuned),2427.0
+454,MLP,adult,Neuronal (tuned),2384.0
+455,MLP,adult,Neuronal (tuned),2438.0
+456,MLP,adult,Neuronal (tuned),2411.0
+457,MLP,adult,Neuronal (tuned),2471.0
+458,MLP,adult,Neuronal (tuned),2455.0
+459,MLP,adult,Neuronal (tuned),2406.0
+460,MLP,adult,Neuronal (tuned),2375.0
+461,MLP,adult,Neuronal (tuned),2687.0
+462,MLP,adult,Neuronal (tuned),2664.0
+463,MLP,adult,Neuronal (tuned),2634.0
+464,MLP,adult,Neuronal (tuned),2405.0
+465,MLP,adult,Neuronal (tuned),7646.0
+466,MLP,adult,Neuronal (tuned),2448.0
+467,MLP,adult,Neuronal (tuned),2412.0
+468,MLP,adult,Neuronal (tuned),2680.0
+469,MLP,adult,Neuronal (tuned),2408.0
+470,MLP,adult,Neuronal (tuned),2380.0
+471,MLP,adult,Neuronal (tuned),2430.0
+472,MLP,adult,Neuronal (tuned),2770.0
+473,MLP,adult,Neuronal (tuned),2759.0
+474,MLP,adult,Margin,2427.0
+475,MLP,adult,Margin,2422.0
+476,MLP,adult,Margin,2434.0
+477,MLP,adult,Margin,2236.0
+478,MLP,adult,Margin,2362.0
+479,MLP,adult,Margin,2349.0
+480,MLP,adult,Margin,2397.0
+481,MLP,adult,Margin,2400.0
+482,MLP,adult,Margin,2318.0
+483,MLP,adult,Margin,2402.0
+484,MLP,adult,Margin,2402.0
+485,MLP,adult,Margin,2348.0
+486,MLP,adult,Margin,7636.0
+487,MLP,adult,Margin,2413.0
+488,MLP,adult,Margin,2103.0
+489,MLP,adult,Margin,7605.0
+490,MLP,adult,Margin,2042.0
+491,MLP,adult,Margin,2398.0
+492,MLP,adult,Margin,2403.0
+493,MLP,adult,Margin,2411.0
+494,MLP,adult,Margin,2561.0
+495,MLP,adult,Margin,2405.0
+496,MLP,adult,Margin,2398.0
+497,MLP,adult,Margin,2438.0
+498,MLP,adult,Margin,2062.0
+499,MLP,adult,Cesa,2657.0
+500,MLP,adult,Cesa,2535.0
+501,MLP,adult,Cesa,2270.0
+502,MLP,adult,Cesa,2499.0
+503,MLP,adult,Cesa,2439.0
+504,MLP,adult,Cesa,2534.0
+505,MLP,adult,Cesa,2425.0
+506,MLP,adult,Cesa,7591.0
+507,MLP,adult,Cesa,2281.0
+508,MLP,adult,Cesa,2395.0
+509,MLP,adult,Cesa,2493.0
+510,MLP,adult,Cesa,2389.0
+511,MLP,adult,Cesa,2453.0
+512,MLP,adult,Cesa,2617.0
+513,MLP,adult,Cesa,2563.0
+514,MLP,adult,Cesa,2435.0
+515,MLP,adult,Cesa,2382.0
+516,MLP,adult,Cesa,2818.0
+517,MLP,adult,Cesa,2315.0
+518,MLP,adult,Cesa,2405.0
+519,MLP,adult,Cesa,2444.0
+520,MLP,adult,Cesa,2482.0
+521,MLP,adult,Cesa,2352.0
+522,MLP,adult,Cesa,2403.0
+523,MLP,adult,Cesa,2594.0

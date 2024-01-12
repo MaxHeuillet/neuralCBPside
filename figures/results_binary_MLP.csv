@@ -1,0 +1,22 @@
+Dataset,Approach,Mean regret,p-value,win count,Mean Exploration,p-value (exploration)
+MNIST binary,Neural-CBP,1351.92,1.0,18.0,638.32,1.0
+MNIST binary,IneurAL (official),3941.917,0.0,0.0,3895.125,0.0
+MNIST binary,IneurAL (tuned),1726.96,0.014,0.0,1272.28,0.0
+MNIST binary,Neuronal (official),1721.88,0.0,0.0,1547.64,0.0
+MNIST binary,Neuronal (tuned),1721.44,0.088,7.0,906.72,0.0
+MNIST binary,Cesa,4853.44,0.0,0.0,1.28,0.0
+MNIST binary,Margin,3216.72,0.0,0.0,107.56,0.0
+MagicTelescope,Neural-CBP,3151.6,1.0,17.0,492.64,1.0
+MagicTelescope,IneurAL (official),8876.28,0.0,0.0,8379.28,0.0
+MagicTelescope,IneurAL (tuned),5738.2,0.0,0.0,4541.4,0.0
+MagicTelescope,Neuronal (official),4503.36,0.0,0.0,2441.48,0.0
+MagicTelescope,Neuronal (tuned),4356.2,0.0,0.0,1.28,0.0
+MagicTelescope,Cesa,3397.44,0.248,4.0,310.48,0.009
+MagicTelescope,Margin,3761.36,0.029,4.0,44.68,0.0
+adult,Neural-CBP,2543.36,1.0,12.0,73.68,1.0
+adult,IneurAL (official),8429.6,0.0,0.0,7132.76,0.0
+adult,IneurAL (tuned),4691.8,0.0,1.0,291.24,0.068
+adult,Neuronal (official),4580.72,0.0,1.0,3069.16,0.0
+adult,Neuronal (tuned),2690.56,0.624,0.0,163.08,0.15
+adult,Cesa,2670.84,0.67,4.0,279.52,0.0
+adult,Margin,2774.88,0.526,7.0,19.4,0.005
