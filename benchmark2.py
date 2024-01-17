@@ -13,10 +13,10 @@ import ineural_multi
 import neuronal
 import margin_based
 import cesa_bianchi
-import neuralcbp_EE_kclasses_v2
-import neuralcbp_EE_kclasses_v3
-import neuralcbp_EE_kclasses_v4
-import neuralcbp_EE_kclasses_v5
+# import neuralcbp_EE_kclasses_v2
+# import neuralcbp_EE_kclasses_v3
+# import neuralcbp_EE_kclasses_v4
+# import neuralcbp_EE_kclasses_v5
 import neuralcbp_EE_kclasses_v6
 
 # import cbpside
