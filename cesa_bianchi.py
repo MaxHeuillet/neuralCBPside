@@ -66,8 +66,10 @@ class CesaBianchi():
         self.K = 0
 
     def predictor(self,X,y):
-        y_pred = self.func(X)
-        return y_pred
+        y_pred = self.func(X).cpu().detach()
+        y_proba = expit(y_pred)
+        transformed_probas = torch.cat((y_proba, 1 - y_proba), dim=1)
+        return transformed_probas
 
 
     def reset(self, d):
@@ -130,9 +132,9 @@ class CesaBianchi():
                 self.norm_hist = self.X_prime**2
             
 
-        if (t>self.N):
-            if (t<=50) or (t % 50 == 0 and t<1000 and t>50) or (t % 500 == 0 and t>=1000): #
-        
+        # if (t>self.N):
+        #     if (t<=50) or (t % 50 == 0 and t<1000 and t>50) or (t % 500 == 0 and t>=1000): #
+        if action == 0 and (t>self.N):
                 losses = self.step(self.func, self.hist)
 
         return None, None

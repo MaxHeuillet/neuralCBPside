@@ -357,9 +357,10 @@ class CBPside():
         global_loss = []
         global_losses = []
 
-        if (t>self.N):
+        # if (t>self.N):
+        #     if (t<=50) or (t % 50 == 0 and t<1000 and t>50) or (t % 500 == 0 and t>=1000):
 
-            if (t<=50) or (t % 50 == 0 and t<1000 and t>50) or (t % 500 == 0 and t>=1000):
+        if action == 0 and (t>self.N):
                 print('train 1')
                 self.train_NN_batch(self.net1, self.X1_train, self.y1 )
                 print('train 2')

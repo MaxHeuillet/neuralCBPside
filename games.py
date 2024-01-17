@@ -83,9 +83,6 @@ def game_case1( noise ):
     return Game( name, informative_symbols, noise, LossMatrix, FeedbackMatrix, signal_matrices, mathcal_N, v, N_plus, V )
 
 
-
-
-
 def game_case1b( noise ):
 
     name = 'case1b'
