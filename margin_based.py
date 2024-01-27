@@ -71,7 +71,7 @@ class MarginBased():
     def predictor(self,X,y):
         y_pred = self.func(X).cpu().detach()
         y_proba = expit(y_pred)
-        transformed_probas = torch.cat((y_proba, 1 - y_proba), dim=1)
+        transformed_probas = torch.cat((1-y_proba, y_proba), dim=1)
         return transformed_probas
 
     def reset(self, d, ):
