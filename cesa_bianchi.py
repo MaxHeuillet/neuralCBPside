@@ -89,22 +89,27 @@ class CesaBianchi():
         self.norm_hist = 0
 
     def get_action(self, t, X):
+        print(' ')
+
+        X_norm = X.float().to(self.device) / np.linalg.norm( X.detach().cpu() )
 
         prediction = self.func( X.float().to(self.device) ).cpu().detach()
 
-        norm = np.linalg.norm( X.detach().cpu() )
+        norm = np.linalg.norm( X_norm.detach().cpu() )
+        print('norm hist', self.norm_hist, 'current norm', norm)
 
         self.X_prime = max( self.norm_hist, norm  )
 
-        probability = expit(prediction)
+        probability = expit( prediction.item() )
         self.pred_action = 1 if probability < 0.5 else 2
 
-        print('prediction', prediction, self.pred_action)
+        print('prediction', prediction, 'proba', probability, 'prediction', self.pred_action)
 
 
         b = self.beta * np.sqrt(self.K+1) * self.X_prime**2
         
         p = b / ( b + abs( probability ) )
+        print('b', b, 'probability', p)
 
         self.Z = np.random.binomial(1, p)
         self.Z = 1-self.Z
@@ -129,7 +134,7 @@ class CesaBianchi():
             self.hist.append( X , [outcome] )
             if (self.pred_action == 1 and outcome == 0) or (self.pred_action == 2 and outcome ==1):
                 self.K += 1
-                self.norm_hist = self.X_prime**2
+                self.norm_hist = self.X_prime
             
         # if action == 0 and (t>self.N):
         if (t>self.N):
