@@ -1,6 +1,0 @@
-
-Gurobi 10.0.3 (linux64, gurobi_cl) logging started Wed Oct 11 11:11:43 2023
-
-Set parameter TokenServer to value "license1.computecanada.ca"
-Set parameter LogFile to value "gurobi.log"
-Using license file /cvmfs/restricted.computecanada.ca/config/licenses/gurobi/clusters/narval.lic

@@ -112,10 +112,4 @@ class Evaluation:
         result = {'regret': np.cumsum(cumRegret), 'action_history':action_history,
                   'outcome_history':outcome_history, 'pred':pred_performance, 'cm':cm}
         
-        print(result)
-        print('finished')
-        with gzip.open( './results/{}_{}_{}_{}_{}_{}.pkl.gz'.format(self.case, self.model, self.context_type, self.horizon, self.n_folds, self.label) ,'ab') as f:
-            pkl.dump(result,f)
-        print('saved')
-
         return result

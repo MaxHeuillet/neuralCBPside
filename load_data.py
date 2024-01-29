@@ -55,7 +55,6 @@ with open('./data/covertype.pkl', 'wb') as file:
 
 
 
-
 print(' download shuttle')
 
 X, y = fetch_openml('shuttle', version=1, return_X_y=True)
