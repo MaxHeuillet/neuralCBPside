@@ -17,6 +17,8 @@ from sklearn.metrics import f1_score
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import confusion_matrix
 
+import sys
+
 
 class Evaluation:
 
@@ -92,6 +94,7 @@ class Evaluation:
             action_history[t] = action
             outcome_history[t] = outcome
             print('t', t, 'action', action, 'outcome', outcome, 'regret', val  )
+            sys.stdout.flush()
             
             # if n_verifs % 50 == 0 and n_verifs not in pred_performance.keys():
             if n_verifs in [10, 25, 50, 100, 150, 250, 300, 400, 500, 750, 1000, 2500, 5000, 7500, 9000] and n_verifs not in pred_performance.keys():

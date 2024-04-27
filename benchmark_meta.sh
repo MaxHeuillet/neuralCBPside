@@ -40,8 +40,8 @@ case='case1'
 model='MLP'
 
 
-context_types=('adult' 'MagicTelescope' 'MNISTbinary' )
-approaches=( 'ineural3' 'ineural6' 'cesa'  'margin' 'EEneuralcbpside_v6'  'neuronal3' 'neuronal6'  )  
+context_types=('adult' ) # 'MagicTelescope' 'MNISTbinary'
+approaches=( 'neuronal6'  )  #'ineural3' 'ineural6' 'cesa'  'margin' 'EEneuralcbpside_v6'  'neuronal3'
 
 
 for context_type in "${context_types[@]}"; do
