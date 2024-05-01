@@ -80,6 +80,7 @@ class CBPside():
 
         self.num_cls = num_cls
         self.err_counter = 0
+        self.batch = 0
 
     def convert_pred_format(self,pred):
         # print('pred', pred)
@@ -121,6 +122,7 @@ class CBPside():
     def reset(self, d):
 
         self.d = d
+        self.batch == 0
 
         self.query_num = 0
         self.X1_train, self.X2_train, self.y1, self.y2 = [], [], [], []
@@ -364,9 +366,17 @@ class CBPside():
                 self.train_NN_batch(self.net1, self.X1_train, self.y1 )
                 self.train_NN_batch(self.net2, self.X2_train, self.y2 )
 
+        # if action == 0:
+        #     self.batch = self.batch + 1
+
+        # if action == 0 and (t>self.N) and self.batch == 10:
+        #     self.train_NN_batch(self.net1, self.X1_train, self.y1 )
+        #     self.train_NN_batch(self.net2, self.X2_train, self.y2 )
+        #     self.batch == 0
+
         return global_loss, global_losses
 
-    def train_NN_batch(self, model, hist_X, hist_Y, num_epochs=40, lr=0.001, batch_size=64):
+    def train_NN_batch(self, model, hist_X, hist_Y, num_epochs=40, lr=0.0001, batch_size=64):
 
         model.train()
         # print(len(hist_X), len(hist_Y) )

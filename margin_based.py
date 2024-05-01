@@ -65,6 +65,7 @@ class MarginBased():
 
         self.m = m
         self.H = 50
+        self.batch == 0
 
         self.margin = margin
         
@@ -76,6 +77,7 @@ class MarginBased():
 
     def reset(self, d, ):
         self.d = d
+        self.batch == 0
 
         self.func = DeployedNetwork( self.d , self.m).to(self.device)
         self.func0 = copy.deepcopy(self.func)
@@ -118,8 +120,15 @@ class MarginBased():
         global_losses = []
         # if (t>self.N):
         #     if (t<=50) or (t % 50 == 0 and t<1000 and t>50) or (t % 500 == 0 and t>=1000): #
-        if action == 0 and (t>self.N):
+        # if action == 0 and (t>self.N):
+        #     losses = self.step(self.func, self.hist)
+
+        if action == 0:
+            self.batch = self.batch + 1
+
+        if action == 0 and (t>self.N) and self.batch == 10:
             losses = self.step(self.func, self.hist)
+            self.batch == 0
 
         return global_loss, global_losses
                 

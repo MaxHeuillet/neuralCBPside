@@ -64,6 +64,7 @@ class CesaBianchi():
         self.H = 50
 
         self.K = 0
+        self.batch == 0
 
     def predictor(self,X,y):
         y_pred = self.func(X).cpu().detach()
@@ -74,6 +75,7 @@ class CesaBianchi():
 
     def reset(self, d):
         self.d = d
+        self.batch == 0
         
         self.memory_pareto = {}
         self.memory_neighbors = {}
@@ -139,8 +141,15 @@ class CesaBianchi():
         # if (t>self.N):
         #     if (t<=50) or (t % 50 == 0 and t<1000 and t>50) or (t % 500 == 0 and t>=1000): #
             
-        if action == 0 and (t>self.N):
+        # if action == 0 and (t>self.N):
+        #     losses = self.step(self.func, self.hist)
+
+        if action == 0:
+            self.batch = self.batch + 1
+
+        if action == 0 and (t>self.N) and self.batch == 10:
             losses = self.step(self.func, self.hist)
+            self.batch == 0
 
         return None, None
                 

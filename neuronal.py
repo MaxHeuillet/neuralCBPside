@@ -28,6 +28,7 @@ class NeuronAL():
         self.margin = margin #according to their parameter search
         self.N = num_cls+1
         self.context_type = context_type
+        self.batch == 0
 
     def predictor(self,X,y):
         if self.context_type == 'CIFAR10' and self.model == 'LeNet':
@@ -48,6 +49,7 @@ class NeuronAL():
 
         self.query_num = 0
         self.X1_train, self.X2_train, self.y1, self.y2 = [], [], [], []
+        self.batch == 0
 
         
         if self.context_type =='MNISTbinary' and self.model == 'MLP':
@@ -191,9 +193,17 @@ class NeuronAL():
 
         # if (t<=50) or (t % 50 == 0 and t<1000 and t>50) or (t % 500 == 0 and t>=1000): #
         # print('X1_train',self.X1_train)
-        if action == 0 and (t>self.N):
-            self.train_NN_batch(self.net1, self.X1_train, self.y1)
-            self.train_NN_batch(self.net2, self.X2_train, self.y2)
+        # if action == 0 and (t>self.N):
+        #     self.train_NN_batch(self.net1, self.X1_train, self.y1)
+        #     self.train_NN_batch(self.net2, self.X2_train, self.y2)
+
+        if action == 0:
+            self.batch = self.batch + 1
+
+        if action == 0 and (t>self.N) and self.batch == 10:
+            self.train_NN_batch(self.net1, self.X1_train, self.y1 )
+            self.train_NN_batch(self.net2, self.X2_train, self.y2 )
+            self.batch == 0
 
         return None, None
         
