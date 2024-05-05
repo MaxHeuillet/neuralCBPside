@@ -111,29 +111,29 @@ done
 ##### To evaluate with LeNet on MNIST, Fashion-MNIST, CIFAR-10 
 #######################################
 
-# horizon=9999
-# nfolds=$1
+horizon=9999
+nfolds=$1
 
-# case='case2'
-# model='LeNet'
+case='case2'
+model='LeNet'
 
 
-# context_types=('CIFAR10' 'MNIST' 'FASHION') 
-# approaches=('EEneuralcbpside_v6' 'neuronal3' 'neuronal6' )  #'ineural3' 'ineural6'
+context_types=('CIFAR10' 'MNIST' 'FASHION') 
+approaches=('EEneuralcbpside_v6' )  #'ineural3' 'ineural6' 'neuronal3' 'neuronal6'
 
-# for context_type in "${context_types[@]}"; do
+for context_type in "${context_types[@]}"; do
 
-#     for approach in "${approaches[@]}"; do
+    for approach in "${approaches[@]}"; do
 
-#         python3 ./create_storage.py --case $case --horizon $horizon --n_folds $nfolds --model $model --approach $approach --context_type $context_type 
+        python3 ./create_storage.py --case $case --horizon $horizon --n_folds $nfolds --model $model --approach $approach --context_type $context_type 
 
-#         for ((id=0; id<$nfolds; id+=1)); do
-#             echo 'case' $case 'model' $model 'horizon' $horizon 'nfolds' $nfolds 'CONTEXT_TYPE' $context_type 'TASK' $task 'APR' $approach 'ID' $id
-#             sbatch --export=ALL,CASE=$case,MODEL=$model,HORIZON=$horizon,NFOLDS=$nfolds,CONTEXT_TYPE=$context_type,APR=$approach,ID=$id ./benchmark_launch.sh     
-#             done
+        for ((id=0; id<$nfolds; id+=1)); do
+            echo 'case' $case 'model' $model 'horizon' $horizon 'nfolds' $nfolds 'CONTEXT_TYPE' $context_type 'TASK' $task 'APR' $approach 'ID' $id
+            sbatch --export=ALL,CASE=$case,MODEL=$model,HORIZON=$horizon,NFOLDS=$nfolds,CONTEXT_TYPE=$context_type,APR=$approach,ID=$id ./benchmark_launch.sh     
+            done
 
-#     done
-# done
+    done
+done
 
 
 #######################################

@@ -237,6 +237,9 @@ class CBPside():
             for i in range(self.N):
                 self.contexts[i] =  {'V_it_inv': torch.eye(exp_dim)  }
 
+        self.net1_init = self.net1
+        self.net2_init = self.net2
+
     def predictor(self,X,y):
         if self.context_type == 'CIFAR10' and self.model == 'LeNet':
             # X = torch.unsqueeze(X, 1)
@@ -359,13 +362,12 @@ class CBPside():
         global_loss = []
         global_losses = []
 
-        # if (t>self.N):
-        #     if (t<=50) or (t % 50 == 0 and t<1000 and t>50) or (t % 500 == 0 and t>=1000):
-
-        if action == 0 and (t>self.N):
+        if (t>self.N):
+            if (t<=50) or (t % 50 == 0 and t<1000 and t>50) or (t % 500 == 0 and t>=1000):
                 self.train_NN_batch(self.net1, self.X1_train, self.y1 )
                 self.train_NN_batch(self.net2, self.X2_train, self.y2 )
 
+        # if action == 0 and (t>self.N):
         # if action == 0:
         #     self.batch = self.batch + 1
 
