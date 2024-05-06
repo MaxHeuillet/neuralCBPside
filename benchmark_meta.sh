@@ -41,7 +41,7 @@ model='MLP'
 
 
 context_types=('adult' 'MagicTelescope' 'MNISTbinary' ) # 
-approaches=( 'EEneuralcbpside_v6' )  # 'neuronal6'  'ineural3' 'ineural6' 'cesa'  'margin'   'neuronal3'
+approaches=( 'neuronal6' 'neuronal3' )  #   'ineural3' 'ineural6' 'cesa'  'margin'    'EEneuralcbpside_v6'
 
 
 for context_type in "${context_types[@]}"; do
@@ -66,7 +66,7 @@ case='case2'
 model='MLP'
 
 context_types=( 'MNIST' 'FASHION' ) 
-approaches=(  'EEneuralcbpside_v6'  )  #'ineural3' 'ineural6' 'neuronal3' 'neuronal6'
+approaches=(   'neuronal3' 'neuronal6'  )  #'ineural3' 'ineural6' 'EEneuralcbpside_v6'
 
 for context_type in "${context_types[@]}"; do
 
@@ -91,7 +91,7 @@ case='game_case_seven'
 model='MLP'
 
 context_types=('shuttle' 'covertype' )
-approaches=( 'EEneuralcbpside_v6' ) #'ineural3' 'ineural6' 'neuronal3' 'neuronal6'
+approaches=( 'neuronal3' 'neuronal6' ) #'ineural3' 'ineural6'  'EEneuralcbpside_v6'
 
 for context_type in "${context_types[@]}"; do
 
@@ -119,7 +119,7 @@ model='LeNet'
 
 
 context_types=('CIFAR10' 'MNIST' 'FASHION') 
-approaches=('EEneuralcbpside_v6' )  #'ineural3' 'ineural6' 'neuronal3' 'neuronal6'
+approaches=( 'neuronal3' 'neuronal6' )  #'ineural3' 'ineural6'  'EEneuralcbpside_v6'
 
 for context_type in "${context_types[@]}"; do
 

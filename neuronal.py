@@ -208,7 +208,7 @@ class NeuronAL():
         return None, None
         
 
-    def train_NN_batch(self, model, hist_X, hist_Y, num_epochs=40, lr=0.0001, batch_size=64):
+    def train_NN_batch(self, model, hist_X, hist_Y, num_epochs=40, lr=0.001, batch_size=64):
         model.train()
 
         hist_X = torch.cat(hist_X).float()
