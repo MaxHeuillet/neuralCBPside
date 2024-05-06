@@ -28,7 +28,7 @@ class NeuronAL():
         self.margin = margin #according to their parameter search
         self.N = num_cls+1
         self.context_type = context_type
-        self.batch == 0
+        # self.batch == 0
 
     def predictor(self,X,y):
         if self.context_type == 'CIFAR10' and self.model == 'LeNet':
@@ -49,7 +49,7 @@ class NeuronAL():
 
         self.query_num = 0
         self.X1_train, self.X2_train, self.y1, self.y2 = [], [], [], []
-        self.batch == 0
+        # self.batch == 0
 
         
         if self.context_type =='MNISTbinary' and self.model == 'MLP':
