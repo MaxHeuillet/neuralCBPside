@@ -153,6 +153,8 @@ class NeuronAL():
         self.X = X.to(self.device)
 
         self.f1, self.f2, self.dc = EENets.EE_forward(self.net1, self.net2, self.X, self.size)
+        # the division by t , or query number was not found to change the performance 
+        # and does not appear in the official pseudo code
         u = self.f1[0] + self.f2 #1 / (self.query_num+1) *
         # print('u', u)
         u_sort, u_ind = torch.sort(u)
