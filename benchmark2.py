@@ -176,7 +176,10 @@ elif args.approach == 'cesa':
 
 alg.reset(context_generator.d)
 
-
 job = context_generator, alg 
 eval.eval_policy_once( game, job )  
+
+
+
+
         

@@ -112,6 +112,10 @@ class Evaluation:
         y_probas = alg.predictor(X,y)
         y_pred = torch.argmax( y_probas, 1 ).tolist()
         cm = confusion_matrix(y, y_pred)
+
+        
+
+
         result = {'regret': np.cumsum(cumRegret), 'action_history':action_history,
                   'outcome_history':outcome_history, 'pred':pred_performance, 'cm':cm}
         
