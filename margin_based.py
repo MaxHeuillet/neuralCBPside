@@ -68,6 +68,7 @@ class MarginBased():
         # self.batch == 0
 
         self.margin = margin
+
         
     def predictor(self,X,y):
         y_pred = self.func(X).cpu().detach()
@@ -91,7 +92,7 @@ class MarginBased():
     def get_action(self, t, X):
 
         prediction = self.func( X.float().to(self.device) ).cpu().detach()
-        probability = expit(prediction)
+        probability = expit( prediction.item() )
         self.pred_action = 1 if probability < 0.5 else 2
 
         print('prediction', prediction, probability, self.pred_action)
@@ -134,12 +135,12 @@ class MarginBased():
                 
     def step(self, model, data, num_epochs=40, lr=0.001, batch_size=64):
         #""Standard training/evaluation epoch over the dataset"""
-        dataloader = DataLoader(data, batch_size=len(self.hist), shuffle=True) 
+        dataloader = DataLoader(data, batch_size=batch_size, shuffle=True) 
         optimizer = optim.Adam(model.parameters(), lr=lr)
         loss = nn.BCEWithLogitsLoss()
         num = len(self.hist)
 
-        for _ in range(40):
+        for _ in range(num_epochs):
             batch_loss = 0.0
 
             for X, y in dataloader:

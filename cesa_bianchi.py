@@ -156,12 +156,12 @@ class CesaBianchi():
 
     def step(self, model, data, num_epochs=40, lr=0.001, batch_size=64):
         #""Standard training/evaluation epoch over the dataset"""
-        dataloader = DataLoader(data, batch_size=len(self.hist), shuffle=True) 
+        dataloader = DataLoader(data, batch_size=batch_size, shuffle=True) 
         optimizer = optim.Adam(model.parameters(), lr=lr)
         loss = nn.BCEWithLogitsLoss()
         num = len(self.hist)
 
-        for _ in range(40):
+        for _ in range(num_epochs):
             batch_loss = 0.0
 
             for X, y in dataloader:
