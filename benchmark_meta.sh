@@ -41,7 +41,7 @@ model='MLP'
 
 
 context_types=('adult' 'MagicTelescope' 'MNISTbinary' ) # 
-approaches=( 'margin' 'cesa' )  #   'ineural3' 'ineural6' 'EEneuralcbpside_v6' 'neuronal6' 'neuronal3'
+approaches=(  'cesa' )  #  'margin' 'ineural3' 'ineural6' 'EEneuralcbpside_v6' 'neuronal6' 'neuronal3'
 
 
 for context_type in "${context_types[@]}"; do
