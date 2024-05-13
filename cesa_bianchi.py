@@ -141,16 +141,7 @@ class CesaBianchi():
         if (t>self.N):
             if (t<=50) or (t % 50 == 0 and t<1000 and t>50) or (t % 500 == 0 and t>=1000): #
                 losses = self.step(self.func, self.hist)
-            
-        # if action == 0 and (t>self.N):
-            
 
-        # if action == 0:
-        #     self.batch = self.batch + 1
-
-        # if action == 0 and (t>self.N) and self.batch == 10:
-        #     losses = self.step(self.func, self.hist)
-        #     self.batch == 0
 
         return None, None
                 

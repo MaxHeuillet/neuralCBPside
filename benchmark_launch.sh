@@ -1,13 +1,13 @@
 #!/bin/bash
 
-#SBATCH --account=def-adurand
+#SBATCH --account=rrg-adurand
 
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=15
 #SBATCH --gpus-per-node=1
 
 #SBATCH --mem-per-cpu=4000M
-#SBATCH --time=00:30:00
+#SBATCH --time=02:00:00
 
 #SBATCH --mail-user=maxime.heuillet.1@ulaval.ca
 #SBATCH --mail-type=ALL
