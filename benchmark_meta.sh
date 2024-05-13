@@ -87,7 +87,7 @@ nfolds=$1
 ##### To evaluate on the other tasks with MLP
 #######################################
 
-# case='game_case_seven'
+case='game_case_seven'
 model='MLP'
 
 context_types=('shuttle' 'covertype' )
