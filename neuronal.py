@@ -49,8 +49,6 @@ class NeuronAL():
 
         self.query_num = 0
         self.X1_train, self.X2_train, self.y1, self.y2 = [], [], [], []
-        # self.batch == 0
-
         
         if self.context_type =='MNISTbinary' and self.model == 'MLP':
             self.size = 51
