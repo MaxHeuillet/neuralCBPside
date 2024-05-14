@@ -14,7 +14,7 @@ import random
 
 
 import games
-import synthetic_data
+import old_files.synthetic_data as synthetic_data
 import ineural_multi
 import random_algo
 import random_algo2

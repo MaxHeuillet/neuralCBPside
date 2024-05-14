@@ -13,7 +13,7 @@ import torch
 import random
 
 import games
-import synthetic_data
+import old_files.synthetic_data as synthetic_data
 
 
 # import cbpside
@@ -59,22 +59,6 @@ def evaluate_parallel(evaluator, game, nfolds, id):
 
     for alg_id, seed in enumerate(range(id, id+1,1)):
         print(alg_id, seed)
-        
-        # if evaluator.context_type == 'linear':
-        #     size = 5
-        #     w = np.array([1/size]*size)
-        #     contexts = synthetic_data.LinearContexts( w , evaluator.task) 
-        #     context_generators.append( contexts )
-        # elif evaluator.context_type == 'quadratic':
-        #     size = 5
-        #     w = np.array([1/size]*size)
-        #     contexts = synthetic_data.QuadraticContexts( w , evaluator.task )
-        #     context_generators.append( contexts )
-        # elif evaluator.context_type == 'sinusoid':
-        #     size = 5
-        #     w = np.array([1/size]*size)
-        #     contexts = synthetic_data.SinusoidContexts( w , evaluator.task )
-        #     context_generators.append( contexts )
 
         if evaluator.context_type == 'MNISTbinary': 
             contexts = synthetic_data.MNISTcontexts_binary(evaluator.model,)

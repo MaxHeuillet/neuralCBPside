@@ -6,7 +6,7 @@ import os
 import torch
 
 import games
-import synthetic_data
+import old_files.synthetic_data as synthetic_data
 import evaluator
 
 import ineural_multi

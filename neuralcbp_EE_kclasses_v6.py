@@ -406,7 +406,7 @@ class CBPside():
         return batch_loss / num
 
 
-
+########################### buffer D(t) to save compute:
 
     def halfspace_code(self, halfspace):
         string = ''

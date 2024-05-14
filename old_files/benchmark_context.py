@@ -13,7 +13,7 @@ import games
 import cbpside
 # import randcbpside2
 
-import synthetic_data
+import old_files.synthetic_data as synthetic_data
 
 
 import cbpside
