@@ -24,13 +24,13 @@ Follow these steps to set up your environment and run the experiments:
    pip install -r requirements.txt
    ```
 
-3. ** Load datasets**
+3. **Load datasets**
 
 ```bash 
    python ./load_data.py
 ```
 
-4. ** Run code and get started **
+4. **Run code and get started**
 
 The sandbox code is stored in the jupyter notebook ''experiments.ipynb'' for more advanced scripts (e.g. slurm scripts) please check the developpers branch of the project.
 
@@ -39,9 +39,6 @@ The sandbox code is stored in the jupyter notebook ''experiments.ipynb'' for mor
 
 - **Gurobi Alternative**: If you prefer not to use Gurobi, you can use PULP as an alternative optimizer. To do this, install PULP using pip install pulp. We provide code 'geometry_gurobi.py' and 'geometry_pulp.py'.
 
-### Running Experiments
-
-Refer to the 'experiments.ipynb' file. 
 
 ### Acknowledgements
 
