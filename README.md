@@ -21,13 +21,6 @@ The number of seeds is an additional parameter, for example to run the experimen
 ```
 
 
-## Launch experiment on the cluster:
-
-The number of seeds is an additional parameter, for example to run the experiment on 25 seeds:
-
-```bash
-  bash benchmark_meta.sh 25
-```
 
 ## Launch one specific experiment:
 
