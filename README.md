@@ -35,13 +35,36 @@ The number of seeds is an additional parameter, for example to run the experimen
 python3 ./benchmark2.py --case 'case1' --model 'MLP' --horizon 9999 --n_folds 25 --approach 'NeuralCBPside' --context_type 'MNISTbinary' --id 0
 ```
 
-The variable case takes values in: case1 (i.e. binary with uniform costs), case1b (i.e. binary with FP-sensitive costs), case2 (i.e. multiclass with uniform costs).
+- **case**: Variable that takes the following values:
+  - `case1`: Binary with uniform costs
+  - `case1b`: Binary with FP-sensitive costs
+  - `case2`: Multiclass with uniform costs
 
-The variable mode takes values in: MLP, LeNet. The horizon is the number of rounds of the experiments. 
+- **mode**: Variable that takes the following values:
+  - `MLP`: Multi-Layer Perceptron
+  - `LeNet`: LeNet Architecture
 
-The number of folds corresponds to the number of runs. The approach variable takes values in: NeuralCBPside, neuronal6, neuronal3, ineural3, ineural6, margin, cesa. 
+- **horizon**: Refers to the number of rounds in the experiments.
 
-The variable context type takes values in: MNISTbinary, adult, MagicTelescope, MNIST, FASHION, covertype, shuttle. 
+- **number of folds**: Corresponds to the number of runs in the experiments.
 
-The variable id corresponds to the seed number chosen for the experiment.
+- **approach**: Variable that takes the following values:
+  - `NeuralCBPside`
+  - `neuronal6`
+  - `neuronal3`
+  - `ineural3`
+  - `ineural6`
+  - `margin`
+  - `cesa`
+
+- **context type**: Variable that takes the following values:
+  - `MNISTbinary`
+  - `adult`
+  - `MagicTelescope`
+  - `MNIST`
+  - `FASHION`
+  - `covertype`
+  - `shuttle`
+
+- **id**: Corresponds to the seed number chosen for the experiment.
 
