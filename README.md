@@ -1,6 +1,6 @@
 # NeuralUCB
 
-This repository contains our pytorch implementation of NeuralCBP in the paper ''Neural Active Learning meets the Partial Monitoring Framework'' (accepted by UAI 2024). THis branch contains the developpers code with slurm submission scripts.
+This repository contains our pytorch implementation of NeuralCBP in the paper ''Neural Active Learning meets the Partial Monitoring Framework'' (accepted by UAI 2024). This branch contains the developpers code with slurm submission scripts.
 
 ## Prerequisites: 
 ```bash
