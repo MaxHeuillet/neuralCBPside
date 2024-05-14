@@ -125,22 +125,6 @@ elif args.context_type == 'CIFAR10':
 m = 100
 nclasses = game.M
 
-# if args.approach == 'EEneuralcbpside_v2':
-#     alg = neuralcbp_EE_kclasses_v2.CBPside( game, 1.01, m, nclasses,  'cuda:0')
-
-
-# elif args.approach == 'EEneuralcbpside_v3':
-#     alg = neuralcbp_EE_kclasses_v3.CBPside( game, 1.01, m, nclasses,  'cuda:0')
-
-
-# elif args.approach == 'EEneuralcbpside_v4':
-#     alg = neuralcbp_EE_kclasses_v4.CBPside( game, 1.01, m, nclasses,  'cuda:0')
-
-
-# elif args.approach == 'EEneuralcbpside_v5':
-#     alg = neuralcbp_EE_kclasses_v5.CBPside( game, 1.01, m, nclasses,  'cuda:0')
-
-
 if args.approach == 'EEneuralcbpside_v6':
     alg = neuralcbp_EE_kclasses_v6.CBPside( game, args.context_type, eval.model, 1.01, m, nclasses,  'cuda:0')
 

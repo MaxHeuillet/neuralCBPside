@@ -1,0 +1,21 @@
+Dataset,Approach,Mean regret,p-value,win count,Mean Exploration,p-value (exploration)
+MNIST,Neural-CBP,1811.96,1.0,25.0,1305.24,1.0
+MNIST,IneurAL (official),4016.84,0.0,0.0,3870.12,0.0
+MNIST,IneurAL (less exploration),2371.36,0.0,0.0,1818.56,0.0
+MNIST,Neuronal (official),3275.0,0.0,0.0,3224.84,0.0
+MNIST,Neuronal (less exploration),2213.16,0.0,0.0,2030.44,0.0
+Fashion,Neural-CBP,2898.24,1.0,25.0,1523.92,1.0
+Fashion,IneurAL (official),4882.48,0.0,0.0,4382.88,0.0
+Fashion,IneurAL (less exploration),3437.76,0.0,0.0,2210.2,0.0
+Fashion,Neuronal (official),4466.76,0.0,0.0,4193.28,0.0
+Fashion,Neuronal (less exploration),3417.44,0.0,0.0,2777.44,0.0
+covertype,Neural-CBP,5060.24,1.0,12.0,446.96,1.0
+covertype,IneurAL (official),9129.68,0.0,0.0,8235.72,0.0
+covertype,IneurAL (less exploration),7707.72,0.0,0.0,4862.12,0.0
+covertype,Neuronal (official),5970.96,0.0,0.0,4802.48,0.0
+covertype,Neuronal (less exploration),5060.92,0.997,13.0,1330.4,0.001
+shuttle,Neural-CBP,907.56,1.0,14.0,190.08,1.0
+shuttle,IneurAL (official),7989.88,0.0,0.0,7901.0,0.0
+shuttle,IneurAL (less exploration),2810.08,0.0,1.0,2292.48,0.0
+shuttle,Neuronal (official),1547.08,0.004,7.0,183.48,0.902
+shuttle,Neuronal (less exploration),1524.0,0.003,4.0,157.16,0.437

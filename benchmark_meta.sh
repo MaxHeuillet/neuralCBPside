@@ -119,7 +119,7 @@ model='LeNet'
 
 
 context_types=('CIFAR10' 'MNIST' 'FASHION') 
-approaches=(  'ineural3' 'ineural6' 'neuronal6a' 'neuronal3a' 'neuronal3b' 'neuronal6b' )  #  'EEneuralcbpside_v6'
+approaches=(  'neuronal6a' 'neuronal3a' 'neuronal3b' 'neuronal6b' )  #  'EEneuralcbpside_v6'
 
 for context_type in "${context_types[@]}"; do
 

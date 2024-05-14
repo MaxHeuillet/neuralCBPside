@@ -1,0 +1,10 @@
+Dataset,Approach,Mean regret,p-value,win count,Mean Exploration,p-value (exploration)
+MNIST,Neural-CBP,954.458,1.0,17.0,439.75,1.0
+MNIST,Neuronal (official),1342.24,0.0,0.0,1284.16,0.0
+MNIST,Neuronal (less exploration),992.6,0.015,7.0,817.92,0.0
+Fashion,Neural-CBP,2749.72,1.0,20.0,606.52,1.0
+Fashion,Neuronal (official),3576.76,0.0,0.0,3027.96,0.0
+Fashion,Neuronal (less exploration),2818.8,0.072,6.0,1698.16,0.0
+CIFAR10,Neural-CBP,6865.92,1.0,25.0,2515.04,1.0
+CIFAR10,Neuronal (official),8535.76,0.0,0.0,7519.36,0.0
+CIFAR10,Neuronal (less exploration),7478.12,0.0,0.0,5114.48,0.0
