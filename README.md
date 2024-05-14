@@ -1,6 +1,6 @@
 # Neural active learning meets the partial monitoring framework
 
-This repository contains the implementation of algorithms described in the paper "Neural active learning meets the partial monitoring framework".
+This repository contains the implementation of algorithms described in the paper "Neural active learning meets the partial monitoring framework", accepted at UAI 2024. This branch is a public-version with accessible sandbox code. The other branch of the project is the developpers branch.
 
 ### Prerequisites
 
@@ -29,6 +29,11 @@ Follow these steps to set up your environment and run the experiments:
 ```bash 
    python ./load_data.py
 ```
+
+4. ** Run code and get started **
+
+The sandbox code is stored in the jupyter notebook ''experiments.ipynb'' for more advanced scripts (e.g. slurm scripts) please check the developpers branch of the project.
+
 
 #### Installation Troubleshooting:
 
