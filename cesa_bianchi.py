@@ -64,6 +64,7 @@ class CesaBianchi():
         self.H = 50
 
         self.K = 0
+        # self.batch == 0
 
     def predictor(self,X,y):
         y_pred = self.func(X).cpu().detach()
@@ -74,6 +75,7 @@ class CesaBianchi():
 
     def reset(self, d):
         self.d = d
+        # self.batch == 0
         
         self.memory_pareto = {}
         self.memory_neighbors = {}
@@ -89,22 +91,27 @@ class CesaBianchi():
         self.norm_hist = 0
 
     def get_action(self, t, X):
+        print(' ')
+
+        X_norm = X.float().to(self.device) / np.linalg.norm( X.detach().cpu() )
 
         prediction = self.func( X.float().to(self.device) ).cpu().detach()
 
-        norm = np.linalg.norm( X.detach().cpu() )
+        norm = np.linalg.norm( X_norm.detach().cpu() )
+        print('norm hist', self.norm_hist, 'current norm', norm)
 
         self.X_prime = max( self.norm_hist, norm  )
 
-        probability = expit(prediction)
+        probability = expit( prediction.item() )
         self.pred_action = 1 if probability < 0.5 else 2
 
-        print('prediction', prediction, self.pred_action)
+        print('prediction', prediction, 'proba', probability, 'prediction', self.pred_action)
 
 
         b = self.beta * np.sqrt(self.K+1) * self.X_prime**2
         
         p = b / ( b + abs( probability ) )
+        print('b', b, 'probability', p)
 
         self.Z = np.random.binomial(1, p)
         self.Z = 1-self.Z
@@ -129,24 +136,24 @@ class CesaBianchi():
             self.hist.append( X , [outcome] )
             if (self.pred_action == 1 and outcome == 0) or (self.pred_action == 2 and outcome ==1):
                 self.K += 1
-                self.norm_hist = self.X_prime**2
-            
-        # if action == 0 and (t>self.N):
+                self.norm_hist = self.X_prime
+
         if (t>self.N):
             if (t<=50) or (t % 50 == 0 and t<1000 and t>50) or (t % 500 == 0 and t>=1000): #
                 losses = self.step(self.func, self.hist)
+
 
         return None, None
                 
 
     def step(self, model, data, num_epochs=40, lr=0.001, batch_size=64):
         #""Standard training/evaluation epoch over the dataset"""
-        dataloader = DataLoader(data, batch_size=len(self.hist), shuffle=True) 
+        dataloader = DataLoader(data, batch_size=batch_size, shuffle=True) 
         optimizer = optim.Adam(model.parameters(), lr=lr)
         loss = nn.BCEWithLogitsLoss()
         num = len(self.hist)
 
-        for _ in range(40):
+        for _ in range(num_epochs):
             batch_loss = 0.0
 
             for X, y in dataloader:

@@ -24,6 +24,12 @@ Follow these steps to set up your environment and run the experiments:
    pip install -r requirements.txt
    ```
 
+3. ** Load datasets**
+
+```bash 
+   python ./load_data.py
+```
+
 #### Installation Troubleshooting:
 
 - **Gurobi Alternative**: If you prefer not to use Gurobi, you can use PULP as an alternative optimizer. To do this, install PULP using pip install pulp. We provide code 'geometry_gurobi.py' and 'geometry_pulp.py'.

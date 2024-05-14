@@ -15,13 +15,14 @@ import EENets
 class NeuronAL():
 
 
-    def __init__(self, model, context_type, budget, num_cls, margin, unit_loss, m, device):
+    def __init__(self, model, context_type, budget, num_cls, margin, unit_loss, m, device, lr):
         self.name = 'neuronal'
         
         self.device = device
         self.model = model
         self.num_cls = num_cls
         self.m = m
+        self.lr = lr
         self.unit_loss = unit_loss
         self.budget = budget
         self.query_num = 0
@@ -48,7 +49,6 @@ class NeuronAL():
 
         self.query_num = 0
         self.X1_train, self.X2_train, self.y1, self.y2 = [], [], [], []
-
         
         if self.context_type =='MNISTbinary' and self.model == 'MLP':
             self.size = 51
@@ -151,6 +151,8 @@ class NeuronAL():
         self.X = X.to(self.device)
 
         self.f1, self.f2, self.dc = EENets.EE_forward(self.net1, self.net2, self.X, self.size)
+        # the division by t , or query number was not found to change the performance 
+        # and does not appear in the official pseudo code
         u = self.f1[0] + self.f2 #1 / (self.query_num+1) *
         # print('u', u)
         u_sort, u_ind = torch.sort(u)
@@ -188,23 +190,24 @@ class NeuronAL():
             self.y1.append(r_1) 
             self.y2.append((r_1 - self.f1)[0])
             
-        if action == 0 and (t>self.N):
-        # if (t<=50) or (t % 50 == 0 and t<1000 and t>50) or (t % 500 == 0 and t>=1000): #
-            # print('X1_train',self.X1_train)
-            self.train_NN_batch(self.net1, self.X1_train, self.y1)
-            self.train_NN_batch(self.net2, self.X2_train, self.y2)
+
+        if (t>self.N):
+            if (t<=50) or (t % 50 == 0 and t<1000 and t>50) or (t % 500 == 0 and t>=1000): 
+                self.train_NN_batch(self.net1, self.X1_train, self.y1)
+                self.train_NN_batch(self.net2, self.X2_train, self.y2)
+
 
         return None, None
         
 
-    def train_NN_batch(self, model, hist_X, hist_Y, num_epochs=40, lr=0.0001, batch_size=64):
+    def train_NN_batch(self, model, hist_X, hist_Y, num_epochs=40, lr=0.001, batch_size=64):
         model.train()
 
         hist_X = torch.cat(hist_X).float()
         hist_Y = torch.stack(hist_Y).float().detach()
         # print(hist_X.shape, hist_Y.shape)
 
-        optimizer = optim.Adam(model.parameters(), lr=lr)
+        optimizer = optim.Adam(model.parameters(), lr=self.lr)
         dataset = TensorDataset(hist_X, hist_Y)
         dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
         # num = X.size(1)
@@ -232,4 +235,3 @@ class NeuronAL():
                 return batch_loss / num
 
         return batch_loss / num
-        

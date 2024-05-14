@@ -119,7 +119,7 @@ class INeurALmulti():
         
         for k in range(self.num_cls):
             f1_k, f2_k, dc_k = EE_forward(self.net1, self.net2, self.x_list[k])
-            u_k = f1_k + 1 / (t+1) * f2_k
+            u_k = f1_k + f2_k #1 / (t+1) *
             self.f1_list.append(f1_k)
             self.f2_list.append(f2_k)
             self.dc_list.append(dc_k)
@@ -175,11 +175,12 @@ class INeurALmulti():
                 else:
                     self.y1.append(torch.Tensor([1 - reward]))
                     self.y2.append(torch.Tensor([1 - reward - self.f1_list[k] ]))
+                    
+        if (t>self.N):
+            if (t<=50) or (t % 50 == 0 and t<1000 and t>50) or (t % 500 == 0 and t>=1000): 
+                self.train_NN_batch(self.net1, self.X1_train, self.y1 )
+                self.train_NN_batch(self.net2, self.X2_train, self.y2 )
 
-        if action == 0 and (t>self.N):
-        # if (t<=50) or (t % 50 == 0 and t<1000 and t>50) or (t % 500 == 0 and t>=1000): 
-            self.train_NN_batch(self.net1, self.X1_train, self.y1)
-            self.train_NN_batch(self.net2, self.X2_train, self.y2)
 
         return None, None
     
@@ -213,5 +214,3 @@ class INeurALmulti():
                 return batch_loss / num
 
         return batch_loss / num
-
-
